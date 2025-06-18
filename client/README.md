@@ -1,12 +1,51 @@
-# React + Vite
+# 🏡 EaseHome — Client (Frontend)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+EaseHome is a modern home service booking platform. This is the **frontend** of the application built using React.js and Tailwind CSS. It allows users to browse, view, and book various home services with a user-friendly and responsive UI.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 🚀 Tech Stack
 
-## Expanding the ESLint configuration
+- **React.js** – UI library for building user interfaces
+- **Tailwind CSS** – Utility-first CSS framework
+- **React Router DOM** – Client-side routing
+- **React Hook Form** – Form handling and validation (if used)
+- **Vite** – Fast development build tool
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+---
+
+## 📁 Folder Structure
+client/
+│
+├── public/
+│ └── index.html
+│
+├── src/
+│ ├── assets/ # Static files (images, icons)
+│ ├── components/ # Reusable UI components
+│ ├── pages/ # Individual route pages (Home, Services, Booking)
+│ ├── context/ # Global state (e.g., AuthContext)
+│ ├── hooks/ # Custom hooks (if needed)
+│ ├── App.jsx # Root component
+│ └── main.jsx # Entry point
+│
+├── .env # Environment variables
+├── tailwind.config.js # Tailwind configuration
+├── postcss.config.js # PostCSS configuration
+├── package.json # Project metadata and dependencies
+└── README.md # You're here!
+
+🌟 Features
+🔍 Browse and view detailed home services
+
+🛒 Book service appointments
+
+💬 Interactive and clean UI
+
+🎨 Fully responsive design
+
+⚡ Fast performance with Vite
+
+✨ Smooth animations and transitions
+
+
