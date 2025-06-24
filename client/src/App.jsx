@@ -2,7 +2,7 @@ import { useState } from 'react'
 import {BrowserRouter,Routes,Route} from "react-router-dom"
 
 import './App.css'
-import Navbar from './Components/Navbar'
+import Navbar from './Components/Other/Navbar'
 import HeroSlider from "./Components/Hero/HeroSlider"
 import BecomePartner from './Pages/BecomePartner'
 // import HeroSection from './Components/HeroSection'
@@ -12,6 +12,7 @@ function App() {
   return (
    <BrowserRouter>
      <Navbar/>
+    
     
      <Routes>
         <Route path="/" element={<HeroSlider />} />

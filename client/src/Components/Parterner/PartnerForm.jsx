@@ -1,11 +1,11 @@
 import React from 'react'
 import { useForm } from "react-hook-form"
-const PartnerForm = () => {
+const PartnerForm = ({handlePreviData}) => {
 
     const { register, handleSubmit, formState: { errors } } = useForm();
     const formSubmit = (data)=>{
-        
-console.log(data);
+        handlePreviData(data);
+         
     }
     return (
         <form onSubmit={handleSubmit(formSubmit)} className='bg-gray-100  max-w-xl mx-auto p-8 rounded-lg  shadow-sm shadow-gray-800 '>
