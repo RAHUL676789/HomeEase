@@ -9,9 +9,9 @@ const PartnerForm2 = ({ handlePreviData, prevStep }) => {
   const [pin, setPin] = useState(null)
   const [Loader, setLoader] = useState(false);
   const [AddData, setAddData] = useState({
-    Country: "",
-    State: "",
-    District: ""
+    country: "",
+    state: "",
+    district: ""
   })
 
   const handlePin = async () => {
@@ -52,39 +52,26 @@ const PartnerForm2 = ({ handlePreviData, prevStep }) => {
 
 
       </div>
-      {AddData.Country && <div className='flex overflow-scroll no-scrollbar justify-between px-4  gap-4 py-2'>
+      {AddData.country && <div className='flex overflow-scroll no-scrollbar justify-between px-4  gap-4 py-2'>
         <div className="add flex flex-col "><label htmlFor="state" className='text-xs mb-1'>State</label>
-          <input {...register("State",{
+          <input {...register("state",{
             required:"state is required"
-          })} onChange={handlInputChange} name='State' value={AddData?.State} type="text" className='max-w-32 py-3 border-0 outline-0 px-2 bg-white' />
-          {errors.State && <p className='text-red-500 text-xs'>{errors.State.message} </p>}
+          })} onChange={handlInputChange} name='state' value={AddData?.state} type="text" className='max-w-32 py-3 border-0 outline-0 px-2 bg-white' />
+          {errors.state && <p className='text-red-500 text-xs'>{errors.state.message} </p>}
           </div>
-        <div className="add flex flex-col"><label htmlFor="Country" className='text-xs mb-1'>Country</label><input {...register("Country",{
+        <div className="add flex flex-col"><label htmlFor="Country" className='text-xs mb-1'>Country</label><input {...register("country",{
           required:"Country is required"
-        })} name='Country' onChange={handlInputChange} value={AddData?.Country} type="text" className='max-w-32 px-2 bg-white py-3 border-0 outline-0 ' />
-          {errors.Country && <p className='text-red-500 text-xs'>{errors.Country.message} </p>}
+        })} name='country' onChange={handlInputChange} value={AddData?.country} type="text" className='max-w-32 px-2 bg-white py-3 border-0 outline-0 ' />
+          {errors.country && <p className='text-red-500 text-xs'>{errors.country.message} </p>}
         </div>
-        <div className="add flex flex-col"><label htmlFor="Dist" className='text-xs mb-1'>Dist</label><input {...register("District",{
+        <div className="add flex flex-col"><label htmlFor="Dist" className='text-xs mb-1'>Dist</label><input {...register("district",{
           required:"District is required"
-        })} onChange={handlInputChange} name='District' value={AddData?.District} type="text" className='max-w-32 px-2 py-3 bg-white border-0 outline-0' />
-          {errors.District && <p className='text-red-500 text-xs'>{errors.District.message} </p>}
+        })} onChange={handlInputChange} name='district' value={AddData?.district} type="text" className='max-w-32 px-2 py-3 bg-white border-0 outline-0' />
+          {errors.district && <p className='text-red-500 text-xs'>{errors.district.message} </p>}
         </div>
       </div>
       }
-      <div className="inp flex flex-col gap-4">
-        <label htmlFor="cateogary " className='mb-1 text-teal-600 font-medium'>Cateogary</label>
-        <select {...register("cateogary",{
-          required:"cateogary  is required"
-        })} name="cateogary" id="" className='w-full bg-white py-3 px-2'>
-          <option value="">Choose Cateogary</option>
-          <option value="cleaning">Cleaning</option>
-          <option value="Car-Wash">Car-Wash</option>
-          <option value="Plumber">Plumber</option>
-          <option value="Electrician">Electrician</option>
-          <option value="Beautician">Beautician</option>
-        </select>
-          {errors.cateogary && <p className='text-red-500 text-xs'>{errors.cateogary.message} </p>}
-      </div>
+    
 
       <div className='flex gap-4'>
         <button onClick={prevStep} type='button' className=' px-7 py-3 bg-teal-600 text-white my-5 cursor-pointer active:translate-y-0.5 font-bold'>prev</button>

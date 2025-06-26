@@ -9,9 +9,9 @@ export default async function pinApi(pincode) {
         const result = await pinData.json();
         console.log();
         return {
-            Country: result[0].PostOffice[0].Country,
-            District: result[0].PostOffice[0].District,
-            State:result[0].PostOffice[0].State
+            country: result[0].PostOffice[0].Country,
+            district: result[0].PostOffice[0].District,
+            state:result[0].PostOffice[0].State
         };
 
     } catch (error) {

@@ -5,6 +5,7 @@ import PartnerFeatures from "../Components/Parterner/PartnerFeature";
 import PartnerForm from "../Components/Parterner/PartnerForm";
 import PartnerForm2 from "../Components/Parterner/PartnerForm2";
 import Preview from "../Components/Parterner/Preview";
+import axios from "../utils/axios/axiosinstance";
 
 const BecomePartner = () => {
   const TotalStep = 2;
@@ -42,8 +43,17 @@ const BecomePartner = () => {
 
   }
 
-  const handlePreviewSubmit = () =>{
-    console.log("api backedn call")
+  const handlePreviewSubmit = async() =>{
+  try {
+       
+      const  response = await axios.post("/api/partner/sendOtp",preview);
+      console.log(response);
+      return response.data;
+    
+  } catch (error) {
+    console.log(error)
+  }
+
   }
 
   return (
