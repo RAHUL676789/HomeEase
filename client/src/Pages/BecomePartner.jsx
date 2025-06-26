@@ -37,6 +37,15 @@ const BecomePartner = () => {
     }
   }
 
+  const onCancel = ()=>{
+    setstep(0);
+
+  }
+
+  const handlePreviewSubmit = () =>{
+    console.log("api backedn call")
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 px-6 py-10">
       <h1 className="text-4xl font-bold text-center mb-4 text-teal-700">
@@ -51,7 +60,7 @@ const BecomePartner = () => {
          
           {step === 0 && <PartnerForm handlePreviData = {handlePreviData} />}
          { step === 1 && <PartnerForm2 handlePreviData={handlePreviData} prevStep={prevStep}/>}
-         {step === TotalStep && <Preview data={preview}/>}
+         {step === TotalStep && <Preview data={preview} onCancel={onCancel} submit = {handlePreviewSubmit}/>}
          
       </div>
     </div>

@@ -78,10 +78,10 @@ const PartnerForm2 = ({ handlePreviData, prevStep }) => {
         })} name="cateogary" id="" className='w-full bg-white py-3 px-2'>
           <option value="">Choose Cateogary</option>
           <option value="cleaning">Cleaning</option>
-          <option value="cleaning">Car-Wash</option>
-          <option value="cleaning">Plumber</option>
-          <option value="cleaning">Electrician</option>
-          <option value="cleaning">Beautician</option>
+          <option value="Car-Wash">Car-Wash</option>
+          <option value="Plumber">Plumber</option>
+          <option value="Electrician">Electrician</option>
+          <option value="Beautician">Beautician</option>
         </select>
           {errors.cateogary && <p className='text-red-500 text-xs'>{errors.cateogary.message} </p>}
       </div>
