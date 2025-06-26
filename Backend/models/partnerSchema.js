@@ -1,9 +1,11 @@
+
+const mongoose = require("mongoose");
+
 const partnerSchema = new mongoose.Schema({
   fullName: String,
   email: String,
   phone: String,
   password: String,
-  category: String, // or services: [ { ... } ]
   address: {
     city: String,
     state: String,
@@ -12,26 +14,9 @@ const partnerSchema = new mongoose.Schema({
   },
   profilePicture: String,
   govtIdProof: String,
-  certifications: [String],
-  experience: Number,
-  chargePerHour: Number,
-  availableTime: String,
-  availableDays: [String],
-
-  // ✅ NEW: Gallery
-  gallery: [
-    {
-      type: String, // URL of image/video
-      mediaType: {
-        type: String,
-        enum: ['image', 'video'],
-        default: 'image'
-      }
-    }
+  services:[
+    {type:mongoose.Schema.Types.ObjectId,ref:"Service"}
   ],
+  gallery:[{type:mongoose.Schema.Types.ObjectId,ref:"Gallery"}]
 
-  createdAt: {
-    type: Date,
-    default: Date.now
-  }
 });

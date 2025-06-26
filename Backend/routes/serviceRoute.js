@@ -1,7 +1,7 @@
 const express = require("express");
 const { getAll,addNewService,getServiceById,deleteServiceById,updateServiceById } = require("../controllers/serviceController");
 const { asyncWrap } = require("../utils/asyncWrap");
-const { isLoggedIn } = require("../middleware");
+const { isLoggedIn,isOwner } = require("../middleware");
 const Router = express.Router({ mergeParams: true });
 
 

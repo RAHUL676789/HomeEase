@@ -9,3 +9,10 @@ module.exports.isLoggedIn = (req,res,next)=>{
     }
     next();
 }
+
+module.exports.isOwner = (req,res,next) =>{
+    console.log("isowner");
+    next();
+}
+
+

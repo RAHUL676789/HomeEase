@@ -1,13 +1,25 @@
 require("dotenv").config();
 
 const express = require("express");
+const cors = require("cors");
 const app = express();
 const {dbConnection} = require("./config/config.js");
 const serviceRouter = require("./routes/serviceRoute.js");
+const partnerRouter = require("./routes/partnerRoute.js")
 const ExpressError = require("./utils/ExpressError.js");
 const session = require("express-session");
 const MongoStore = require("connect-mongo");
 dbConnection();
+
+app.use(cors({
+  origin:process.env.FRONTENDURL,
+  methods:["get","post","put","patch","delete"],
+  credentials:true
+}))
+
+
+app.use(express.json());
+app.use(express.urlencoded({extended:true}))
 
 const sessionOption = {
   secret: process.env.SESSION_SECRET, // ✅ use correct env variable name
@@ -29,6 +41,7 @@ app.use(session(sessionOption))
 
 
 app.use("/api/services",serviceRouter);
+app.use("/api/partner",partnerRouter)
 
 app.all("*",(req,res,next)=>{
     next(new ExpressError(404,"page not found"));
@@ -36,6 +49,7 @@ app.all("*",(req,res,next)=>{
 
 
 app.use((err,req,res,next)=>{
+  console.log(err);
     const {status = 500, message = "internal server error "} = err;
     res.status(status).json({message:message,success:false});
 });
