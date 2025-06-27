@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import 'remixicon/fonts/remixicon.css';
 
@@ -20,9 +20,33 @@ function Navbar() {
     { name: "Login", path: "/login", icon: <i className="ri-login-circle-line text-green-600"></i> },
   ];
 
+  const navRef = useRef()
+  const [lastScrollY,setLastScrollY] = useState(0);
+  const [shownav, setshownav] = useState(false)
+
+  useEffect(()=>{
+console.log("useEffect")
+ 
+ const handleScrollY = ()=>{
+    if(window.scrollY > lastScrollY && window.scrollY > 50){
+    setshownav(true);
+   }else{
+   
+    setshownav(false)
+    //  setshownav((prev)=>!prev);
+   }
+    setLastScrollY(window.scrollY)
+
+ }
+
+ window.addEventListener("scroll",handleScrollY);
+ return () => window.removeEventListener("scroll",handleScrollY)
+
+  },[lastScrollY])
+
   return (
-    <div className="sticky shadow-sm top-0 z-50 shadow-gray-500 h-16 px-4 py-2 bg-white text-gray-800 max-w-screen flex justify-between items-center">
-      <h2 className="text-2xl font-bold text-teal-800 cursor-pointer mr-5">HomeEase</h2>
+    <div ref={navRef} className={` ${shownav == true ? "-translate-y-full" :"translate-y-0"} sticky w-full shadow-sm top-0 z-50 shadow-gray-500 h-16 px-4 py-2 bg-white text-gray-800  max-w-screen flex justify-between items-center`}>
+      <h2 className="text-2xl font-bold text-teal-800 cursor-pointer transition-all duration-500 mr-5">HomeEase</h2>
 
       {/* Desktop Nav */}
       <div className="options hidden md:flex px-5 flex-grow gap-10 font-medium justify-center">

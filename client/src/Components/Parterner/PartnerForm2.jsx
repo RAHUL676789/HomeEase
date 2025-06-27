@@ -28,7 +28,14 @@ const PartnerForm2 = ({ handlePreviData, prevStep }) => {
 
 
   const handleFormSubmit = (data)=>{
-        handlePreviData(data);
+  const address = {
+    pincode: data.pincode,
+    state: data.state,
+    country: data.country,
+    district: data.district,  
+  };
+
+  handlePreviData({ address });
   }
 
 

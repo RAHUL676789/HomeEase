@@ -13,46 +13,46 @@ const BecomePartner = () => {
   const [preview, setpreview] = useState({});
 
 
-  const handlePreviData = (data)=>{
+  const handlePreviData = (data) => {
     console.log(data);
     console.log(preview);
-          setpreview((prev)=>{
-            return {
-              ...prev,
-              ...data
-            }
-          });
-          nextStep();
-       
+    setpreview((prev) => {
+      return {
+        ...prev,
+        ...data
+      }
+    });
+    nextStep();
+
   }
 
-  const nextStep = ()=>{
-     if(step !== TotalStep){
-        setstep((prev)=>prev + 1);
-     }
-  }
-
-  const prevStep = ()=>{
-    if(step == 1){
-       setstep((prev)=>prev - 1);
+  const nextStep = () => {
+    if (step !== TotalStep) {
+      setstep((prev) => prev + 1);
     }
   }
 
-  const onCancel = ()=>{
+  const prevStep = () => {
+    if (step == 1) {
+      setstep((prev) => prev - 1);
+    }
+  }
+
+  const onCancel = () => {
     setstep(0);
 
   }
 
-  const handlePreviewSubmit = async() =>{
-  try {
-       
-      const  response = await axios.post("/api/partner/sendOtp",preview);
+  const handlePreviewSubmit = async () => {
+    try {
+
+      const response = await axios.post("/api/partner/sendOtp", { email: preview?.email });
       console.log(response);
       return response.data;
-    
-  } catch (error) {
-    console.log(error)
-  }
+
+    } catch (error) {
+      console.log(error)
+    }
 
   }
 
@@ -67,11 +67,11 @@ const BecomePartner = () => {
 
       <PartnerFeatures />
       <div className="mt-12">
-         
-          {step === 0 && <PartnerForm handlePreviData = {handlePreviData} />}
-         { step === 1 && <PartnerForm2 handlePreviData={handlePreviData} prevStep={prevStep}/>}
-         {step === TotalStep && <Preview data={preview} onCancel={onCancel} submit = {handlePreviewSubmit}/>}
-         
+
+        {step === 0 && <PartnerForm handlePreviData={handlePreviData} />}
+        {step === 1 && <PartnerForm2 handlePreviData={handlePreviData} prevStep={prevStep} />}
+        {step === TotalStep && <Preview data={preview} onCancel={onCancel} submit={handlePreviewSubmit} />}
+
       </div>
     </div>
   );
