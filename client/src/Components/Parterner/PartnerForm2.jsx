@@ -15,6 +15,9 @@ const PartnerForm2 = ({ handlePreviData, prevStep }) => {
   })
 
   const handlePin = async () => {
+   if(!pin || AddData.country && AddData.district && AddData.state){
+    return;
+   }
     try {
       setLoader((prev) => !prev)
       const data = await pinApi(pin);
@@ -51,10 +54,12 @@ const PartnerForm2 = ({ handlePreviData, prevStep }) => {
         <label htmlFor="" className='text-emerald-600 font-medium mb-1'>      </label>
         {Loader && <WebLoader />}
         <input {...register("pincode",{
-          required:"pincode is required"
+          required:"pincode is required",
+          minLength:{value:6,message:"pincode must 6 character"},
+          maxLength:{value:6 , message:"pincode maxLength is 6"}
         })} onInput={(e) => setPin(e.target.value)} type="number" placeholder='Enter pincode' className='py-3 px-2 bg-white max-w-32' />
         {errors.pincode && <p className='text-red-500 text-xs'> {errors.pincode.message}</p>}
-        <button onClick={handlePin} type='button' className='border bg-teal-500 text-xs  text-white active:translate-y-0.5 py-0 cursor-pointer font-bold h-8 w-16 text-center'>Search</button>
+        <button disabled={!pin} onClick={handlePin} type='button' className={`border bg-teal-500 text-xs  text-white active:translate-y-0.5 py-0 cursor-pointer font-bold h-8 w-16 text-center disabled:opacity-0`}>Search</button>
 
 
 

@@ -6,11 +6,13 @@ import PartnerForm from "../Components/Parterner/PartnerForm";
 import PartnerForm2 from "../Components/Parterner/PartnerForm2";
 import Preview from "../Components/Parterner/Preview";
 import axios from "../utils/axios/axiosinstance";
+import ToastContainer from "../Components/Other/ToastContainer";
 
 const BecomePartner = () => {
   const TotalStep = 2;
   const [step, setstep] = useState(0);
   const [preview, setpreview] = useState({});
+  const [toast, settoast] = useState(false);
 
 
   const handlePreviData = (data) => {
@@ -45,7 +47,7 @@ const BecomePartner = () => {
 
   const handlePreviewSubmit = async () => {
     try {
-
+     console.log("seding otp")
       const response = await axios.post("/api/partner/sendOtp", { email: preview?.email });
       console.log(response);
       return response.data;
@@ -57,7 +59,8 @@ const BecomePartner = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 px-6 py-10">
+    <div className="relative min-h-screen bg-gray-50 px-6 py-10">
+      {toast == true  && <ToastContainer type={"success"} content={"this toast content !"}/>}
       <h1 className="text-4xl font-bold text-center mb-4 text-teal-700">
         Become a Service Partner
       </h1>

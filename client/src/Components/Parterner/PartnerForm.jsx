@@ -52,7 +52,8 @@ const PartnerForm = ({handlePreviData}) => {
                     Password
                 </label>
                 <input {...register("password",{
-                    required:"password is required"
+                    required:"password is required",
+                    minLength:{value:6 , message:"password should be at least 6 character"}
                 })} type="password" placeholder='Enter Your Full Name' className='bg-white py-3 px-2 border-0 outline-0' />
                 {errors.password && <p className='text-red-500 text-sm'>* {errors.password.message}</p>}
             </div>

@@ -6,11 +6,20 @@ const Modal = ({ verifyOtp, cancelOtp }) => {
   const [otpTime,setTime] = useState(60*5);
 
   const handleChange = (e, idx) => {
+    console.log(e);
+    console.log("helo");
     const value = e.target.value.replace(/[^0-9]/g, '');
-    e.target.value = value.slice(0, 1);
-    if (value && idx < 3) {
-      inputsRef[idx + 1].current.focus();
-    }
+
+    // e.target.value = value.slice(0, 1);
+   setOtp((prev)=>{
+    const update = [...prev];
+    update[idx] = value;
+    return update;
+   })
+
+   if(value && idx < 3){
+    inputsRef[idx + 1].current.focus();
+   }
   };
 
   useEffect(()=>{
@@ -31,8 +40,9 @@ const Modal = ({ verifyOtp, cancelOtp }) => {
   };
 
   const handleVerify = () => {
-    const otp = inputsRef.map(ref => ref.current.value).join('');
-    onVerify(otp); // pass full OTP to parent
+    const otpSend = inputsRef.map(ref => ref.current.value).join('');
+    console.log(otpSend);
+    verifyOtp(otpSend); // pass full OTP to parent
   };
 
   const handlePaste  = (e) =>{
@@ -89,7 +99,7 @@ const Modal = ({ verifyOtp, cancelOtp }) => {
 
         <div className='flex flex-col sm:flex-row justify-center gap-3'>
           <button
-            onClick={()=>verifyOtp()}
+            onClick={handleVerify}
             className='bg-green-600 hover:bg-green-700 text-white py-2 px-5 rounded-lg font-semibold transition-all cursor-pointer'
           >
             ✅ Verify OTP
