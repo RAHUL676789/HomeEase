@@ -1,32 +1,40 @@
-const redis =  require("../redis.js")
+const redis = require("../redis.js");
 
+// 🔐 Store OTP
+const storedOtp = async (email, otp) => {
+  try {
+    console.log("🚀 Storing OTP in Redis", email, otp);
 
-const storedOtp = async(email,otp)=>{
-   try {
-     await redis.set(`otp:${email}`,otp,{
-        EX:300
-    })
-   } catch (error) {
-    console.log("errot strign otp")
-    throw error;
-   }
-}
+    const result = await redis.set(`otp:${email}`, otp, { EX: 300 });
 
-
-const verifyOtp = async(email,enterOtp)=>{
- try {
-     const savedOtp =   await redis.get(`otp:${email}`);
-  if(savedOtp == enterOtp){
-    await redis.del(`otp:${email}`);
-    return true;
+    console.log("✅ Redis result:", result); // "OK" expected
+    return result === "OK";
+  } catch (error) {
+    console.error("❌ Error in storedOtp:", error.message);
+    return false;
   }
-  return false;
- } catch (error) {
-    console.log("errro while verifiing otp");
-    throw error;
-    
- }
-}
+};
+
+// 🔍 Verify OTP
+const verifyOtp = async (email, enterOtp) => {
+  try {
+    console.log("🔍 Verifying OTP");
+
+    const savedOtp = await redis.get(`otp:${email}`);
+    console.log(savedOtp)
+    console.log(typeof savedOtp);
+    console.log(typeof enterOtp);
 
 
-module.exports={verifyOtp,storedOtp}
+    if (savedOtp === enterOtp) {
+      await redis.del(`otp:${email}`); // Delete after success
+      return  true;
+    }
+    return false;
+  } catch (error) {
+    console.error("❌ Error verifying OTP:", error.message);
+    return false;
+  }
+};
+
+module.exports = { storedOtp, verifyOtp };

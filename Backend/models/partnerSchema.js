@@ -7,7 +7,7 @@ const partnerSchema = new mongoose.Schema({
   phone: String,
   password: String,
   address: {
-    city: String,
+    district: String,
     state: String,
     country: String,
     pincode: String
@@ -20,3 +20,7 @@ const partnerSchema = new mongoose.Schema({
   gallery:[{type:mongoose.Schema.Types.ObjectId,ref:"Gallery"}]
 
 });
+
+
+
+module.exports = mongoose.model("Partner",partnerSchema);
