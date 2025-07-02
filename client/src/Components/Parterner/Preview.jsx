@@ -1,13 +1,16 @@
-import React, { useState } from 'react';
+import React, { useReducer, useState } from 'react';
 import Loader from '../Other/Loader';
 import Modal from '../Other/Modal';
 import ToastContainer from '../Other/ToastContainer';
 import axios from '../../utils/axios/axiosinstance.js';
 import { useNavigate } from 'react-router-dom';
+import {useDispatch} from "react-redux"
+import { setPartner } from '../../redux/partnerSlice.js';
 
 const Preview = ({ data, onCancel, submit }) => {
   const [isLoading, setIsLoading] = useState(false);
-  const [isModal, setIsModal] = useState(false);
+  const [showOtpModal, setshowOtpModal] = useState(false);
+   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [isToast, setIsToast] = useState({
     status: false,
@@ -16,14 +19,35 @@ const Preview = ({ data, onCancel, submit }) => {
     trigger: Date.now(),
   });
 
+
+  const handleShowToast = (type, content) => {
+    setIsToast((prev) => {
+      return {
+        status: true,
+        type,
+        content,
+        trigger: Date.now()
+      }
+    })
+  }
+
   // 📩 Trigger OTP Send API
-  const handleSubmit = async () => {
+  const handleSendOtp = async () => {
     try {
       setIsLoading(true);
-      await submit();
-      setIsModal(true);
+      const res = await submit();
+      console.log(res);
+      if (res.success) {
+        setshowOtpModal(true);
+      } else {
+        handleShowToast("error", res?.data?.message || "Something went wrong")
+      }
+
+
     } catch (e) {
       console.error('Submit error:', e);
+
+      handleShowToast("error", e?.message || "Something went wrong")
     } finally {
       setIsLoading(false);
     }
@@ -34,26 +58,17 @@ const Preview = ({ data, onCancel, submit }) => {
     try {
       setIsLoading(true);
       const response = await axios.post('/api/partner/signup', { ...data, otp });
-
-      setIsToast({
-        type: 'success',
-        content: response?.data?.message || 'Signup successful',
-        status: true,
-        trigger: Date.now(),
-      });
-      if(response.data.success){
+      handleShowToast("success",response?.data?.message || "signup successful")
+      console.log(response.data);
+      dispatch(setPartner(response.data.data))
+     
+      if (response.data.success) {
         navigate("/partnerProfile");
-
-      }
-    } catch (error) {
+       }
+    } 
+    catch (error) {
       console.error('OTP Error:', error?.response?.data);
-
-      setIsToast({
-        type: 'error',
-        content: error?.response?.data?.message || 'Something went wrong',
-        status: true,
-        trigger: Date.now(),
-      });
+      handleShowToast("error",error?.response?.data?.message || "Something went wrong")
     } finally {
       setIsLoading(false);
     }
@@ -67,10 +82,10 @@ const Preview = ({ data, onCancel, submit }) => {
   return (
     <div className='max-w-xl mx-auto px-5 py-6 flex flex-col gap-6 shadow-md shadow-gray-500 bg-white rounded'>
       {isLoading && <Loader />}
-      {isModal && <Modal verifyOtp={verifyOtp} cancelOtp={cancelOtp} />}
+      {showOtpModal && <Modal verifyOtp={verifyOtp} cancelOtp={cancelOtp} />}
       {isToast.status && (
         <ToastContainer
-        key={isToast.trigger}
+          key={isToast.trigger}
           type={isToast.type}
           content={isToast.content}
           trigger={isToast.trigger}
@@ -113,7 +128,7 @@ const Preview = ({ data, onCancel, submit }) => {
           Cancel
         </button>
         <button
-          onClick={handleSubmit}
+          onClick={handleSendOtp}
           className='px-6 py-2 text-sm font-semibold bg-green-600 hover:bg-green-700 text-white rounded transition active:translate-y-0.5'
         >
           Send OTP

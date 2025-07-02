@@ -50,10 +50,17 @@ const BecomePartner = () => {
      console.log("seding otp")
       const response = await axios.post("/api/partner/sendOtp", { email: preview?.email });
       console.log(response);
-      return response.data;
+      return {
+        data:response.data,
+        success:true
+      };
 
     } catch (error) {
       console.log(error)
+      return {
+        data:error,
+        success:false
+      };
     }
 
   }

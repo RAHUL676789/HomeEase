@@ -5,8 +5,9 @@ import './App.css'
 import Navbar from './Components/Other/Navbar'
 import HeroSlider from "./Components/Hero/HeroSlider"
 import BecomePartner from './Pages/BecomePartner'
-import PartnerProfile from './Pages/PartnerProfile'
+// import PartnerProfile from './Pages/PartnerProfile'
 import PartnerPublicProfile from './Pages/PublicProfile'
+import PartnerIndex from './Pages/PartnerProfile/PartnerIndex'
 // import HeroSection from './Components/HeroSection'
 
 function App() {
@@ -23,7 +24,7 @@ function App() {
 
       </Route>
 
-        <Route path="/partnerProfile" element={<PartnerProfile/>}>
+        <Route path="/partnerProfile" element={<PartnerIndex/>}>
 
       </Route>
        <Route path="/publicPartnerProfile" element={<PartnerPublicProfile/>}>
