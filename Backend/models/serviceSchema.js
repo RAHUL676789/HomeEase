@@ -36,7 +36,8 @@ const serviceSchema = new Schema({
         type:mongoose.Schema.Types.ObjectId,
         ref:"User",
         required:[true,"serviceProvider is required"]
-    }
+    },
+    gallery:[{type:mongoose.Schema.Types.ObjectId,ref:"Gallery"}]
 },{timestamps:true})
 
 
