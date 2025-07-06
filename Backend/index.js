@@ -6,6 +6,7 @@ const app = express();
 const {dbConnection} = require("./config/config.js");
 const serviceRouter = require("./routes/serviceRoute.js");
 const partnerRouter = require("./routes/partnerRoute.js")
+const authRouter = require("./routes/authRoute.js")
 const ExpressError = require("./utils/ExpressError.js");
 const session = require("express-session");
 const MongoStore = require("connect-mongo");
@@ -40,6 +41,7 @@ app.use(session(sessionOption))
 
 
 
+app.use("/api/auth",authRouter);
 app.use("/api/services",serviceRouter);
 app.use("/api/partner",partnerRouter)
 

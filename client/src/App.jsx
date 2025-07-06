@@ -8,6 +8,7 @@ import BecomePartner from './Pages/BecomePartner'
 // import PartnerProfile from './Pages/PartnerProfile'
 import PartnerPublicProfile from './Pages/PublicProfile'
 import PartnerIndex from './Pages/PartnerProfile/PartnerIndex'
+import Login from './Components/auth/login'
 // import HeroSection from './Components/HeroSection'
 
 function App() {
@@ -28,6 +29,9 @@ function App() {
 
       </Route>
        <Route path="/publicPartnerProfile" element={<PartnerPublicProfile/>}>
+
+      </Route>
+       <Route path="/login" element={<Login/>}>
 
       </Route>
      </Routes>

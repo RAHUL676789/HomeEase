@@ -17,7 +17,8 @@ function Navbar() {
 
   const actionItems = [
     { name: "Become a partner", path: "/partner", icon: <i className="ri-medal-line text-fuchsia-500"></i> },
-    { name: "Login", path: "/login", icon: <i className="ri-login-circle-line text-green-600"></i> },
+    { name: "signup", path: "/signup", icon: <i className="ri-logout-circle-line  text-green-500"></i>},
+    { name: "login", path: "/login", icon: <i className="ri-login-circle-line text-green-600"></i> },
   ];
 
   const navRef = useRef()
@@ -72,9 +73,9 @@ console.log("useEffect")
             to={item.path}
             key={item.name}
             onClick={()=>setIsMobileOpen((prev)=>!prev)}
-            className="font-light text-sm hover:border border-green-500 px-2 py-2 cursor-pointer"
+            className={`font-light text-sm hover:border border-green-500 px-2 py-2 cursor-pointer `}
           >
-            <span>{item.icon}</span> {item.name}
+            <p className={`${item.name === "signup" ?"rotate-90 " :""} ${item.name == "login" ? "rotate-90" :""} inline-block`}>{item.icon}</p> {item.name}
           </Link>
         ))}
       </div>
@@ -112,8 +113,7 @@ console.log("useEffect")
               to={item.path}
               key={item.name}
               onClick={() => setIsMobileOpen(true)}
-              className="font-light w-fit text-sm hover:border border-green-500 px-2 py-2 cursor-pointer active:translate-y-4"
-            >
+              className={`font-light w-fit text-sm hover:border border-green-500 px-2 py-2 cursor-pointer active:translate-y-4 `}            >
               <span>{item.icon}</span> {item.name}
             </Link>
           ))}

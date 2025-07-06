@@ -49,41 +49,6 @@ module.exports.signup = async (req, res, next) => {
 
 
 
-module.exports.login = async(req,res,next)=>{
-  const {email,password} = req.body;
-  if(!email || !password){
-    return res.status(400).json({message:"email and password are required",success:false})
-  }
-
-  let partner = await partnerModel.findOne({email:email}).populate({
-    path:"services",
-    populate:{
-      path:"gallery"
-    }
-  });
-  if(!partner){
-    return res.status(404).json({message:"partner not found",success:false});
-  }
-
-  const isPasswordMatch = await bcrypt.compare(password,partner.password);
-
-  if(!isPasswordMatch){
-    return res.status(400).json({message:"invalid credentials",success:false});
-  }
-
-  const token = jwt.sign({email:partner.email,id:partner._id},process.env.JWTSECRET,{expiresIn:"1d"});
-  res.cookie("token",token,{
-    maxAge:24*60*60*1000,
-    httpOnly:true,
-    secure:true
-  })
-
-
-  partner = partner.toObject();
-  delete partner.password;
-  return res.status(200).json({message:"partner login successfully",success:true,data:partner});
-
-}
 
 
 
