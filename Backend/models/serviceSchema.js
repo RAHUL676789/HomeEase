@@ -4,41 +4,74 @@ const { Schema } = mongoose;
 
 
 const serviceSchema = new Schema({
-    title: {
-        type: String,
-        required: [true, "title is required"],
-        trim:true,
-        minlength:[4,"title minlength is 4"]
-    },
-    description: {
-        type: String,
-        required: [true,"description is required"],
-        trim:true,
-        minlength:[10,"description minlength is 10"]
-    },
-    image: {
-        type: String,
-
-    },
-    price: {
+  title: { type: String, required: true, trim: true, minlength: 4 },
+  description: { type: String, required: true, trim: true, minlength: 10 },
+  price: { type: Number, required: true, min: 0 },
+  category: {
+    type: String,
+    required: true,
+    lowercase: true,
+    enum: ["plumbing", "electrical", "cleaning", "repair", "other"]
+  },
+  serviceProvider: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: true
+  },
+  location: {
+    type: String,
+    required: true,
+    trim: true
+  },
+  availableDays: {
+    type: [String],
+    enum: ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"],
+    default: []
+  },
+  duration: {
+    type: String,
+    default: "1 hour"
+  },
+  discount: {
+    type: Number,
+    default: 0,
+    min: 0,
+    max: 100
+  },
+  isActive: {
+    type: Boolean,
+    default: true
+  },
+  tags: [String],
+  gallery: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Gallery"
+  }],
+  reviews: [
+    {
+      user: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        required: true
+      },
+      rating: {
         type: Number,
-        required: [true,"price is required field"],
-        min: [0,"price should be greather than 0"],
-
-    },
-    category: {
+        required: true,
+        min: 1,
+        max: 5
+      },
+      comment: {
         type: String,
-        required: [true,"cateogary is required"],
-        lowercase:true,
-        enum: ["plumbing", "electrical", "cleaning", "repair", "other"],
-    },
-    serviceProvider : {
-        type:mongoose.Schema.Types.ObjectId,
-        ref:"User",
-        required:[true,"serviceProvider is required"]
-    },
-    gallery:[{type:mongoose.Schema.Types.ObjectId,ref:"Gallery"}]
-},{timestamps:true})
+        trim: true,
+        maxlength: 500
+      },
+      createdAt: {
+        type: Date,
+        default: Date.now
+      }
+    }
+  ]
+}, { timestamps: true });
 
 
 

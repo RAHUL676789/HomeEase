@@ -95,3 +95,25 @@ module.exports.isEmailExist = async (req, res, next) => {
 
 
 
+module.exports.isPhoneExist = async (req, res, next) => {
+  const { phone }= req.body;
+
+
+  if (!phone) {
+    return res.status(400).json({ message: "phone no is required", success: false })
+  }
+
+  const existAny = await Promise.any([
+    adminModel.findOne({ phone }),
+    partnerModel.findOne({ phone }),
+    userModel.findOne({ phone })
+  ]).catch(()=>null)
+
+
+  if(existAny){
+    return res.status(409).json({message:"phone is already exist",success:false})
+  }
+  next();
+
+}
+

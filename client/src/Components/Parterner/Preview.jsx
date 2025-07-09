@@ -67,8 +67,10 @@ const Preview = ({ data, onCancel, submit }) => {
        }
     } 
     catch (error) {
+      console.log(error)
       console.error('OTP Error:', error?.response?.data);
       handleShowToast("error",error?.response?.data?.message || "Something went wrong")
+    
     } finally {
       setIsLoading(false);
     }
