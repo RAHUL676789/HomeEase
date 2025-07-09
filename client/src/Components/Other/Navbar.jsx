@@ -5,7 +5,8 @@ import { useSelector } from "react-redux";
 
 function Navbar() {
   const [isMobileOpen, setIsMobileOpen] = useState(true);
-  const { user, partner } = useSelector((state) => state);
+  const  partner = useSelector((state) => state.partner);
+   const   user = useSelector((state) => state.user);
   const navRef = useRef();
   const [lastScrollY, setLastScrollY] = useState(0);
   const [shownav, setShownav] = useState(false);

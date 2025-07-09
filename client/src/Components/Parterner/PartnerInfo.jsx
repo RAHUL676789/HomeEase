@@ -4,7 +4,7 @@ import pic from "../../assets/pic.jpg"
 
 const PartnerInfo = ({ partner }) => {
   return (
-    <div className=' max-w-2xl mb-14  rounded-lg bg-white  sm:ml-6 shadow-sm shadow-gray-500'>
+    <div className='w-full sm:max-w-2xl mb-14  rounded-lg bg-white  sm:ml-6 shadow-sm shadow-gray-500'>
       <div className='pictures relative max-h-3/4  '>
         <div className="background w-full bg-gray-300 border rounded-t-lg h-48 ">
           <img src={bcg} alt="" className='w-full h-full rounded-t-lg  object-cover' />
@@ -15,9 +15,9 @@ const PartnerInfo = ({ partner }) => {
         <i className="ri-pencil-fill absolute top-3 right-12 text-xl cursor-pointer text-red-700"></i>
 
       </div>
-      <div className='mt-16   px-5 flex w-full relative justify-between'>
+      <div className='mt-16 py-5 sm:flex  sm:flex-row flex-col  px-5   w-full relative justify-between'>
         <i className="ri-pencil-fill absolute cursor-pointer -top-12 right-12"></i>
-        <div>
+        <div className='mb-5'>
           <h1 className='text-2xl font-semibold '>Rahul Lodhi</h1>
           <span className='text-xs'>Madhayapradesh,katni,india</span>
           <p className='text-green-700'><i className="ri-verified-badge-line mr-2"></i>Verified</p>
