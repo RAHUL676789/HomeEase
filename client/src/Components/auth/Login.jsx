@@ -33,11 +33,11 @@ const Login = () => {
             setisLoading(false);
             if(response.data.role == "Partner"){
                 navigate("/partnerProfile")
-                dispatch(setPartner(response.data))
+                dispatch(setPartner(response.data.data))
 
             }else if(response?.data?.role == "User"){
                 navigate("/userProfile")
-                dispatch(setUser(response?.data));
+                dispatch(setUser(response?.data.data));
             }
         } catch (error) {
            
