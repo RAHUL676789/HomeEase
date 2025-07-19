@@ -57,6 +57,8 @@ module.exports.validateLoginPartner = [
 
 
 module.exports.isLoggedIn = (req, res, next) => {
+  console.log(req.session)
+
   if (!req.session || !req.session.user) {
     return res.status(401).json({ message: "Unauthorized user", success: false });
   }

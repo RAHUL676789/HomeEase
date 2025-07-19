@@ -1,5 +1,6 @@
 const serviceModel = require("../models/serviceSchema.js");
 // const User = required("../model/userSchema.js");
+const Partner = require("../models/partnerSchema.js")
 
 
 
@@ -10,18 +11,22 @@ module.exports.getAll = async (req, res, next) => {
 
 
 module.exports.addNewService = async (req, res, next) => {
-     const { title, description, price, image, cateogary } = req.body;
+     const { title, description, price, duration, category,availableDays,tags,location } = req.body;
+     console.log(req.body)
      const newService = new serviceModel({
           title,
           description,
           price,
-          cateogary,
-          image,
-          serviceProvider: req.session.user
+          category,
+          duration,
+          serviceProvider: req.session.user,
+          availableDays,
+          tags,
+          location
      });
 
      const savedService = await newService.save();
-     await User.findByIdAndUpdate(req.session.user, {
+     await Partner.findByIdAndUpdate(req.session.user, {
           $push: { services: savedService._id },
      });
      return res.status(200).json({ message: "service created successfully", success: true, data: savedService });

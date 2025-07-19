@@ -14,7 +14,7 @@ dbConnection();
 
 app.use(cors({
   origin:process.env.FRONTENDURL,
-  methods:["get","post","put","patch","delete"],
+  methods:["GET","POST","PUT","PATCH","DELETE"],
   credentials:true
 }))
 

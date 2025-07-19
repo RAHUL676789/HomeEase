@@ -50,6 +50,7 @@ module.exports.login = async (req, res, next) => {
     // ✅ Remove password before sending
     user = user.toObject();
     delete user.password;
+    req.session.user = user;
 
     // 🔐 Generate JWT token
     const token = jwt.sign(

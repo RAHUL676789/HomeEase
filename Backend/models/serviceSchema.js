@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const Gallery = require("../models/gallerSchema.js")
 
 const { Schema } = mongoose;
 
@@ -15,7 +16,7 @@ const serviceSchema = new Schema({
   },
   serviceProvider: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
+    ref: "Partner",
     required: true
   },
   location: {
@@ -25,7 +26,7 @@ const serviceSchema = new Schema({
   },
   availableDays: {
     type: [String],
-    enum: ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"],
+    enum: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
     default: []
   },
   duration: {
