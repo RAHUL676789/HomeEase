@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect,useState } from 'react'
 import {useSelector} from "react-redux"
 import {useNavigate} from "react-router-dom"
 import PartnerInfo from '../../Components/Parterner/PartnerInfo'
@@ -8,8 +8,13 @@ import PartnerServiceModal from '../../Components/Parterner/PartnerServiceModal'
 const PartnerProfile = () => {
   const partner = useSelector((state)=>state.partner.partner)
   const navigate = useNavigate();
+  const [serviceModal, setserviceModal] = useState(false)
 
-  console.log(partner)
+  console.log(partner?.services)
+
+  const handleServiceModal = ()=>{
+    setserviceModal((prev)=>!prev)
+  }
 
  useEffect(()=>{
    if(!partner){
@@ -23,16 +28,16 @@ const PartnerProfile = () => {
        <div className='flex w-full justify-between'>
          <h1 className='text-2xl font-bold 
         '>Service offered</h1>
-        <div className='h-4 w-4 p-4 rounded-full border inline-flex justify-center items-center flex-col'>+</div>
+        <button title='add Services' onClick={handleServiceModal} className='h-4 w-4 p-4 rounded-full border cursor-pointer inline-flex justify-center items-center flex-col'><i className="ri-add-line"></i></button>
        </div>
          {
-          partner?.serivces?.length >= 0 ? partner?.serivces?.map((item,i)=>{
-             <PartnerServiceCard serivces = {item}/>
-          })
+          partner?.services?.length > 0 ? partner?.services?.map((item,i)=>(
+             <PartnerServiceCard service = {item}/>
+          ))
          :<h2 className='text-sm text-gray-400 mt-4'>No Service Added</h2>}
         
       </div>
-      <PartnerServiceModal/>
+     {serviceModal &&  <PartnerServiceModal modal = {handleServiceModal} /> }
       
     </div>
   )

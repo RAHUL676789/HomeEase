@@ -1,8 +1,9 @@
 import React from 'react';
 import PartnerGalleryCard from './PartnerGalleryCard';
-import PartnerReview from './PartnerReview';
+// import PartnerReview from './PartnerReview';
 
 const PartnerServiceCard = ({ service }) => {
+  // console.log(service)
   if (!service) return null;
 
   const {
@@ -19,6 +20,8 @@ const PartnerServiceCard = ({ service }) => {
     gallery = [],
     reviews = []
   } = service;
+
+  // console.log(service);
 
   return (
     <div className="rounded-lg mt-6 px-6 py-6 shadow-md shadow-gray-300 bg-white space-y-6 border border-gray-200">
@@ -75,7 +78,12 @@ const PartnerServiceCard = ({ service }) => {
 
       {/* Gallery Section */}
       <div className="pt-2">
-        <h2 className="font-semibold text-lg text-gray-800 mb-2">Gallery</h2>
+        <div className='flex justify-between items-center'> 
+          <h2 className="font-semibold text-lg text-gray-800 mb-2">Gallery</h2>
+          <button title='add Gallery' className='border cursor-pointer px-2 rounded-full py-1'><i className="ri-add-line"></i></button>
+            
+        </div>
+        
         {gallery.length > 0 ? (
           <PartnerGalleryCard images={gallery} />
         ) : (

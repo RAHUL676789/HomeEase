@@ -2,6 +2,8 @@ import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import bcg from "../../assets/bcg.png";
 import pic from "../../assets/pic.jpg";
+import PartnerCoverPhoto from './PartnerCoverPhoto';
+import AddCoverPhoto from './AddCoverPhoto';
 
 const PartnerInfo = ({ partner }) => {
   const navigate = useNavigate();
@@ -28,6 +30,8 @@ const PartnerInfo = ({ partner }) => {
 
   return (
     <div className='w-full sm:max-w-2xl mb-14 rounded-lg bg-white sm:ml-6 shadow-md border border-gray-200 overflow-hidden'>
+      {/* <PartnerCoverPhoto/> */}
+      <AddCoverPhoto/>
 
       {/* 🧠 Separate HEADER SECTION for bg + profile */}
       <div className="relative">
@@ -38,9 +42,11 @@ const PartnerInfo = ({ partner }) => {
           ) : (
             <div className="w-full h-full bg-gradient-to-r from-blue-400 via-indigo-500 to-purple-500 flex items-center justify-center">
               <p className="text-white text-xl font-semibold">Welcome to the Profile</p>
+         
+
             </div>
           )}
-          <i className="ri-pencil-fill absolute top-3 right-4 text-white text-xl bg-black/30 rounded-full p-1 cursor-pointer hover:text-red-400 transition"></i>
+    
         </div>
 
         {/* Profile Image */}
