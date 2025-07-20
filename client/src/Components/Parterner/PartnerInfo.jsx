@@ -1,12 +1,34 @@
-import React, { useEffect } from 'react';
+import React, { useEffect ,useState} from 'react';
 import { useNavigate } from 'react-router-dom';
 import bcg from "../../assets/bcg.png";
 import pic from "../../assets/pic.jpg";
 import PartnerCoverPhoto from './PartnerCoverPhoto';
 import AddCoverPhoto from './AddCoverPhoto';
+import ToastContainer from '../Other/ToastContainer';
+import EditPartnerImage from './EditPartnerImage';
 
 const PartnerInfo = ({ partner }) => {
   const navigate = useNavigate();
+  const [showAddCoverPhoto, setshowAddCoverPhoto] = useState(false);
+  const [showEditImage, setshowEditImage] = useState(false)
+   const [Toast, setToast] = useState({
+          type:"",
+          content:"",
+          trigger:Date.now(),
+          status:false
+      })
+  
+  
+      const handleSetToast =(type,content)=>{
+                  const newTost = {
+                      type,
+                      content,
+                      status:true,
+                      trigger:Date.now()
+                  }
+  
+                  setToast(newTost);
+      }
 
   useEffect(() => {
     if (!partner) {
@@ -26,27 +48,37 @@ const PartnerInfo = ({ partner }) => {
     email = "example@domain.com",
   } = partner || {};
 
+
+  const handleAddCoverPhoto = ()=>{
+    setshowAddCoverPhoto(false)
+  }
+  const handleNextEditCoverPhoto = ()=>{
+    setshowAddCoverPhoto(false);
+    setshowEditImage(true);
+  }
   const { state = "State", district = "District", country = "Country" } = address;
 
   return (
     <div className='w-full sm:max-w-2xl mb-14 rounded-lg bg-white sm:ml-6 shadow-md border border-gray-200 overflow-hidden'>
       {/* <PartnerCoverPhoto/> */}
-      <AddCoverPhoto/>
+     {Toast.status && <ToastContainer trigger={Toast.trigger} key={Toast.trigger} type={Toast.type} content={Toast.content}/>}
+     {showAddCoverPhoto && <AddCoverPhoto handleNextEditCoverPhoto={handleNextEditCoverPhoto} handleSetToast={handleSetToast} handleAddCoverPhoto ={handleAddCoverPhoto}/>}
+     {showEditImage && <EditPartnerImage/>}
 
       {/* 🧠 Separate HEADER SECTION for bg + profile */}
       <div className="relative">
         {/* Background Image or Fallback */}
-        <div className="w-full h-48 overflow-hidden">
+        <div className="w-full relative h-48 overflow-hidden">
           {backGroundImage ? (
-            <img src={backGroundImage} alt="Background" className='w-full h-full object-cover' />
+            <img src={backGroundImage.url} alt="Background" className='w-full h-full object-cover' />
           ) : (
-            <div className="w-full h-full bg-gradient-to-r from-blue-400 via-indigo-500 to-purple-500 flex items-center justify-center">
+            <div className="w-full relative h-full bg-gradient-to-r from-yellow-100-400  to-gray-500 flex items-center justify-center">
               <p className="text-white text-xl font-semibold">Welcome to the Profile</p>
          
 
             </div>
           )}
-    
+     <i onClick={()=>setshowAddCoverPhoto(true)} className="ri-camera-line text-white absolute right-4 top-4 text-2xl cursor-pointer"></i>
         </div>
 
         {/* Profile Image */}

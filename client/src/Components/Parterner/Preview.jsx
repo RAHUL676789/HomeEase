@@ -125,13 +125,13 @@ const Preview = ({ data, onCancel, submit }) => {
       <div className='flex gap-4 justify-end pt-4'>
         <button
           onClick={onCancel}
-          className='px-6 py-2 text-sm font-semibold bg-red-600 hover:bg-red-700 text-white rounded transition active:translate-y-0.5'
+          className='px-6 py-2 text-sm font-semibold bg-red-600 hover:bg-red-700 text-white  rounded-3xl transition active:translate-y-0.5'
         >
           Cancel
         </button>
         <button
           onClick={handleSendOtp}
-          className='px-6 py-2 text-sm font-semibold bg-green-600 hover:bg-green-700 text-white rounded transition active:translate-y-0.5'
+          className='px-6 py-2 text-sm font-semibold bg-green-600 hover:bg-green-700 text-white rounded-3xl transition active:translate-y-0.5'
         >
           Send OTP
         </button>

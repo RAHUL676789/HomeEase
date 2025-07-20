@@ -118,8 +118,8 @@ const PartnerForm2 = ({ handlePreviData, prevStep }) => {
 
 
       <div className='flex gap-4'>
-        <button onClick={prevStep} type='button' className=' px-7 py-3 bg-teal-600 text-white my-5 cursor-pointer active:translate-y-0.5 font-bold'>prev</button>
-        <button type='submit' className=' px-7 py-3 bg-teal-600 text-white my-5 cursor-pointer active:translate-y-0.5 font-bold'>Next</button>
+        <button onClick={prevStep} type='button' className=' px-7 py-2 rounded-3xl bg-teal-600 text-white my-5 cursor-pointer active:translate-y-0.5 font-bold'>prev</button>
+        <button type='submit' className=' px-7 py-2 rounded-3xl bg-teal-600 text-white my-5 cursor-pointer active:translate-y-0.5 font-bold'>Next</button>
 
       </div>
 

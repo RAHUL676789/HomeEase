@@ -12,12 +12,27 @@ const partnerSchema = new mongoose.Schema({
     country: String,
     pincode: String
   },
-  profilePicture: {type:String,default:""},
+  profilePicture: {
+    url:{
+      type:String
+      
+    },
+    pid:{
+      type:String
+    }
+  },
   govtIdProof: {type:String , default:""},
   services: [{ type: mongoose.Schema.Types.ObjectId, ref: "Service" }],
   verified: { type: Boolean, default: false },
   documents:[String],
-  backGroundImage :{type:String,default:""}
+  backGroundImage :{
+    url:{
+      type:String
+    },
+    pid:{
+      type:String,
+    }
+  }
 }, { timestamps: true });
 
 
