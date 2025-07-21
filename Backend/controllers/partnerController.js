@@ -9,18 +9,18 @@ const { storedOtp, verifyOtp } = require("../Helper/otpSerivce.js");
 
 
 module.exports.signup = async (req, res, next) => {
-  const { fullName, email, phone, password, address,otp } = req.body;
+  const { fullName, email, phone, password, address, otp } = req.body;
   console.log(req.body)
   // return ;
-  const otpVerify = await verifyOtp(email,otp);
-  if(!otpVerify){
-    return res.status(400).json({message:"otp verification failed",success : false});
+  const otpVerify = await verifyOtp(email, otp);
+  if (!otpVerify) {
+    return res.status(400).json({ message: "otp verification failed", success: false });
   }
 
-  const existingUser = await partnerModel.findOne({email:email});
+  const existingUser = await partnerModel.findOne({ email: email });
   console.log(existingUser);
-  if(existingUser){
-    return res.status(400).json({message:"user email is already exist",success:false});
+  if (existingUser) {
+    return res.status(400).json({ message: "user email is already exist", success: false });
   }
   const salt = await bcrypt.genSalt(10);
   const hashPassword = await bcrypt.hash(password, salt);
@@ -75,43 +75,43 @@ module.exports.otpSend = async (req, res, next) => {
 
 
 
-module.exports.getPartneDtail =async (req,res,next)=>{
-  const {id} = req.params;
-  if(!id){
-    return res.status(400).json({message:"id is required",success:false});
+module.exports.getPartneDtail = async (req, res, next) => {
+  const { id } = req.params;
+  if (!id) {
+    return res.status(400).json({ message: "id is required", success: false });
   }
 
   const partner = await partnerModel.findById(id).populate({
-    path:"services",
-    pupulate:{
-      path:"gallery"
+    path: "services",
+    pupulate: {
+      path: "gallery"
     }
   });
 
-  if(!partner){
-    return res.status(404).json({message:"partner not found",success:false});
+  if (!partner) {
+    return res.status(404).json({ message: "partner not found", success: false });
   }
 
-  return res.status(200).json({message:"fetched successfully",success:true,data:partner})
+  return res.status(200).json({ message: "fetched successfully", success: true, data: partner })
 }
 
 
-module.exports.updatePartner = async(req,res,next)=>{
-       const {id} = req.params;
-  if(!id){
-    return res.status(400).json({message:"id is required",success:false})
+module.exports.updatePartner = async (req, res, next) => {
+  const { id } = req.params;
+  if (!id) {
+    return res.status(400).json({ message: "id is required", success: false })
   }
-  let updatedPartner = await partnerModel.findByIdAndUpdate(id,req.body,{new:true,runValidators:true}).populate({
-    path:"services",
-    populate:{
-      path:"gallery"
+  let updatedPartner = await partnerModel.findByIdAndUpdate(id, req.body, { new: true, runValidators: true }).populate({
+    path: "services",
+    populate: {
+      path: "gallery"
     }
   });
-  if(!updatedPartner){
-   return res.status(404).json({message:"user not found",success:false});
+  if (!updatedPartner) {
+    return res.status(404).json({ message: "user not found", success: false });
   }
 
   updatedPartner = updatedPartner.toObject();
   delete updatedPartner.password;
-  res.status(200).json({message:"success",success:true,data:updatedPartner});
+  res.status(200).json({ message: "success", success: true, data: updatedPartner });
 }
