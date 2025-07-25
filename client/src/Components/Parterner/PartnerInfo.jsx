@@ -1,4 +1,4 @@
-import React, { useEffect ,useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import bcg from "../../assets/bcg.png";
 import pic from "../../assets/pic.jpg";
@@ -6,36 +6,57 @@ import PartnerCoverPhoto from './PartnerCoverPhoto';
 import AddCoverPhoto from './AddCoverPhoto';
 import ToastContainer from '../Other/ToastContainer';
 import EditPartnerImage from './EditPartnerImage';
+import { useEditableImage } from '../../Hooks/useEditableImage';
+import {setCover,
+  resetCove,
+  updateField,
+  updateFilter,
+  adjustFilterField} from '../../redux/coverSlice.js'
+import { useDispatch } from 'react-redux';
 
 const PartnerInfo = ({ partner }) => {
   const navigate = useNavigate();
   const [showAddCoverPhoto, setshowAddCoverPhoto] = useState(false);
   const [showEditImage, setshowEditImage] = useState(false)
-   const [Toast, setToast] = useState({
-          type:"",
-          content:"",
-          trigger:Date.now(),
-          status:false
-      })
-  
-  
-      const handleSetToast =(type,content)=>{
-                  const newTost = {
-                      type,
-                      content,
-                      status:true,
-                      trigger:Date.now()
-                  }
-  
-                  setToast(newTost);
-      }
+  const [ShowcoverPhotoOptions, setShowcoverPhotoOptions] = useState(false)
+  const dispatch = useDispatch();
 
-  useEffect(() => {
-    if (!partner) {
-      navigate("/login");
+  const initiaImageState = {
+  url: "",
+  pid: "",
+  zoom:100,
+  rotate:0,
+  filter: {
+    filterType: "",
+    brightness: 0,
+    contrast: 0,
+    saturation: 0,
+    hue: 0,
+    grayscale: 0,
+    sepia: 0,
+  }
+
+
+}
+ 
+  const [Toast, setToast] = useState({
+    type: "",
+    content: "",
+    trigger: Date.now(),
+    status: false
+  })
+
+
+  const handleSetToast = (type, content) => {
+    const newTost = {
+      type,
+      content,
+      status: true,
+      trigger: Date.now()
     }
-  }, [partner, navigate]);
 
+    setToast(newTost);
+  }
   const {
     fullName = "Your Name",
     backGroundImage,
@@ -47,23 +68,36 @@ const PartnerInfo = ({ partner }) => {
     phone = "Not Available",
     email = "example@domain.com",
   } = partner || {};
+  
+  
+  useEffect(() => {
+    if (!partner) {
+      navigate("/login");
+    } else  if(backGroundImage){
+        dispatch(setCover(backGroundImage ))
+    }
+    
+  }, [partner, navigate]);
 
+ 
+  
 
-  const handleAddCoverPhoto = ()=>{
+  const handleAddCoverPhoto = () => {
     setshowAddCoverPhoto(false)
   }
-  const handleNextEditCoverPhoto = ()=>{
+  const handleNextEditCoverPhoto = () => {
     setshowAddCoverPhoto(false);
-    setshowEditImage(true);
+    setshowEditImage((prev) => !prev);
+    reset(backGroundImage)
   }
   const { state = "State", district = "District", country = "Country" } = address;
 
   return (
     <div className='w-full sm:max-w-2xl mb-14 rounded-lg bg-white sm:ml-6 shadow-md border border-gray-200 overflow-hidden'>
       {/* <PartnerCoverPhoto/> */}
-     {Toast.status && <ToastContainer trigger={Toast.trigger} key={Toast.trigger} type={Toast.type} content={Toast.content}/>}
-     {showAddCoverPhoto && <AddCoverPhoto handleNextEditCoverPhoto={handleNextEditCoverPhoto} handleSetToast={handleSetToast} handleAddCoverPhoto ={handleAddCoverPhoto}/>}
-     {showEditImage && <EditPartnerImage/>}
+      {Toast.status && <ToastContainer trigger={Toast.trigger} key={Toast.trigger} type={Toast.type} content={Toast.content} />}
+      {showAddCoverPhoto && <AddCoverPhoto backImage={backImage} updateField={updateField} handleNextEditCoverPhoto={handleNextEditCoverPhoto} handleSetToast={handleSetToast} handleAddCoverPhoto={handleAddCoverPhoto} />}
+      {showEditImage && <EditPartnerImage backImage={backImage} reset={reset} updateField={updateField} adjustFilterField={adjustFilterField} updateFilter={updateFilter} setshowEditImage={setshowEditImage} />}
 
       {/* 🧠 Separate HEADER SECTION for bg + profile */}
       <div className="relative">
@@ -74,11 +108,17 @@ const PartnerInfo = ({ partner }) => {
           ) : (
             <div className="w-full relative h-full bg-gradient-to-r from-yellow-100-400  to-gray-500 flex items-center justify-center">
               <p className="text-white text-xl font-semibold">Welcome to the Profile</p>
-         
+
 
             </div>
           )}
-     <i onClick={()=>setshowAddCoverPhoto(true)} className="ri-camera-line text-white absolute right-4 top-4 text-2xl cursor-pointer"></i>
+          <i onClick={() => backGroundImage?.url === "" ? setShowcoverPhotoOptions((prev) => !prev) : setshowAddCoverPhoto(true)} className="ri-camera-line text-white absolute right-4 top-4 text-2xl cursor-pointer"></i>
+
+          {ShowcoverPhotoOptions && <div className='absolute right-12 flex bg-white text-black shadow rounded px-3 py-2 flex-col top-5'>
+            <button className='hover:bg-gray-200 px-3 py-1 rounded cursor-pointer'>Add cover photo</button>
+            <button className='hover:bg-gray-200 px-3 py-1 cursor-pointer rounded'>edit cover photo</button>
+          </div>}
+
         </div>
 
         {/* Profile Image */}

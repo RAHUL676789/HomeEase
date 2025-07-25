@@ -11,9 +11,10 @@ import { useSelector,useDispatch } from "react-redux"
 import { setPartner } from '../../redux/partnerSlice.js';
 import Loader from '../Other/Loader.jsx';
 import { uploadFile } from '../../utils/cloudinary/uploadFile.js';
+import { useEditableImage } from '../../Hooks/useEditableImage.js';
 
 
-const AddCoverPhoto = ({ handleAddCoverPhoto,handleSetToast,handleNextEditCoverPhoto }) => {
+const AddCoverPhoto = ({ handleAddCoverPhoto,handleSetToast,handleNextEditCoverPhoto ,backImage,updateField}) => {
     const ImageCovers = [cover1, cover2, cover3, cover4, cover5, cover6, cover7];
     const [checkboxBg, setcheckboxBg] = useState("");
     const [loadedImages, setLoadedImages] = useState(Array(ImageCovers.length).fill(false));
@@ -41,6 +42,7 @@ const AddCoverPhoto = ({ handleAddCoverPhoto,handleSetToast,handleNextEditCoverP
     };
 
     const partner = useSelector((state) => state.partner)
+//    const {backImage,updateField} = useEditableImage();
 
 
     // const handleNextEditCoverPhoto = ()=>{
@@ -84,6 +86,17 @@ const AddCoverPhoto = ({ handleAddCoverPhoto,handleSetToast,handleNextEditCoverP
             setisLoading(false);
         }
     }
+
+  const handlePicClick = (item) => {
+  if (checkboxBg === item) {
+    setcheckboxBg("");
+    updateField("url", "");
+  } else {
+    setcheckboxBg(item);
+    updateField("url", item);
+  }
+};
+
     return (
         <div className='h-screen w-screen fixed top-0 left-0 bg-black/10 z-50'>
             {isLoading && <Loader/>}
@@ -115,7 +128,7 @@ const AddCoverPhoto = ({ handleAddCoverPhoto,handleSetToast,handleNextEditCoverP
                                             checked={item}
                                             onChange={() => setcoverPhoto(item)}
                                         />
-                                        <div onClick={() => setcheckboxBg(item)} className={`h-6.5 w-6.5 border rounded-full flex ${checkboxBg === item ? "bg-rose-600" : ""} justify-center items-center`}>
+                                        <div onClick={() =>handlePicClick(item)} className={`h-6.5 w-6.5 border rounded-full flex ${checkboxBg === item ? "bg-rose-600" : ""} justify-center items-center`}>
                                             {checkboxBg === item &&
                                                 <span className='h-3.5 w-3.5 bg-white border rounded-full'></span>
                                             }
@@ -138,9 +151,9 @@ const AddCoverPhoto = ({ handleAddCoverPhoto,handleSetToast,handleNextEditCoverP
                     </div>
                 </div>
 
-                <div className='ml-auto flex justify-end'>
-                    <button onClick={()=>handleNextEditCoverPhoto()}  className='border bg-blue-600 px-7 py-1.5 rounded-3xl font-semibold text-white'>Next</button>
-                </div>
+               { backImage?.url &&  <div className='ml-auto flex justify-end'>
+                    <button onClick={()=>handleNextEditCoverPhoto()}  className='border bg-blue-600 px-7 py-1.5 rounded-3xl font-semibold text-white cursor-pointer'>Next</button>
+                </div> }
             </div>
         </div>
     );

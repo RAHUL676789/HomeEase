@@ -1,25 +1,12 @@
 import { useState } from "react"
-const initialState = {
-  url: "",
-  pid: "",
-  zoom:100,
-  rotate:0,
-  filter: {
-    filterType: "",
-    brightness: 0,
-    contrast: 0,
-    saturation: 0,
-    hue: 0,
-    grayscale: 0,
-    sepia: 0,
-  }
 
 
-}
+
 
 
 export const useEditableImage = (defaultState = initialState) => {
   const [backImage, setimage] = useState(defaultState)
+  console.log("file run")
 
   const updateField = (field, value) => {
     console.log(field, value)

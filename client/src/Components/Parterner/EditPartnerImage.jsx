@@ -2,7 +2,9 @@ import React, { useEffect, useRef, useState } from 'react'
 import cover1 from "../../assets/cover1.jpg"
 import { useEditableImage } from '../../Hooks/useEditableImage'
 
-const EditPartnerImage = ({ image, picType }) => {
+const EditPartnerImage = ({ setshowEditImage,backImage,updateField,updateFilter,adjustFilterField,reset }) => {
+    // console.log(picType)
+    console.log(backImage)
 
     const [editOptions, seteditOptions] = useState({
         crop: true,
@@ -10,7 +12,7 @@ const EditPartnerImage = ({ image, picType }) => {
         adjust: false
     })
 
-    const { backImage, setimage, updateFilter, reset, updateField, adjustFilterField } = useEditableImage();
+  
     console.log("backImage",backImage)
     const [adjustOptions, setadjustOptions] = useState({
         brightness: backImage?.filter?.brightness || 0,
@@ -165,8 +167,8 @@ const EditPartnerImage = ({ image, picType }) => {
             <div className='md:w-[75%] rounded-lg pb-6 mx-auto bg-white shadow-md shadow-gray-500  h-screen overflow-y-scroll '>
 
                 <div className='flex justify-between border-b sticky top-0 left-0 border-b-gray-300 py-2 px-5 bg-white z-50'>
-                    <h2 className='text-2xl font-semibold'>{picType || "Edit-image"}</h2>
-                    <i className='ri-close-line text-3xl cursor-pointer'></i>
+                    <h2 className='text-2xl font-semibold'> Edit-image</h2>
+                    <i onClick={()=>setshowEditImage()} className='ri-close-line text-3xl cursor-pointer'></i>
                 </div>
 
                 <div className='relative w-full overflow-hidden h-[90%] bg-black'>
@@ -184,7 +186,7 @@ const EditPartnerImage = ({ image, picType }) => {
                             transform: `rotate(${backImage?.rotate}deg) scale(${backImage?.zoom / 100})`
                         }}
 
-                        src={cover1} alt='cover' className='w-full h-full object-cover ' />
+                        src={backImage?.url} alt='cover' className='w-full h-full object-cover ' />
 
                     {/* Overlay Structure */}
                     <div className='absolute inset-0'>
