@@ -10,24 +10,25 @@ const EditPartnerImage = ({ image, picType }) => {
         adjust: false
     })
 
-    const { backImage, setimage, updateFilter, reset, updateField,adjustFilterField } = useEditableImage();
+    const { backImage, setimage, updateFilter, reset, updateField, adjustFilterField } = useEditableImage();
+    console.log("backImage",backImage)
     const [adjustOptions, setadjustOptions] = useState({
-        Brightness: backImage?.filter?.brightness || 0,
-        Contrast: backImage?.filter?.contrast || 0,
-        Saturation: backImage?.filter?.saturation || 0,
-        Grayscale: backImage?.filter?.grayscale || 0
+        brightness: backImage?.filter?.brightness || 0,
+        contrast: backImage?.filter?.contrast || 0,
+        saturation: backImage?.filter?.saturation || 0,
+        grayscale: backImage?.filter?.grayscale || 0
 
     })
 
     const [currentAdjust, setcurrentAdjust] = useState("Brightness")
-    const [adjustInpValue, setadjustInpValue] = useState(null);
+    const [adjustInpValue, setadjustInpValue] = useState(0);
     const adjustinpRef = useRef(null)
 
-    const [zoomLeft, setzoomLeft] = useState(0)
+
     const sliderRef = useRef(null);
-    const [straighLeft, setstraighLeft] = useState(0)
+   
     const starightRef = useRef(null)
-    const [adjuThumb, setadjuThumb] = useState(0)
+
 
 
 
@@ -40,63 +41,35 @@ const EditPartnerImage = ({ image, picType }) => {
     }, [])
 
 
-    useEffect(() => {
-        const slider = sliderRef.current;
-        if (slider) {
-            const min = Number(slider.min);
-            const max = Number(slider.max);
-            const percent = (backImage.zoom - min) / (max - min);
-            const sliderWidth = slider.offsetWidth;
-            const thumbOffset = percent * sliderWidth;
 
-            setzoomLeft(thumbOffset + 26);
+    const calculateTHumbValue = (ref,value)=>{
+        if(ref.current){
+            const min = Number(ref.current.min);
+            const max = Number(ref.current.max);
+            const percent = (value -  min) / (max - min);
+            return (percent * ref.current.offsetWidth) + 26;
         }
-    }, [backImage.zoom])
+    }
+
+   
+
+   
+
+   
 
     useEffect(() => {
-        const straight = starightRef.current;
-        if (straight) {
-            const min = Number(straight.min);
-            const max = Number(straight.max);
-            const percent = (backImage.rotate - min) / (max - min);
-            const straightWidth = straight.offsetWidth;
-            const thumbOffset = percent * straightWidth;
-            setstraighLeft(thumbOffset + 26)
-        }
+        const value = backImage?.filter?.[currentAdjust.toLowerCase()] || 0;
+        setadjustInpValue(value);
+    }, [currentAdjust]);
 
 
-    }, [backImage.rotate])
-
-    useEffect(()=>{
-  const adjustInp = adjustinpRef.current;
-  if(adjustInp){
-    const min = Number( adjustInp.min);
-    const max = Number (adjustInp.max);
-    const percent = (adjustInp.value - min) / (max - min);
-    const inpwidth = adjustInp.offsetWidth;
-    const thumbOffset = percent * inpwidth;
-    setadjuThumb(thumbOffset + 55);
-
-  }
-    },[adjustInpValue])
 
 
-    // const hanldAdjuInpChange = (e)=>{
-    //     if(adjustInpValue){
-    //         setadjustOptions((prev)=>{
-    //             return {
-    //                 ...prev,
-    //                 [currentAdjust]:e.target.value
-    //             }
-
-    //         })
-    //     }
-    // }
 
 
 
     const handleEditOpetions = (key, value) => {
-        console.log(key, value)
+        // console.log(key, value)
 
 
         seteditOptions((prev) => {
@@ -206,9 +179,9 @@ const EditPartnerImage = ({ image, picType }) => {
                             contrast(${100 + backImage?.filter?.contrast}%) 
                             saturate(${100 + backImage?.filter?.saturation}%)
                              hue-rotate(${backImage?.filter?.hue}deg)
-                             grayscale(${backImage?.filter?.grayscale * 100}%)
+                             grayscale(${backImage?.filter?.grayscale}%)
                              sepia(${backImage?.filter?.sepia * 100}%)`,
-                            transform: `rotate(${backImage.rotate}deg) scale(${backImage.zoom / 100})`
+                            transform: `rotate(${backImage?.rotate}deg) scale(${backImage?.zoom / 100})`
                         }}
 
                         src={cover1} alt='cover' className='w-full h-full object-cover ' />
@@ -261,11 +234,11 @@ const EditPartnerImage = ({ image, picType }) => {
                                             className="absolute text-xs px-2 py-1 bg-white rounded shadow"
                                             style={{
                                                 top: "0px",
-                                                left: `${zoomLeft}px`,
+                                                left: `${calculateTHumbValue(sliderRef,sliderRef?.current?.value)}px`,
                                                 transition: "left 0.2s ease"
                                             }}
                                         >
-                                            {backImage.zoom / 100}x
+                                            {(backImage.zoom / 100) || 0}x
                                         </p>
                                         <div className=' w-full  flex gap-2 '>
 
@@ -274,7 +247,7 @@ const EditPartnerImage = ({ image, picType }) => {
                                                 updateField("zoom", Number(e.target.value))
                                             } type="range" className='flex-1' min={100} max={200} value={backImage.zoom} />
 
-                                            <i class="ri-add-line text-3xl">
+                                            <i className="ri-add-line text-3xl">
 
                                             </i>
                                         </div>
@@ -282,17 +255,17 @@ const EditPartnerImage = ({ image, picType }) => {
 
 
                                     <div className={`flex w-[50%] flex-col justify-center items-center relative`}>
-                                        <h2>Starighten</h2>
+                                        <h2>Straighten</h2>
 
                                         <p
                                             className="absolute text-xs px-2 py-1 bg-white rounded shadow"
                                             style={{
                                                 top: "0px",
-                                                left: `${straighLeft}px`,
+                                                left: `${calculateTHumbValue(starightRef,starightRef?.current?.value)}px`,
                                                 transition: "left 0.2s ease"
                                             }}
                                         >
-                                            {backImage.rotate}&deg;
+                                            {(backImage.rotate) || 0 }&deg;
                                         </p>
                                         <div className=' flex w-full gap-2'>
                                             <i className="ri-subtract-line text-3xl"></i>
@@ -301,7 +274,7 @@ const EditPartnerImage = ({ image, picType }) => {
                                                 onChange={(e) => updateField("rotate", Number(e.target.value))}
                                                 value={backImage.rotate}
                                                 type="range" className='flex-1' min={-180} max={180} step={5} />
-                                            <i class="ri-add-line text-3xl"></i>
+                                            <i className="ri-add-line text-3xl"></i>
                                         </div>
                                     </div>
                                 </div>
@@ -309,7 +282,7 @@ const EditPartnerImage = ({ image, picType }) => {
                                 : editOptions.filter ? <div className='max-h-48 flex gap-2 mb-3 py-5'>
                                     {
                                         filters.map((item, i) => (
-                                            <div onClick={() => updateFilter(item)}>
+                                            <div key={i} onClick={() => updateFilter(item)}>
                                                 <img src={cover1} alt="" style={{
                                                     filter: `
                                                          brightness(${100 + item.brightness}%)
@@ -329,24 +302,25 @@ const EditPartnerImage = ({ image, picType }) => {
 
                                 </div> : editOptions.adjust ? <div className='border-b border-b-gray-200 mb-2 py-2 px-5 relative'>
                                     <p
-                                    style={{left : `${adjuThumb}px`, top:'5px'}} className='absolute px-2 py-1 bg-white shadow rounded-sm text-sm font-light '>{(adjustinpRef?.current?.value / adjustinpRef?.current?.min ) || 0} </p>
+                                        style={{ left: `${calculateTHumbValue(adjustinpRef,adjustinpRef?.current?.value)}px`, top: '5px' }} className='absolute px-2 py-1 bg-white shadow rounded-sm text-sm font-light '>{(adjustinpRef?.current?.value / adjustinpRef?.current?.max) || 0} </p>
 
-                                    <h3 className='font-medium'>{currentAdjust}</h3>
+                                    <h3  className='font-medium z-50 '>{currentAdjust.charAt(0).toUpperCase() + currentAdjust.slice(1)}</h3>
                                     <div className='w-full flex justify-center items-center gap-4'>
-                                        <i class="ri-subtract-line text-3xl"></i>
+                                        <i className="ri-subtract-line text-3xl"></i>
 
-                                        <input ref={adjustinpRef} 
-                                        onChange={(e)=>{
-                                            const value = e.target.value;
-                                            setadjustInpValue(value)
-                                            adjustFilterField(currentAdjust.toLowerCase(),Number(value))}}
-                                         value={adjustInpValue} min={100} max={200} step={5} type="range" className='w-full' />
-                                        <i class="ri-add-line text-3xl"></i>
+                                        <input ref={adjustinpRef}
+                                            onChange={(e) => {
+                                                const value = e.target.value;
+                                                setadjustInpValue(value)
+                                                adjustFilterField(currentAdjust.toLowerCase(), Number(value))
+                                            }}
+                                            value={adjustInpValue} min={0} max={100} step={5} type="range" className='w-full' />
+                                        <i className="ri-add-line text-3xl"></i>
                                     </div>
 
                                     <div className='  flex gap-5 py-4 '>
                                         {Object.entries(adjustOptions).map(([key, value]) => (
-                                            <button onClick={() => setcurrentAdjust(key)} className='border text-blue-500 font-semibold rounded-3xl px-3 py-1' key={key}>{key}</button>
+                                            <button  onClick={() => setcurrentAdjust(key)} className='border text-blue-500 font-semibold rounded-3xl px-3 py-1' key={key}>{key.charAt(0).toUpperCase() + key.slice(1)}</button>
 
 
                                         ))
@@ -362,7 +336,10 @@ const EditPartnerImage = ({ image, picType }) => {
 
 
                     <div className='flex justify-between '>
-                        <button className='self-start px-5 py-1 hover:bg-gray-300 transition-all duration-400 rounded'>Delete Photo</button>
+                      <div className='flex  gap-3'>
+                          <button className='self-start px-5 py-1 hover:bg-gray-300 transition-all duration-400 rounded-3xl'>Delete Photo</button>
+                         <button onClick={()=>reset()} className='self-start px-5 py-1 hover:bg-gray-300 transition-all duration-400 rounded-3xl'> Reset</button>
+                      </div>
                         <div className='flex gap-5'>
                             <button className='px-7 bg-blue-500 text-white font-semibold active:translate-y-0.5 py-1 rounded-3xl border'>Apply</button>
                             <button className='px-7 py-1 border rounded-3xl'>Change Photo</button>

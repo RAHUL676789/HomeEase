@@ -2,6 +2,8 @@ import { useState } from "react"
 const initialState = {
   url: "",
   pid: "",
+  zoom:100,
+  rotate:0,
   filter: {
     filterType: "",
     brightness: 0,
@@ -22,6 +24,7 @@ export const useEditableImage = (defaultState = initialState) => {
   const updateField = (field, value) => {
     console.log(field, value)
     setimage((prev) => {
+      console.log(prev)
       return {
         ...prev,
         [field]: value
@@ -33,7 +36,7 @@ export const useEditableImage = (defaultState = initialState) => {
 
   const updateFilter = (obj) => {
      setimage((prev)=>{
-      console.log(prev)
+      // console.log(prev)
     return{
       ...prev,
       filter:obj
@@ -46,7 +49,7 @@ export const useEditableImage = (defaultState = initialState) => {
     console.log(field,value)
 
     setimage((prev)=>{
-      console.log(prev)
+      // console.log(prev)
       return {
         ...prev,
         filter:{...prev.filter,[field]:value}
