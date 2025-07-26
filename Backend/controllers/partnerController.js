@@ -43,6 +43,7 @@ module.exports.signup = async (req, res, next) => {
 
   savedUser = savedUser.toObject();
   delete savedUser.password;
+  req.session.user = savedUser;
   return res.status(200).json({ message: "register successfully", success: true, data: savedUser })
 
 }
@@ -98,6 +99,7 @@ module.exports.getPartneDtail = async (req, res, next) => {
 
 module.exports.updatePartner = async (req, res, next) => {
   const { id } = req.params;
+  console.log(req.body)
   if (!id) {
     return res.status(400).json({ message: "id is required", success: false })
   }

@@ -8,6 +8,7 @@ const serviceRouter = require("./routes/serviceRoute.js");
 const partnerRouter = require("./routes/partnerRoute.js")
 const authRouter = require("./routes/authRoute.js")
 const ExpressError = require("./utils/ExpressError.js");
+const cookieParser = require("cookie-parser")
 const session = require("express-session");
 const MongoStore = require("connect-mongo");
 dbConnection();
@@ -17,6 +18,7 @@ app.use(cors({
   methods:["GET","POST","PUT","PATCH","DELETE"],
   credentials:true
 }))
+app.use(cookieParser());
 
 
 app.use(express.json());

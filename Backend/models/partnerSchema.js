@@ -5,7 +5,7 @@ const mongoose = require("mongoose");
 const imageSchema = new mongoose.Schema(
   {
     url: { type: String, required: true },
-    pid: { type: String, required: true },
+    pid: { type: String },
     edited: { type: Boolean, default: false },
 
     rotate: { type: Number, default: 0 },
@@ -39,7 +39,17 @@ const partnerSchema = new mongoose.Schema({
     country: String,
     pincode: String
   },
-  profilePicture: imageSchema,       // use of imageSchema
+  profilePicture: {
+    url:{
+      type:String,
+      default:""
+
+    },
+    pid:{
+      type:String,
+      default:""
+    }
+  },       // use of imageSchema
   backGroundImage: imageSchema,      // reuse of imageSchema
   govtIdProof: { type: String, default: "" },
   services: [{ type: mongoose.Schema.Types.ObjectId, ref: "Service" }],
