@@ -1,8 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react'
 import cover1 from "../../assets/cover1.jpg"
 import { useEditableImage } from '../../Hooks/useEditableImage'
+import { useDispatch } from 'react-redux'
+import Loader from '../Other/Loader'
 
-const EditPartnerImage = ({ setshowEditImage,backImage,updateField,updateFilter,adjustFilterField,reset }) => {
+const EditPartnerImage = ({ setshowEditImage,backImage,updateField,updateFilter,adjustFilterField,resetCover ,handleApply}) => {
     // console.log(picType)
     console.log(backImage)
 
@@ -12,6 +14,7 @@ const EditPartnerImage = ({ setshowEditImage,backImage,updateField,updateFilter,
         adjust: false
     })
 
+    const dispatch = useDispatch();
   
     console.log("backImage",backImage)
     const [adjustOptions, setadjustOptions] = useState({
@@ -163,6 +166,7 @@ const EditPartnerImage = ({ setshowEditImage,backImage,updateField,updateFilter,
     const divClass = "flex cursor-pointer justify-center items-center gap-1 py-2 "
     return (
         <div className='w-screen h-screen bg-black/20 fixed top-0 left-0 z-50'>
+        
 
             <div className='md:w-[75%] rounded-lg pb-6 mx-auto bg-white shadow-md shadow-gray-500  h-screen overflow-y-scroll '>
 
@@ -246,7 +250,7 @@ const EditPartnerImage = ({ setshowEditImage,backImage,updateField,updateFilter,
 
                                             <i className="ri-subtract-line text-3xl "></i>
                                             <input ref={sliderRef} onChange={(e) =>
-                                                updateField("zoom", Number(e.target.value))
+                                               dispatch( updateField({field:"zoom", value:Number(e.target.value)}))
                                             } type="range" className='flex-1' min={100} max={200} value={backImage.zoom} />
 
                                             <i className="ri-add-line text-3xl">
@@ -273,7 +277,7 @@ const EditPartnerImage = ({ setshowEditImage,backImage,updateField,updateFilter,
                                             <i className="ri-subtract-line text-3xl"></i>
                                             <input
                                                 ref={starightRef}
-                                                onChange={(e) => updateField("rotate", Number(e.target.value))}
+                                                onChange={(e) => dispatch(updateField({field:"rotate",value: Number(e.target.value)}))}
                                                 value={backImage.rotate}
                                                 type="range" className='flex-1' min={-180} max={180} step={5} />
                                             <i className="ri-add-line text-3xl"></i>
@@ -284,8 +288,8 @@ const EditPartnerImage = ({ setshowEditImage,backImage,updateField,updateFilter,
                                 : editOptions.filter ? <div className='max-h-48 flex gap-2 mb-3 py-5'>
                                     {
                                         filters.map((item, i) => (
-                                            <div key={i} onClick={() => updateFilter(item)}>
-                                                <img src={cover1} alt="" style={{
+                                            <div key={i} onClick={() =>dispatch(updateFilter(item))}>
+                                                <img src={backImage?.url} alt="" style={{
                                                     filter: `
                                                          brightness(${100 + item.brightness}%)
                                                          contrast(${100 + item.contrast}%)
@@ -314,7 +318,7 @@ const EditPartnerImage = ({ setshowEditImage,backImage,updateField,updateFilter,
                                             onChange={(e) => {
                                                 const value = e.target.value;
                                                 setadjustInpValue(value)
-                                                adjustFilterField(currentAdjust.toLowerCase(), Number(value))
+                                               dispatch( adjustFilterField({field:currentAdjust.toLowerCase(),value: Number(value)}))
                                             }}
                                             value={adjustInpValue} min={0} max={100} step={5} type="range" className='w-full' />
                                         <i className="ri-add-line text-3xl"></i>
@@ -340,10 +344,10 @@ const EditPartnerImage = ({ setshowEditImage,backImage,updateField,updateFilter,
                     <div className='flex justify-between '>
                       <div className='flex  gap-3'>
                           <button className='self-start px-5 py-1 hover:bg-gray-300 transition-all duration-400 rounded-3xl'>Delete Photo</button>
-                         <button onClick={()=>reset()} className='self-start px-5 py-1 hover:bg-gray-300 transition-all duration-400 rounded-3xl'> Reset</button>
+                         <button onClick={()=>dispatch(resetCover())} className='self-start px-5 py-1 hover:bg-gray-300 transition-all duration-400 rounded-3xl'> Reset</button>
                       </div>
                         <div className='flex gap-5'>
-                            <button className='px-7 bg-blue-500 text-white font-semibold active:translate-y-0.5 py-1 rounded-3xl border'>Apply</button>
+                            <button onClick={()=>handleApply()} className='px-7 bg-blue-500 text-white font-semibold active:translate-y-0.5 py-1 rounded-3xl border'>Apply</button>
                             <button className='px-7 py-1 border rounded-3xl'>Change Photo</button>
                         </div>
                     </div>

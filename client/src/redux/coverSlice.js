@@ -9,29 +9,32 @@ const coverSlice = createSlice({
   initialState,
   reducers: {
     setCover: (state, action) => {
+      
       state.backGroundImage = action.payload;
     },
-    resetCove: (state) => {
-      state.backGroundImage = null;
+    resetCover: (state) => {
+      state.backGroundImage.backGroundImage = null;
     },
     updateField: (state, action) => {
       if (!state.backGroundImage) return;
-      state.backGroundImage[action.payload.field] = action.payload.value;
+      console.log(action.payload)
+      state.backGroundImage.backGroundImage[action.payload.field] = action.payload.value;
     },
     updateFilter: (state, action) => {
-      if (!state.backGroundImage) return;
-      state.backGroundImage.filter = action.payload;
+      if (!state.backGroundImage.backGroundImage) return;
+      state.backGroundImage.backGroundImage.filter = action.payload;
     },
     adjustFilterField: (state, action) => {
-      if (!state.backGroundImage || !state.backGroundImage.filter) return;
-      state.backGroundImage.filter[action.payload.key] = action.payload.value;
+      if (!state.backGroundImage.backGroundImage || !state.backGroundImage.backGroundImage.filter) return;
+      console.log(action.payload)
+      state.backGroundImage.backGroundImage.filter[action.payload.field] = action.payload.value;
     }
   }
 });
 
 export const {
   setCover,
-  resetCove,
+  resetCover,
   updateField,
   updateFilter,
   adjustFilterField

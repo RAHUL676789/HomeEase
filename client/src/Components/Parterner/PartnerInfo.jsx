@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import bcg from "../../assets/bcg.png";
 import pic from "../../assets/pic.jpg";
@@ -6,39 +6,51 @@ import PartnerCoverPhoto from './PartnerCoverPhoto';
 import AddCoverPhoto from './AddCoverPhoto';
 import ToastContainer from '../Other/ToastContainer';
 import EditPartnerImage from './EditPartnerImage';
+import axios from '../../utils/axios/axiosinstance.js';
 import { useEditableImage } from '../../Hooks/useEditableImage';
-import {setCover,
-  resetCove,
+import { setPartner } from '../../redux/partnerSlice.js';
+import {
+  setCover,
+  resetCover,
   updateField,
   updateFilter,
-  adjustFilterField} from '../../redux/coverSlice.js'
-import { useDispatch } from 'react-redux';
+  adjustFilterField
+} from '../../redux/coverSlice.js'
+import { useDispatch, useSelector } from 'react-redux';
+import Loader from '../Other/Loader.jsx';
+import { uploadFile } from '../../utils/cloudinary/uploadFile.js';
 
 const PartnerInfo = ({ partner }) => {
   const navigate = useNavigate();
   const [showAddCoverPhoto, setshowAddCoverPhoto] = useState(false);
   const [showEditImage, setshowEditImage] = useState(false)
   const [ShowcoverPhotoOptions, setShowcoverPhotoOptions] = useState(false)
+  const [isLoading, setisLoading] = useState(false)
   const dispatch = useDispatch();
+  const backImage = useSelector((state) => state.backImage);
+  const optionRef = useRef();
+  const profileRef = useRef();
+
 
   const initiaImageState = {
-  url: "",
-  pid: "",
-  zoom:100,
-  rotate:0,
-  filter: {
-    filterType: "",
-    brightness: 0,
-    contrast: 0,
-    saturation: 0,
-    hue: 0,
-    grayscale: 0,
-    sepia: 0,
+    backGroundImage: {
+      url: "",
+      pid: "",
+      zoom: 100,
+      rotate: 0,
+      filter: {
+        filterType: "",
+        brightness: 0,
+        contrast: 0,
+        saturation: 0,
+        hue: 0,
+        grayscale: 0,
+        sepia: 0,
+      }
+    }
   }
 
 
-}
- 
   const [Toast, setToast] = useState({
     type: "",
     content: "",
@@ -58,53 +70,159 @@ const PartnerInfo = ({ partner }) => {
     setToast(newTost);
   }
   const {
-    fullName = "Your Name",
+    fullName,
     backGroundImage,
     profilePicture,
     address = {},
     verified = false,
     services = [],
     documents = [],
-    phone = "Not Available",
-    email = "example@domain.com",
+    phone,
+    email,
   } = partner || {};
-  
-  
-  useEffect(() => {
-    if (!partner) {
-      navigate("/login");
-    } else  if(backGroundImage){
-        dispatch(setCover(backGroundImage ))
-    }
-    
-  }, [partner, navigate]);
 
- 
-  
+  console.log("backGroundImage", backGroundImage)
+
+  useEffect(() => {
+
+    const cover = partner?.backGroundImage
+      ? { backGroundImage: partner?.backGroundImage }
+      : initiaImageState;
+
+    dispatch(setCover(cover));
+
+  }, [partner]);
+
+
+
+  useEffect(() => {
+
+    const handleMousedown = (event) => {
+
+      if (optionRef.current && !optionRef.current.contains(event.target)) {
+        setShowcoverPhotoOptions(false);
+      }
+
+    }
+
+
+    document.addEventListener("mousedown", handleMousedown);
+
+    return () => document.removeEventListener("mousedown", handleMousedown)
+
+  }, [])
+
+
+
 
   const handleAddCoverPhoto = () => {
     setshowAddCoverPhoto(false)
+    const cover = partner?.backGroundImage
+      ? { backGroundImage: partner?.backGroundImage }
+      : initiaImageState;
+
+    dispatch(setCover(cover));
   }
   const handleNextEditCoverPhoto = () => {
     setshowAddCoverPhoto(false);
-    setshowEditImage((prev) => !prev);
-    reset(backGroundImage)
+    setshowEditImage(true);
+
+  }
+
+  const handleCloseEdit = () => {
+    console.log("edit closing")
+    const cover = partner?.backGroundImage
+      ? { backGroundImage: partner?.backGroundImage }
+      : initiaImageState;
+
+    dispatch(setCover(cover));
+    setshowEditImage(false);
+
+
+    // reset(backGroundImage)
+  }
+
+  const handleApply = async () => {
+    setisLoading(true);
+    console.log("applying");
+    if (!backImage?.backGroundImage?.backGroundImage?.url) {
+      handleSetToast("error", "coverPhoto required");
+      setisLoading(false);
+      return;
+    }
+
+    try {
+      // console.log("id", partner?.partner?._id)
+      const response = await axios.put(`/api/partner/${partner?._id}`, backImage.backGroundImage);
+      console.log(response);
+      dispatch(setPartner(response.data.data))
+      setshowEditImage((prev) => !prev);
+
+      handleCloseEdit();
+      console.log(response.data.data.backGroundImage)
+      resetCover(response?.data?.data?.backGroundImage);
+      handleSetToast("success", response.data.message)
+
+    } catch (error) {
+      handleSetToast("error", error.message || "someting went wrong");
+
+    } finally {
+      setisLoading(false);
+    }
+
+  }
+
+  // profilePicture
+
+  const handleProfileChange = async (e) => {
+    try {
+      setisLoading(true);
+      const response = await uploadFile(e.target.files[0]);
+         const result = await axios.put(`/api/partner/${partner?._id}`, {profilePicture:{
+          url:response?.url,
+          pid:response?.pId
+         }});
+       
+    
+
+    } catch (error) {
+
+    } finally {
+           setisLoading(false)
+    }
+
   }
   const { state = "State", district = "District", country = "Country" } = address;
 
   return (
     <div className='w-full sm:max-w-2xl mb-14 rounded-lg bg-white sm:ml-6 shadow-md border border-gray-200 overflow-hidden'>
       {/* <PartnerCoverPhoto/> */}
+      {isLoading && <Loader />}
       {Toast.status && <ToastContainer trigger={Toast.trigger} key={Toast.trigger} type={Toast.type} content={Toast.content} />}
+
       {showAddCoverPhoto && <AddCoverPhoto backImage={backImage} updateField={updateField} handleNextEditCoverPhoto={handleNextEditCoverPhoto} handleSetToast={handleSetToast} handleAddCoverPhoto={handleAddCoverPhoto} />}
-      {showEditImage && <EditPartnerImage backImage={backImage} reset={reset} updateField={updateField} adjustFilterField={adjustFilterField} updateFilter={updateFilter} setshowEditImage={setshowEditImage} />}
+
+      {showEditImage && <EditPartnerImage handleApply={handleApply} backImage={backImage?.backGroundImage?.backGroundImage} resetCover={resetCover} updateField={updateField} adjustFilterField={adjustFilterField} updateFilter={updateFilter} setshowEditImage={handleCloseEdit} />}
 
       {/* 🧠 Separate HEADER SECTION for bg + profile */}
       <div className="relative">
         {/* Background Image or Fallback */}
         <div className="w-full relative h-48 overflow-hidden">
           {backGroundImage ? (
-            <img src={backGroundImage.url} alt="Background" className='w-full h-full object-cover' />
+            <img
+
+              style={{
+                filter:
+                  `brightness(${100 + backGroundImage?.filter?.brightness}%) 
+                            contrast(${100 + backGroundImage?.filter?.contrast}%) 
+                            saturate(${100 + backGroundImage?.filter?.saturation}%)
+                             hue-rotate(${backGroundImage?.filter?.hue}deg)
+                             grayscale(${backGroundImage?.filter?.grayscale}%)
+                             sepia(${backGroundImage?.filter?.sepia * 100}%)`,
+                transform: `rotate(${backGroundImage?.rotate}deg) scale(${backGroundImage?.zoom / 100})`
+              }}
+
+              src={backGroundImage?.url} alt="Background" className='w-full h-full object-cover' />
           ) : (
             <div className="w-full relative h-full bg-gradient-to-r from-yellow-100-400  to-gray-500 flex items-center justify-center">
               <p className="text-white text-xl font-semibold">Welcome to the Profile</p>
@@ -112,26 +230,31 @@ const PartnerInfo = ({ partner }) => {
 
             </div>
           )}
-          <i onClick={() => backGroundImage?.url === "" ? setShowcoverPhotoOptions((prev) => !prev) : setshowAddCoverPhoto(true)} className="ri-camera-line text-white absolute right-4 top-4 text-2xl cursor-pointer"></i>
+          <i onClick={() => backImage?.backGroundImage?.backGroundImage?.url !== "" ? setShowcoverPhotoOptions((prev) => !prev) : setshowAddCoverPhoto(true)} className="ri-camera-line text-white px-2 py-1 rounded bg-black shadow-md shadow-gray-400 absolute right-4 top-4 text-2xl cursor-pointer"></i>
 
-          {ShowcoverPhotoOptions && <div className='absolute right-12 flex bg-white text-black shadow rounded px-3 py-2 flex-col top-5'>
-            <button className='hover:bg-gray-200 px-3 py-1 rounded cursor-pointer'>Add cover photo</button>
-            <button className='hover:bg-gray-200 px-3 py-1 cursor-pointer rounded'>edit cover photo</button>
+          {ShowcoverPhotoOptions && backImage?.backGroundImage?.backGroundImage?.url && <div ref={optionRef} className='absolute right-12 flex bg-white text-black shadow rounded px-3 py-2 flex-col top-5'>
+            <button onClick={() => setshowAddCoverPhoto((prev) => !prev)} className='hover:bg-gray-200 px-3 py-1 rounded cursor-pointer'>Add cover photo</button>
+            <button onClick={() => setshowEditImage((prev) => !prev)} className='hover:bg-gray-200 px-3 py-1 cursor-pointer rounded'>edit cover photo</button>
           </div>}
 
         </div>
 
         {/* Profile Image */}
-        <div className='absolute -bottom-16 left-6 z-10'>
+        <div title='Add Profile' onClick={() => {
+          if (profileRef.current) {
+            profileRef.current.click()
+          }
+        }} className='absolute -bottom-16 left-6 z-10'>
           <div className='h-32 w-32 p-1 bg-white border rounded-full flex items-center justify-center overflow-hidden shadow-md'>
             {profilePicture ? (
-              <img src={profilePicture} alt="Profile" className='h-full w-full rounded-full object-cover' />
+              <img src={profilePicture?.url} alt="Profile" className='h-full w-full rounded-full object-cover' />
             ) : (
               <div className="h-full w-full rounded-full bg-gradient-to-br from-gray-300 to-gray-100 flex items-center justify-center text-4xl font-bold text-gray-600">
                 {fullName?.charAt(0).toUpperCase() || <i className="ri-user-line"></i>}
               </div>
             )}
           </div>
+          <input onChange={handleProfileChange} type="file" className='hidden' ref={profileRef} />
         </div>
       </div>
 

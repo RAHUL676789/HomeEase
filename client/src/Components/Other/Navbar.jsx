@@ -27,7 +27,7 @@ function Navbar() {
     { name: "login", path: "/login", icon: <i className="ri-login-circle-line text-green-600 rotate-90"></i> },
   ];
 
-  const partnerName = partner?.partner?.data?.fullName || user?.user?.data?.fullName;
+  const partnerName = partner?.partner?.fullName || user?.user?.fullName;
 
   const partnerItem = [
     {

@@ -23,6 +23,7 @@ const AddCoverPhoto = ({ handleAddCoverPhoto,handleSetToast,handleNextEditCoverP
     const [isLoading, setisLoading] = useState(false);
     const [pid, setpid] = useState("")
     const coverPhotoFileRef = useRef()
+    const [selectedPic, setselectedPic] = useState("");
    
 
     useEffect(() => {
@@ -49,51 +50,35 @@ const AddCoverPhoto = ({ handleAddCoverPhoto,handleSetToast,handleNextEditCoverP
 
     // }
    
-    const handleApply = async () => {
-        setisLoading(true);
-        if (!coverPhoto) {
-             handleSetToast("error","coverPhoto required");
-             setisLoading(false);
-            return;
-        }
-        
-        try {
-            const response = await axios.put(`/api/partner/${partner?.partner?._id}`, { backGroundImage: {
-                url:coverPhoto,
-                pid:pid
-            } });
-            console.log(response);
-            dispatch(setPartner(response.data.data))
-            setisLoading(false);
-            handleAddCoverPhoto();
-            handleSetToast("success",response.data.message)
-
-        } catch (error) {
-            handleSetToast("error",error.message || "someting went wrong");
-            setisLoading(false);
-        }
-
-    }
+   
 
     const hanldeInputChangeFile = async(e)=>{
         setisLoading(true);
         try {
             const response = await uploadFile(e.target.files[0]);
-            console.log(response);
-            setisLoading(false);
+            dispatch(updateField({field:"url",value:response?.url}))
+            dispatch(updateField({field:"pid",value:response?.pId}))
+            handleNextEditCoverPhoto();
+            
+           
         } catch (error) {
             console.log(error);
-            setisLoading(false);
+          
+        }finally{
+             setisLoading(false);
         }
     }
 
   const handlePicClick = (item) => {
+    console.log(item)
   if (checkboxBg === item) {
     setcheckboxBg("");
-    updateField("url", "");
+    setselectedPic("");
+    dispatch( updateField({field:"url", value:""}))
   } else {
     setcheckboxBg(item);
-    updateField("url", item);
+    setselectedPic(item);
+   dispatch(updateField({field:"url",value: item}))
   }
 };
 
@@ -151,7 +136,7 @@ const AddCoverPhoto = ({ handleAddCoverPhoto,handleSetToast,handleNextEditCoverP
                     </div>
                 </div>
 
-               { backImage?.url &&  <div className='ml-auto flex justify-end'>
+               { selectedPic &&  <div className='ml-auto flex justify-end'>
                     <button onClick={()=>handleNextEditCoverPhoto()}  className='border bg-blue-600 px-7 py-1.5 rounded-3xl font-semibold text-white cursor-pointer'>Next</button>
                 </div> }
             </div>
