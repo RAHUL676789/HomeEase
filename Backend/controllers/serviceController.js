@@ -25,6 +25,16 @@ module.exports.addNewService = async (req, res, next) => {
           location
      });
 
+     const currentPartner = await Partner.findById(req.session.user).populate("services");
+
+     currentPartner?.services?.map((item,i)=>{
+          if(item.category === category){
+               return res.status(400).json({message:"category already exist" ,success:false,data:null})
+          }
+     })
+
+     
+     
      const savedService = await newService.save();
      await Partner.findByIdAndUpdate(req.session.user, {
           $push: { services: savedService._id },

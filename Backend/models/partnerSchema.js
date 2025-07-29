@@ -40,21 +40,30 @@ const partnerSchema = new mongoose.Schema({
     pincode: String
   },
   profilePicture: {
-    url:{
-      type:String,
-      default:""
+    url: {
+      type: String,
+      default: ""
 
     },
-    pid:{
-      type:String,
-      default:""
-    }
+    pid: {
+      type: String,
+      default: ""
+    },
+  
   },       // use of imageSchema
   backGroundImage: imageSchema,      // reuse of imageSchema
-  govtIdProof: { type: String, default: "" },
   services: [{ type: mongoose.Schema.Types.ObjectId, ref: "Service" }],
   verified: { type: Boolean, default: false },
-  documents: [String]
+  documents: [{
+    url: {
+      type: String,
+      default: ""
+    },
+    pid: {
+      type: String,
+      default: ""
+    }
+  }]
 }, { timestamps: true });
 
 module.exports = mongoose.model("Partner", partnerSchema);

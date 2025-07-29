@@ -103,17 +103,31 @@ module.exports.updatePartner = async (req, res, next) => {
   if (!id) {
     return res.status(400).json({ message: "id is required", success: false })
   }
-  let updatedPartner = await partnerModel.findByIdAndUpdate(id, req.body, { new: true, runValidators: true }).populate({
-    path: "services",
-    populate: {
-      path: "gallery"
-    }
-  });
+
+  let updatedPartner;
+  if (req.body.documents) {
+    const newDocs = { url: req?.body?.documents?.url, pid: req?.body?.documents?.pid }
+    updatedPartner = await partnerModel.findByIdAndUpdate(id, { $push: { documents: newDocs }, verified:true }, { new: true, runValidators: true }).populate({
+      path: "services",
+      populate: {
+        path: "gallery"
+      }
+    });
+
+  } else {
+    updatedPartner = await partnerModel.findByIdAndUpdate(id, req.body, { new: true, runValidators: true }).populate({
+      path: "services",
+      populate: {
+        path: "gallery"
+      }
+    });
+  }
+
   if (!updatedPartner) {
     return res.status(404).json({ message: "user not found", success: false });
   }
 
   updatedPartner = updatedPartner.toObject();
   delete updatedPartner.password;
-  res.status(200).json({ message: "success", success: true, data: updatedPartner });
+  res.status(200).json({ message: "profile updated successFully", success: true, data: updatedPartner });
 }
