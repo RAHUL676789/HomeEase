@@ -15,10 +15,14 @@ const partnerSlice = createSlice({
          },
          clearPartner:(state,action)=>{
               state.partner = null;
+         },
+         addService : (state,action)=>{
+          console.log(action.payload)
+             state.partner?.services?.push(action.payload);
          }
     }
 })
 
 
-export const { setPartner, clearPartner } = partnerSlice.actions;
+export const { setPartner, clearPartner,addService } = partnerSlice.actions;
 export default partnerSlice.reducer;

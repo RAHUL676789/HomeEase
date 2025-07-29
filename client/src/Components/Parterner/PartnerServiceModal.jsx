@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import {useForm} from "react-hook-form"
 import axios from "../../utils/axios/axiosinstance.js"
 
-const PartnerServiceModal = ({modal}) => {
+const PartnerServiceModal = ({modal,handleAddService}) => {
   const daysOptions = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
 
   const [tagName, settagName] = useState("")
@@ -46,16 +46,7 @@ const PartnerServiceModal = ({modal}) => {
   }
 
 
-  const handleSubmitForm =async (data)=>{
-       console.log(data)
-
-       try {
-        const response = await axios.post("/api/services",data);
-        console.log(response);
-       } catch (error) {
-        console.log(error)
-       }
-  }
+  
   const divClass = "flex flex-col gap-1 "
   const inputClass = `px-4 py-3 border border-gray-400 rounded-sm focus:outline-none focus:ring-1 focus:ring-teal-500`
   const labelClass = `text-gray-800  font-medium text-sm`
@@ -74,7 +65,7 @@ const PartnerServiceModal = ({modal}) => {
         <div className=' px-5 py-4 mt-5 '>
 
           <p className='text-sm text-gray-400 mb-4'> *indicate required</p>
-          <form onSubmit={handleSubmit(handleSubmitForm)} className=' flex flex-col gap-3 '>
+          <form onSubmit={handleSubmit(handleAddService)} className=' flex flex-col gap-3 '>
             <div className={divClass}>
               <label className={labelClass} htmlFor="title">* title</label>
               <input
@@ -91,7 +82,8 @@ const PartnerServiceModal = ({modal}) => {
               <label className={labelClass} htmlFor="description">description</label>
               <textarea
                   {...register("description",{
-                    required:"description is required"
+                    required:"description is required",
+                    minLength:{value:10,message:"minLength is 10"}
                   })}
                className={inputClass} type="text" id='description' placeholder='Service description' />
                {errors.description && <p className={errorClass}>{errors.description.message}</p>}

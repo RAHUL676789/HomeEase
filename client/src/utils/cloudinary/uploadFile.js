@@ -1,6 +1,14 @@
 export const uploadFile = async (file) => {
   const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
-  const url = `https://api.cloudinary.com/v1_1/${cloudName}/auto/upload`;
+  let resourceType ;
+
+  if(file.type.startsWith("application/pdf")){
+    resourceType = "raw"
+  }else if(file.type.startsWith("image/")){
+    resourceType = "auto"
+  }
+  
+  const url = `https://api.cloudinary.com/v1_1/${cloudName}/${resourceType}/upload`;
 
   try {
     const formData = new FormData();
@@ -19,7 +27,8 @@ export const uploadFile = async (file) => {
     } else {
       return {
         success: false,
-        errorMsg: "Upload failed, invalid response"
+        errorMsg:data?.error?.message || "Upload failed, invalid response",
+        data:null
       };
     }
   } catch (err) {
