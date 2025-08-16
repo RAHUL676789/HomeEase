@@ -8,11 +8,7 @@ const gallerySchema = new mongoose.Schema({
   },
   url: String,
   public_id: String,
-  caption: String,
-  uploadedAt: {
-    type: Date,
-    default: Date.now
-  }
-});
+  
+},{timestamps:true});
 
 module.exports = mongoose.model("Gallery", gallerySchema); // ✅ name = "Gallery"
