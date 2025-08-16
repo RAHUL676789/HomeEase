@@ -9,6 +9,8 @@ import { addService, setPartner } from '../../redux/partnerSlice'
 import Loader from '../../Components/Other/Loader'
 import ToastContainer from '../../Components/Other/ToastContainer'
 import axios from '../../utils/axios/axiosinstance'
+import ServiceGallery from '../../Components/Parterner/ServiceGallery'
+import { uploadFile } from '../../utils/cloudinary/uploadFile'
 
 const PartnerProfile = () => {
   const partner = useSelector((state) => state.partner.partner)
@@ -16,10 +18,13 @@ const PartnerProfile = () => {
   const [serviceModal, setserviceModal] = useState(false)
   const [isLoading, setisLoading] = useState(false)
   const [ServiceCardOpen, setServiceCardOpen] = useState(null);
-
+  const [ShowGalleryModal, setShowGalleryModal] = useState(false);
+  const [GalleryFiles, setGalleryFiles] = useState([]);
+  const [previewUrls, setpreviewUrls] = useState([]);
+  const [Urls, setUrls] = useState([]);
   const dispatch = useDispatch();
 
-  console.log(partner?.services)
+
 
   const handleServiceModal = () => {
     setserviceModal((prev) => !prev)
@@ -34,14 +39,14 @@ const PartnerProfile = () => {
         try {
           const data = await getMe();
           console.log(data);
-          if(!data.data){
+          if (!data.data) {
             return navigate("/login")
           }
           dispatch(setPartner(data?.data));
         } catch (error) {
           console.log(error);
           navigate("/login")
-        }finally{
+        } finally {
           setisLoading(false);
         }
       }
@@ -50,56 +55,95 @@ const PartnerProfile = () => {
   }, [])
 
   const [Toast, setToast] = useState({
-    type :"",
-    content :"",
-    trigger:Date.now(),
-    status:false
+    type: "",
+    content: "",
+    trigger: Date.now(),
+    status: false
   })
 
 
-  const handleSetToast = (type,content)=>{
+  const handleSetToast = (type, content) => {
     const newToast = {
       type,
       content,
-      trigger:Date.now(),
-      status:true
+      trigger: Date.now(),
+      status: true
     }
     setToast(newToast);
 
   }
 
-  
-  const handleAddService =async (data)=>{
-       console.log(data)
-       setisLoading(true);
 
-       try {
-        const response = await axios.post("/api/services",data);
-        console.log(response);
-        setserviceModal(false);
-        handleSetToast("success",response?.data?.message || "service added ")
-        dispatch(addService(response?.data?.data))
-        
-       } catch (error) {
-        console.log(error)
-        handleSetToast("error",error?.response?.data?.message || "someting went wrong")
-       }finally{
-        setisLoading(false);
-       }
+  const handleAddService = async (data) => {
+    console.log(data)
+    setisLoading(true);
+
+    try {
+      const response = await axios.post("/api/services", data);
+      console.log(response);
+      setserviceModal(false);
+      handleSetToast("success", response?.data?.message || "service added ")
+      dispatch(addService(response?.data?.data))
+
+    } catch (error) {
+      console.log(error)
+      handleSetToast("error", error?.response?.data?.message || "someting went wrong")
+    } finally {
+      setisLoading(false);
+    }
   }
 
-  const handleServiceCardOpen  = (id)=>{
+  const handleServiceCardOpen = (id) => {
     console.log(id);
-    if(id === ServiceCardOpen){
+    if (id === ServiceCardOpen) {
       setServiceCardOpen(null);
       return;
     }
     setServiceCardOpen(id);
   }
+
+  const handleShowGalleryModal = (files) => {
+    console.log(files)
+
+    const previeFiles = Array.from(files);
+    setGalleryFiles(previeFiles);
+    const galleryPreview = previeFiles.map((item, i) => {
+      return URL.createObjectURL(item)
+    })
+
+    setpreviewUrls(galleryPreview);
+    setShowGalleryModal((prev) => !prev);
+  }
+
+
+  const handleRemoveFile = (i)=>{
+    setpreviewUrls((prev)=>prev.filter((item,idx)=>i !== idx))
+    setGalleryFiles((prev)=>prev.filter((item,idx)=> i !== idx))
+  }
+
+
+  const handleCloseGallery = ()=>{
+    setShowGalleryModal(false);
+    setpreviewUrls([]);
+    setGalleryFiles([]);
+  }
+
+  const handleGalleryApply = async()=>{
+    
+    for(let i = 0; i<GalleryFiles.length ; i++){
+      const repsonse = await uploadFile(GalleryFiles[i]);
+      const newObj = {
+        url:
+      }
+    }
+
+
+  }
+
   return (
     <div className='max-w-screen bg-gray-50 py-4 sm:py-12'>
-     {isLoading && <Loader/>}
-     {Toast.status && <ToastContainer trigger={Toast.trigger} key={Toast.trigger} type={Toast.type} content={Toast.content}/>}
+      {isLoading && <Loader />}
+      {Toast.status && <ToastContainer trigger={Toast.trigger} key={Toast.trigger} type={Toast.type} content={Toast.content} />}
       <PartnerInfo partner={partner} />
       <div className='max-w-2xl bg-gray-100 rounded-lg sm:ml-6 shadow-md shadow-gray-500 p-5'>
         <div className='flex w-full justify-between'>
@@ -109,12 +153,16 @@ const PartnerProfile = () => {
         </div>
         {
           partner?.services?.length > 0 ? partner?.services?.map((item, i) => (
-            <PartnerServiceCard service={item} ServiceCardOpen={item._id === ServiceCardOpen} handleServiceCardOpen={handleServiceCardOpen} />
+            <PartnerServiceCard service={item} ServiceCardOpen={item._id === ServiceCardOpen} handleShowGalleryModal={handleShowGalleryModal} handleServiceCardOpen={handleServiceCardOpen} />
           ))
             : <h2 className='text-sm text-gray-400 mt-4'>No Service Added</h2>}
 
       </div>
       {serviceModal && <PartnerServiceModal modal={handleServiceModal} handleAddService={handleAddService} />}
+
+      {
+        ShowGalleryModal && previewUrls.length > 0 && <ServiceGallery preview={previewUrls} handleCloseGallery={handleCloseGallery} handleRemoveFile={handleRemoveFile}/>
+      }
 
     </div>
   )

@@ -2,7 +2,7 @@ import React, { useRef } from 'react';
 import PartnerGalleryCard from './PartnerGalleryCard';
 import PartnerReview from './PartnerReview'; // ✅ Make sure this file exists
 
-const PartnerServiceCard = ({ service, ServiceCardOpen, handleServiceCardOpen }) => {
+const PartnerServiceCard = ({ service, handleShowGalleryModal, ServiceCardOpen, handleServiceCardOpen }) => {
   if (!service) return null;
 
   const {
@@ -22,10 +22,20 @@ const PartnerServiceCard = ({ service, ServiceCardOpen, handleServiceCardOpen })
   } = service;
 
   const cardRef = useRef();
+  const galleryRef = useRef();
+  const serviceCardRef = useRef();
 
   return (
     <div
-      onClick={() => handleServiceCardOpen(_id)}
+      ref={serviceCardRef}
+      onClick={(e) => {
+        console.log(e.currentTarget)
+        if (e.currentTarget === serviceCardRef.current) {
+          handleServiceCardOpen(_id)
+        }
+      }
+
+      }
       className="rounded-lg mt-2 px-6 py-3  bg-white border border-gray-200 space-y-4"
     >
       {/* Header: Category + Arrow */}
@@ -91,11 +101,19 @@ const PartnerServiceCard = ({ service, ServiceCardOpen, handleServiceCardOpen })
 
         {/* Gallery Section */}
         <div className="pt-3">
-          <div className="flex justify-between items-center">
+          <div className="flex  justify-between items-center">
             <h2 className="font-semibold text-lg text-gray-800">Gallery</h2>
-            <button title="Add Gallery" className="border cursor-pointer px-2 rounded-full py-1">
+            <button onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation(); // ✅ parent div ke click ko roka
+              if (galleryRef.current) {
+                galleryRef.current.click();
+              }
+            }} title="Add Gallery" className="border cursor-pointer px-2 rounded-full py-1">
               <i className="ri-add-line"></i>
             </button>
+            <input onChange={(e)=>handleShowGalleryModal(e.target.files)} onClick={(e)=>e.stopPropagation()} ref={galleryRef} type="file" multiple className='hidden' />
+
           </div>
           {gallery.length > 0 ? (
             <PartnerGalleryCard images={gallery} />
