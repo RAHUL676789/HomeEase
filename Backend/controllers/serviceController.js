@@ -1,6 +1,7 @@
 const serviceModel = require("../models/serviceSchema.js");
 // const User = required("../model/userSchema.js");
-const Partner = require("../models/partnerSchema.js")
+const Partner = require("../models/partnerSchema.js");
+const gallerSchema = require("../models/gallerSchema.js");
 
 
 
@@ -11,7 +12,7 @@ module.exports.getAll = async (req, res, next) => {
 
 
 module.exports.addNewService = async (req, res, next) => {
-     const { title, description, price, duration, category,availableDays,tags,location } = req.body;
+     const { title, description, price, duration, category, availableDays, tags, location } = req.body;
      console.log(req.body)
      const newService = new serviceModel({
           title,
@@ -27,14 +28,14 @@ module.exports.addNewService = async (req, res, next) => {
 
      const currentPartner = await Partner.findById(req.session.user).populate("services");
 
-     currentPartner?.services?.map((item,i)=>{
-          if(item.category === category){
-               return res.status(400).json({message:"category already exist" ,success:false,data:null})
+     currentPartner?.services?.map((item, i) => {
+          if (item.category === category) {
+               return res.status(400).json({ message: "category already exist", success: false, data: null })
           }
      })
 
-     
-     
+
+
      const savedService = await newService.save();
      await Partner.findByIdAndUpdate(req.session.user, {
           $push: { services: savedService._id },
@@ -80,22 +81,48 @@ module.exports.deleteServiceById = async (req, res, next) => {
 }
 
 
+module.exports.updateServiceById = async (req,res,next)=>{
+    const {id} = req.params;
+    console.log(req.body)
+    const {title,description, price,category,gallery} = req.body;
+    console.log(gallery);
 
+    if(!id){
+     return res.status(401).json({message:"id is requied",success:false})
+    }
 
-module.exports.updateServiceById = async (req, res, next) => {
-     const { id } = req.params;
+    let service = await serviceModel.findById(id);
 
+    if(!service){
+       return res.status(404).json({message:"service not found",success:false}).populate("gallery")
+    }
 
-     const { title, description, price, category, image } = req.body;
+    if(gallery && Array.isArray(gallery) && gallery.length > 0){
+        let savedServiceGallery = await gallerSchema.find({serviceId:id});
+        if(!savedServiceGallery){
+          savedServiceGallery = new gallerSchema({
+               serviceId:id,
+               details:[]
+          })
 
-     if (!id) {
-          return res.status(401).json({ message: "id is required", success: false });
-     }
+          savedServiceGallery.details.push(...gallery)
+        }
 
-     const updatedService = await serviceModel.findByIdAndUpdate(id, { title, description, price, image, category }, { new: true ,runValidators:true});
+        savedServiceGallery.details.push(...gallery);
 
-     return res.status(200).json({ message: "service updated successfully", success: true })
+        const savedGallery = await savedServiceGallery.save();
 
+        if(!service.gallery){
+          service.gallery = []
+        }
 
+        if(!service.gallery.includes(savedServiceGallery._id)){
+          service.gallery.push(savedServiceGallery._id)
+        }
 
+        await service.save();
+    }
+
+    service = await serviceModel.findByIdAndUpdate(id,{title,description,price,category});
+    return res.status(200).json({message:"service update successfully",success:true,data:service})
 }

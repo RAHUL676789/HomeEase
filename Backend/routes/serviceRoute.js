@@ -14,7 +14,8 @@ Router.route("/")
 Router.route("/:id")
     .put(isLoggedIn,isOwner,asyncWrap(updateServiceById))
     .delete(isLoggedIn,isOwner,asyncWrap(deleteServiceById))
-    .get(isLoggedIn,asyncWrap(getServiceById));
+    .get(isLoggedIn,asyncWrap(getServiceById))
+    
 
  
 

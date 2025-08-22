@@ -6,9 +6,13 @@ const gallerySchema = new mongoose.Schema({
     ref: "Service",
     required: true
   },
-  url: String,
-  public_id: String,
-  
-},{timestamps:true});
+  details: [
+    {
+      url: { type: String, required: true }, 
+      pId: { type: String, required: true }  
+      
+    }
+  ]
+}, { timestamps: true });
 
-module.exports = mongoose.model("Gallery", gallerySchema); // ✅ name = "Gallery"
+module.exports = mongoose.model("Gallery", gallerySchema);
