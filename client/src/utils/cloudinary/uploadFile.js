@@ -1,4 +1,5 @@
 export const uploadFile = async (file) => {
+  console.log(file)
   const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
   let resourceType ;
 

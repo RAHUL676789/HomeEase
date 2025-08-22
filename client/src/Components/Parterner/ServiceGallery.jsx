@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react'
 import img1 from "../../assets/cover1.jpg"
 import img2 from "../../assets/cover2.jpg"
 import img3 from "../../assets/cover3.jpg"
-const ServiceGallery = ({ preview,handleRemoveFile,handleCloseGallery }) => {
+const ServiceGallery = ({ preview,handleRemoveFile,handleCloseGallery,handleGalleryApply }) => {
   const [currentIdx, setcurrentIdx] = useState(0)
 
   useEffect(() => {
@@ -54,8 +54,9 @@ const ServiceGallery = ({ preview,handleRemoveFile,handleCloseGallery }) => {
           </div>
 
 
-          <div className='w-fit ml-auto  py-2 px-1'>
-            <button className='bg-gray-200 cursor-pointer active:translate-y-0.5 rounded-3xl font-semibold  px-4 py-1 '>Apply</button>
+          <div className='flex justify-between items-center  w-full  py-2 px-1'>
+              <buttonm onClick={()=>handleCloseGallery()} className='font-semibold text-sm px-4 py-1 hover:bg-gray-200 duration-200 active:translate-y-0.5 rounded-3xl cursor-pointer '>Close</buttonm>
+            <button onClick={()=>handleGalleryApply()} className='bg-gray-400 cursor-pointer active:translate-y-0.5 rounded-3xl font-semibold  px-4 py-1 '>Apply</button>
           </div>
 
         </div>

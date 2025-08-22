@@ -5,7 +5,7 @@ import PartnerInfo from '../../Components/Parterner/PartnerInfo'
 import PartnerServiceCard from '../../Components/Parterner/PartnerServiceCard'
 import PartnerServiceModal from '../../Components/Parterner/PartnerServiceModal'
 import { getMe } from '../../utils/auth/getMe'
-import { addService, setPartner } from '../../redux/partnerSlice'
+import { addService, setPartner,updateService } from '../../redux/partnerSlice'
 import Loader from '../../Components/Other/Loader'
 import ToastContainer from '../../Components/Other/ToastContainer'
 import axios from '../../utils/axios/axiosinstance'
@@ -22,8 +22,14 @@ const PartnerProfile = () => {
   const [GalleryFiles, setGalleryFiles] = useState([]);
   const [previewUrls, setpreviewUrls] = useState([]);
   const [Urls, setUrls] = useState([]);
+  const [serviceId, setserviceId] = useState(null);
   const dispatch = useDispatch();
 
+
+  const handleSeriveId = (id) => {
+
+    setserviceId(id);
+  }
 
 
   const handleServiceModal = () => {
@@ -116,28 +122,59 @@ const PartnerProfile = () => {
   }
 
 
-  const handleRemoveFile = (i)=>{
-    setpreviewUrls((prev)=>prev.filter((item,idx)=>i !== idx))
-    setGalleryFiles((prev)=>prev.filter((item,idx)=> i !== idx))
+  const handleRemoveFile = (i) => {
+    setpreviewUrls((prev) => prev.filter((item, idx) => i !== idx))
+    setGalleryFiles((prev) => prev.filter((item, idx) => i !== idx))
   }
 
 
-  const handleCloseGallery = ()=>{
+  const handleCloseGallery = () => {
     setShowGalleryModal(false);
     setpreviewUrls([]);
     setGalleryFiles([]);
   }
 
-  const handleGalleryApply = async()=>{
-    
-    for(let i = 0; i<GalleryFiles.length ; i++){
-      const repsonse = await uploadFile(GalleryFiles[i]);
-      const newObj = {
-        url:
+  const handleGalleryApply = async () => {
+    setisLoading(true);
+          console.log("galleryfield",GalleryFiles)
+    try {
+      for (let i = 0; i < GalleryFiles.length; i++) {
+        console.log(GalleryFiles[i])
+        const response = await uploadFile(GalleryFiles[i]);
+        console.log("response", response)
+        const newObj = {
+          url: response?.url,
+          pId: response.pId
+        }
+        setUrls((prev) => {
+        return [...prev, newObj]
+      })
       }
+
+      
+
+      if (serviceId) {
+        const updatedService = await axios.put(`/api/services/${serviceId}`, { gallery: Urls });
+        console.log(updatedService)
+        if (updatedService.success) {
+          handleSetToast("success", updatedService?.data?.message || "service updated successfully")
+          dispatch(updateService({
+            id: updatedService._id,
+            updates: updatedService
+          }));
+
+        }
+      } else {
+        handleSetToast("error", "service id required")
+      }
+
+    } catch (error) {
+      console.log(error)
+      handleSetToast("error", error?.message || "someting went wrong")
+
+    } finally {
+      setisLoading(false);
     }
-
-
   }
 
   return (
@@ -153,7 +190,7 @@ const PartnerProfile = () => {
         </div>
         {
           partner?.services?.length > 0 ? partner?.services?.map((item, i) => (
-            <PartnerServiceCard service={item} ServiceCardOpen={item._id === ServiceCardOpen} handleShowGalleryModal={handleShowGalleryModal} handleServiceCardOpen={handleServiceCardOpen} />
+            <PartnerServiceCard handleSeriveId={handleSeriveId} service={item} ServiceCardOpen={item._id === ServiceCardOpen} handleShowGalleryModal={handleShowGalleryModal} handleServiceCardOpen={handleServiceCardOpen} />
           ))
             : <h2 className='text-sm text-gray-400 mt-4'>No Service Added</h2>}
 
@@ -161,7 +198,7 @@ const PartnerProfile = () => {
       {serviceModal && <PartnerServiceModal modal={handleServiceModal} handleAddService={handleAddService} />}
 
       {
-        ShowGalleryModal && previewUrls.length > 0 && <ServiceGallery preview={previewUrls} handleCloseGallery={handleCloseGallery} handleRemoveFile={handleRemoveFile}/>
+        ShowGalleryModal && previewUrls.length > 0 && <ServiceGallery handleGalleryApply={handleGalleryApply} preview={previewUrls} handleCloseGallery={handleCloseGallery} handleRemoveFile={handleRemoveFile} />
       }
 
     </div>

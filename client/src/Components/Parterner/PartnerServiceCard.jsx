@@ -2,7 +2,7 @@ import React, { useRef } from 'react';
 import PartnerGalleryCard from './PartnerGalleryCard';
 import PartnerReview from './PartnerReview'; // ✅ Make sure this file exists
 
-const PartnerServiceCard = ({ service, handleShowGalleryModal, ServiceCardOpen, handleServiceCardOpen }) => {
+const PartnerServiceCard = ({ service,handleSeriveId, handleShowGalleryModal, ServiceCardOpen, handleServiceCardOpen }) => {
   if (!service) return null;
 
   const {
@@ -108,6 +108,7 @@ const PartnerServiceCard = ({ service, handleShowGalleryModal, ServiceCardOpen, 
               e.stopPropagation(); // ✅ parent div ke click ko roka
               if (galleryRef.current) {
                 galleryRef.current.click();
+                handleSeriveId(service?._id || service?.id)
               }
             }} title="Add Gallery" className="border cursor-pointer px-2 rounded-full py-1">
               <i className="ri-add-line"></i>
