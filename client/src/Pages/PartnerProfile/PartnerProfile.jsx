@@ -27,7 +27,7 @@ const PartnerProfile = () => {
 
 
   const handleSeriveId = (id) => {
-
+    console.log("this is service id",id)
     setserviceId(id);
   }
 
@@ -132,28 +132,34 @@ const PartnerProfile = () => {
     setShowGalleryModal(false);
     setpreviewUrls([]);
     setGalleryFiles([]);
+    setUrls([])
   }
 
   const handleGalleryApply = async () => {
     setisLoading(true);
           console.log("galleryfield",GalleryFiles)
     try {
-      for (let i = 0; i < GalleryFiles.length; i++) {
+      console.log(Urls)
+      if(Urls.length === 0){
+         for (let i = 0; i < GalleryFiles?.length; i++) {
         console.log(GalleryFiles[i])
         const response = await uploadFile(GalleryFiles[i]);
         console.log("response", response)
         const newObj = {
           url: response?.url,
-          pId: response.pId
+          pId: response?.pId
         }
         setUrls((prev) => {
         return [...prev, newObj]
       })
       }
+      }
 
+   
       
 
-      if (serviceId) {
+      if (serviceId && Urls.length !== 0) {
+        console.log(Urls)
         const updatedService = await axios.put(`/api/services/${serviceId}`, { gallery: Urls });
         console.log(updatedService)
         if (updatedService.success) {
