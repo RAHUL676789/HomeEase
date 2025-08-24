@@ -46,6 +46,7 @@ module.exports.addNewService = async (req, res, next) => {
 
 module.exports.getServiceById = async (req, res, next) => {
      const { id } = req.params;
+     console.log(req.params)
      if (!id) {
           return res.status(401).json({ message: "service id required", success: false })
      }
@@ -83,9 +84,9 @@ module.exports.deleteServiceById = async (req, res, next) => {
 
 module.exports.updateServiceById = async (req,res,next)=>{
     const {id} = req.params;
-    console.log(req.body)
+    console.log("this is req bodyt".req.body)
     const {title,description, price,category,gallery} = req.body;
-    console.log(gallery);
+    console.log("gallery",gallery);
 
     if(!id){
      return res.status(401).json({message:"id is requied",success:false})
