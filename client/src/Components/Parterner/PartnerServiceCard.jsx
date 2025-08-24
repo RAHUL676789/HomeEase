@@ -1,8 +1,8 @@
-import React, { useRef } from 'react';
+import React, { useRef,useState } from 'react';
 import PartnerGalleryCard from './PartnerGalleryCard';
 import PartnerReview from './PartnerReview'; // ✅ Make sure this file exists
 
-const PartnerServiceCard = ({ service,handleSeriveId, handleShowGalleryModal, ServiceCardOpen, handleServiceCardOpen }) => {
+const PartnerServiceCard = ({ service,setViewImage,handleSeriveId, handleShowGalleryModal, ServiceCardOpen, handleServiceCardOpen }) => {
   if (!service) return null;
 
   const {
@@ -25,17 +25,12 @@ const PartnerServiceCard = ({ service,handleSeriveId, handleShowGalleryModal, Se
   const galleryRef = useRef();
   const serviceCardRef = useRef();
 
+
+
   return (
     <div
       ref={serviceCardRef}
-      onClick={(e) => {
-        console.log(e.currentTarget)
-        if (e.currentTarget === serviceCardRef.current) {
-          handleServiceCardOpen(_id)
-        }
-      }
-
-      }
+     
       className="rounded-lg mt-2 px-6 py-3  bg-white border border-gray-200 space-y-4"
     >
       {/* Header: Category + Arrow */}
@@ -43,9 +38,9 @@ const PartnerServiceCard = ({ service,handleSeriveId, handleShowGalleryModal, Se
         <h2 className="text-lg font-semibold text-gray-800">
           Category: <span className="capitalize text-blue-600">{category}</span>
         </h2>
-        <i
+        <i onClick={()=> handleServiceCardOpen(_id)}
           style={{ rotate: ServiceCardOpen ? '180deg' : '0deg' }}
-          className="ri-arrow-down-s-line transition-all duration-300 text-xl"
+          className="ri-arrow-down-s-line px-2 cursor-pointer rounded-full py-1 hover:bg-gray-200  transition-all duration-300 text-xl"
         ></i>
       </div>
 
@@ -117,7 +112,7 @@ const PartnerServiceCard = ({ service,handleSeriveId, handleShowGalleryModal, Se
 
           </div>
           {gallery.length > 0 ? (
-            <PartnerGalleryCard images={gallery} />
+            <PartnerGalleryCard service={service} setViewImage={setViewImage} />
           ) : (
             <p className="text-sm text-gray-400">No images uploaded.</p>
           )}

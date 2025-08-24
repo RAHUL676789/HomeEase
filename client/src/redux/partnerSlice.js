@@ -23,11 +23,11 @@ const partnerSlice = createSlice({
           updateService: (state, action) => {
                if (!state.partner || !Array.isArray(state.partner.services)) return;
 
-               const { id, _id, ...updates } = action.payload;
+               const { id, _id, } = action.payload;
                const targetId = id || _id; // support both
 
                state.partner.services = state.partner.services.map(service =>
-                    service._id === targetId ? { ...service, ...updates } : service
+                    service._id === targetId ? action.payload  : service
                );
           }
      }

@@ -2,6 +2,8 @@ const serviceModel = require("../models/serviceSchema.js");
 // const User = required("../model/userSchema.js");
 const Partner = require("../models/partnerSchema.js");
 const gallerSchema = require("../models/gallerSchema.js");
+const cloudinary = require("../Helper/cloudinary.js");
+
 
 
 
@@ -82,48 +84,95 @@ module.exports.deleteServiceById = async (req, res, next) => {
 }
 
 
-module.exports.updateServiceById = async (req,res,next)=>{
-    const {id} = req.params;
-    console.log("this is req bodyt".req.body)
-    const {title,description, price,category,gallery} = req.body;
-    console.log("gallery",gallery);
+module.exports.updateServiceById = async (req, res, next) => {
+     const { id } = req.params;
+     console.log("this is req bodyt", req.body)
+     const { title, description, price, category, gallery } = req.body;
+     console.log("gallery", gallery);
 
-    if(!id){
-     return res.status(401).json({message:"id is requied",success:false})
-    }
+     if (!id) {
+          return res.status(401).json({ message: "id is requied", success: false })
+     }
 
-    let service = await serviceModel.findById(id);
+     let service = await serviceModel.findById(id);
 
-    if(!service){
-       return res.status(404).json({message:"service not found",success:false}).populate("gallery")
-    }
+     if (!service) {
+          return res.status(404).json({ message: "service not found", success: false }).populate("gallery")
+     }
 
-    if(gallery && Array.isArray(gallery) && gallery.length > 0){
-        let savedServiceGallery = await gallerSchema.find({serviceId:id});
-        if(!savedServiceGallery){
-          savedServiceGallery = new gallerSchema({
-               serviceId:id,
-               details:[]
-          })
+     if (gallery && Array.isArray(gallery) && gallery.length > 0) {
+          let savedServiceGallery = await gallerSchema.findOne({ serviceId: id });
+          if (!savedServiceGallery) {
+               savedServiceGallery = new gallerSchema({
+                    serviceId: id,
+                    details: []
+               })
 
-          savedServiceGallery.details.push(...gallery)
-        }
+               savedServiceGallery.details.push(...gallery)
+          }
+          console.log("savedServiceGallery", savedServiceGallery)
+          savedServiceGallery.details.push(...gallery);
 
-        savedServiceGallery.details.push(...gallery);
+          const savedGallery = await savedServiceGallery.save();
 
-        const savedGallery = await savedServiceGallery.save();
+          if (!service.gallery) {
+               service.gallery = []
+          }
 
-        if(!service.gallery){
-          service.gallery = []
-        }
+          if (!service.gallery.includes(savedServiceGallery._id)) {
+               service.gallery.push(savedServiceGallery._id)
+          }
 
-        if(!service.gallery.includes(savedServiceGallery._id)){
-          service.gallery.push(savedServiceGallery._id)
-        }
+          await service.save();
+     }
 
-        await service.save();
-    }
+     service = await serviceModel.findByIdAndUpdate(id, { title, description, price, category }).populate("gallery");
+     return res.status(200).json({ message: "service update successfully", success: true, data: service })
+}
 
-    service = await serviceModel.findByIdAndUpdate(id,{title,description,price,category});
-    return res.status(200).json({message:"service update successfully",success:true,data:service})
+module.exports.deleteServiceGalleryImage = async (req, res, next) => {
+     const { id, imageId } = req.params;
+     const { image } = req.body;
+     console.log(image)
+  
+     console.log("this is req.body",req.body);
+
+     if (!id || !imageId) {
+          return res.status(400).json({ message: "id or imageid required", success: false })
+     }
+
+     let service = await serviceModel.findById(id).populate("gallery");
+
+     if (!service) {
+          return res.status(404).json({ message: "service not found", success: false })
+     }
+
+     let serviceGallery = await gallerSchema.findOne({ serviceId: id });
+
+     if (!serviceGallery) {
+          return res.status(404).json({ message: "service Gallery not found", success: false })
+     }
+
+
+     
+     const result = await cloudinary?.uploader?.destroy(image?.pId);
+
+     console.log(result);
+
+     if (result?.result !== "ok") {
+          return res.status(500).json({ message: result?.message || "someting went wrong while deleting image", success: false });
+     }
+
+     await gallerSchema.updateOne(
+          { serviceId: id },
+          { $pull: { details: { _id: imageId } } }
+     );
+
+
+     await serviceGallery.save();
+
+
+     return res.status(200).json({ message: "image deleted", data: service, success: true })
+
+
 }
