@@ -16,7 +16,7 @@ Router.route("/:id")
     .delete(isLoggedIn,isOwner,asyncWrap(deleteServiceById))
     .get(isLoggedIn,asyncWrap(getServiceById));
 
- Router.route("/:id/gallery/:imageId")  
+ Router.route("/:id/gallery/:galleryId")  
        .delete(isLoggedIn,isOwner,asyncWrap(deleteServiceGalleryImage)) 
     
 

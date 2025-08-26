@@ -131,13 +131,13 @@ module.exports.updateServiceById = async (req, res, next) => {
 }
 
 module.exports.deleteServiceGalleryImage = async (req, res, next) => {
-     const { id, imageId } = req.params;
+     const { id, galleryId } = req.params;
      const { image } = req.body;
-     console.log(image)
-  
-     console.log("this is req.body",req.body);
+    
 
-     if (!id || !imageId) {
+   
+
+     if (!id || !galleryId) {
           return res.status(400).json({ message: "id or imageid required", success: false })
      }
 
@@ -147,14 +147,14 @@ module.exports.deleteServiceGalleryImage = async (req, res, next) => {
           return res.status(404).json({ message: "service not found", success: false })
      }
 
-     let serviceGallery = await gallerSchema.findOne({ serviceId: id });
+     let serviceGallery = await gallerSchema.findById(galleryId);
 
      if (!serviceGallery) {
           return res.status(404).json({ message: "service Gallery not found", success: false })
      }
 
 
-     
+
      const result = await cloudinary?.uploader?.destroy(image?.pId);
 
      console.log(result);
@@ -163,16 +163,19 @@ module.exports.deleteServiceGalleryImage = async (req, res, next) => {
           return res.status(500).json({ message: result?.message || "someting went wrong while deleting image", success: false });
      }
 
-     await gallerSchema.updateOne(
-          { serviceId: id },
-          { $pull: { details: { _id: imageId } } }
-     );
+    
 
+      let deletedDocs = await gallerSchema.findByIdAndUpdate(galleryId,{$pull:{details:{_id:image?._id}}},{new : false});
+
+      console.log("deletedDocs",deletedDocs)
+
+      let deletedDoc =  deletedDocs?.details?.find(d=>d._id.toString() === image?._id);
+        console.log("deletedDoc",deletedDoc)
 
      await serviceGallery.save();
 
 
-     return res.status(200).json({ message: "image deleted", data: service, success: true })
+     return res.status(200).json({ message: "image deleted", data: {service,deletedDoc}, success: true })
 
 
 }
