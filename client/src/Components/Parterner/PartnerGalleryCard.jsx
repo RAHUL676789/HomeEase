@@ -28,7 +28,7 @@ console.log(images)
 
         {images[0].details?.map((item, i) => (
          
-            <img onDoubleClick={()=>setViewImage(service?._id,item)} key={i} src={item?.url} className='h-64 rounded-lg object-cover' />
+            <img onDoubleClick={()=>setViewImage(service?._id,item,images[0]?._id)} key={i} src={item?.url} className='h-64 rounded-lg object-cover' />
 
           
         

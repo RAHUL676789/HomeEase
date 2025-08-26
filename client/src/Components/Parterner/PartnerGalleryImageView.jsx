@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 
-const PartnerGalleryImageView = ({ image,handleImageDelete }) => {
+const PartnerGalleryImageView = ({ image,handleImageDelete,setViewImage }) => {
   console.log(image)
 
   useEffect(() => {
@@ -17,7 +17,7 @@ const PartnerGalleryImageView = ({ image,handleImageDelete }) => {
       <div className='w-[75%] overflow-scroll  flex flex-col  mx-auto rounded h-screen bg-white  '>
         <div className='flex justify-between h-16 border-b border-gray-300 items-center px-3 py-2'>
           <h2 className='text-xl font-semibold'>Image-View</h2>
-          <i className='ri-close-line font-semibold cursor-pointer px-2 py-1 hover:bg-gray-200 rounded-full'></i>
+          <i onClick={()=>setViewImage(null)} className='ri-close-line font-semibold cursor-pointer px-2 py-1 hover:bg-gray-200 rounded-full'></i>
         </div>
         <div className='flex-1 py-2 px-1 '>
           <img src={image?.image?.url} alt="" className='h-full w-full' />
@@ -25,8 +25,8 @@ const PartnerGalleryImageView = ({ image,handleImageDelete }) => {
         </div>
 
         <div className = " flex justify-between items-center px-4 my-3">
-          <button onClick={()=>handleImageDelete(image?.serviceId,image?.image)} className={btnClass}>Delete</button>
-          <button className={btnClass}>Close</button>
+          <button onClick={()=>handleImageDelete(image?.serviceId,image?.image,image?.galleryId)} className={btnClass}>Delete</button>
+          <button onClick={()=>setViewImage(null)} className={btnClass}>Close</button>
         </div>
 
 

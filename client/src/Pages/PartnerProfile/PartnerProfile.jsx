@@ -5,7 +5,7 @@ import PartnerInfo from '../../Components/Parterner/PartnerInfo'
 import PartnerServiceCard from '../../Components/Parterner/PartnerServiceCard'
 import PartnerServiceModal from '../../Components/Parterner/PartnerServiceModal'
 import { getMe } from '../../utils/auth/getMe'
-import { addService, setPartner, updateService } from '../../redux/partnerSlice'
+import { addService, setPartner, updateService,updateServiceGallery } from '../../redux/partnerSlice'
 import Loader from '../../Components/Other/Loader'
 import ToastContainer from '../../Components/Other/ToastContainer'
 import axios from '../../utils/axios/axiosinstance'
@@ -27,11 +27,12 @@ const PartnerProfile = () => {
   const [ViewImage, setViewImage] = useState(null)
   const dispatch = useDispatch();
 
-  const handleViewImage = (serviceId, image) => {
+  const handleViewImage = (serviceId, image,galleryId) => {
     console.log(serviceId, image)
     const obj = {
       serviceId,
       image,
+      galleryId
     }
 
     setViewImage(obj)
@@ -190,23 +191,22 @@ const PartnerProfile = () => {
     }
   };
 
-  const handleImageDelete = async (serviceId, image) => {
-
-    console.log(serviceId);
-    console.log(image);
+  const handleImageDelete = async (serviceId, image,galleryId) => {
+   console.log(galleryId)
 
     try {
       setisLoading(true);
       const { data } = await axios.delete(
-        `/api/services/${serviceId}/gallery/${image?._id}`,
+        `/api/services/${serviceId}/gallery/${galleryId}`,
         {
-          data: { image }, // body yaha jayegi
+          data: { image }, 
         }
       );
 
-
+      console.log(data);
       handleSetToast("success", data?.message || "image deleted");
-      updateService(data?.data);
+      dispatch(updateServiceGallery(data?.data));
+      setViewImage(null);
 
     } catch (error) {
       handleSetToast("error", error?.message || "someting went wrong")
@@ -240,7 +240,7 @@ const PartnerProfile = () => {
         ShowGalleryModal && previewUrls.length > 0 && <ServiceGallery handleGalleryApply={handleGalleryApply} preview={previewUrls} handleCloseGallery={handleCloseGallery} handleRemoveFile={handleRemoveFile} />
       }
 
-      {ViewImage?.image?.url && <PartnerGalleryImageView image={ViewImage} handleImageDelete={handleImageDelete} />}
+      {ViewImage?.image?.url && <PartnerGalleryImageView image={ViewImage} handleImageDelete={handleImageDelete} setViewImage={setViewImage} />}
     </div>
   )
 }
