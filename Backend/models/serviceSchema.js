@@ -44,10 +44,10 @@ const serviceSchema = new Schema({
     default: true
   },
   tags: [String],
-  gallery: [{
+  gallery: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Gallery"
-  }],
+  },
   reviews: [
     {
       user: {
