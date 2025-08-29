@@ -1,8 +1,8 @@
-import React, { useRef,useState } from 'react';
+import React, { useEffect, useRef,useState } from 'react';
 import PartnerGalleryCard from './PartnerGalleryCard';
 import PartnerReview from './PartnerReview'; // ✅ Make sure this file exists
 
-const PartnerServiceCard = ({ service,setViewImage,handleSeriveId, handleShowGalleryModal, ServiceCardOpen, handleServiceCardOpen }) => {
+const PartnerServiceCard = ({ service,setViewImage,handleSeriveId, handleShowGalleryModal, ServiceCardOpen, handleServiceCardOpen,setDeleteableService,setEditableService }) => {
   if (!service) return null;
 
   const {
@@ -17,13 +17,22 @@ const PartnerServiceCard = ({ service,setViewImage,handleSeriveId, handleShowGal
     discount,
     isActive,
     tags = [],
-    gallery = [],
+    gallery = {},
     reviews = []
   } = service;
 
   const cardRef = useRef();
   const galleryRef = useRef();
   const serviceCardRef = useRef();
+  const [bodyHeight, setbodyHeight] = useState(`0px`)
+
+
+  useEffect(()=>{
+
+    if(cardRef.current  && ServiceCardOpen){
+      setbodyHeight(`${cardRef?.current?.scrollHeight}px`)
+    }
+  },[ServiceCardOpen,gallery,reviews])
 
 
 
@@ -31,7 +40,7 @@ const PartnerServiceCard = ({ service,setViewImage,handleSeriveId, handleShowGal
     <div
       ref={serviceCardRef}
      
-      className="rounded-lg mt-2 px-6 py-3  bg-white border border-gray-200 space-y-4"
+      className="rounded-lg mt-2 px-6 py-3 overflow-scroll no-scrollbar  bg-white border border-gray-200 space-y-4"
     >
       {/* Header: Category + Arrow */}
       <div className="flex justify-between items-center">
@@ -50,7 +59,7 @@ const PartnerServiceCard = ({ service,setViewImage,handleSeriveId, handleShowGal
         style={{
           maxHeight:
             ServiceCardOpen && cardRef.current
-              ? `${cardRef.current.scrollHeight}px`
+              ? bodyHeight
               : '0px'
         }}
         className="overflow-hidden transition-[max-height] duration-500 ease-in-out"
@@ -95,7 +104,7 @@ const PartnerServiceCard = ({ service,setViewImage,handleSeriveId, handleShowGal
         )}
 
         {/* Gallery Section */}
-        <div className="pt-3">
+        <div className="pt-3 overflow-scroll no-scrollbar">
           <div className="flex  justify-between items-center">
             <h2 className="font-semibold text-lg text-gray-800">Gallery</h2>
             <button onClick={(e) => {
@@ -111,7 +120,7 @@ const PartnerServiceCard = ({ service,setViewImage,handleSeriveId, handleShowGal
             <input onChange={(e)=>handleShowGalleryModal(e.target.files)} onClick={(e)=>e.stopPropagation()} ref={galleryRef} type="file" multiple className='hidden' />
 
           </div>
-          {gallery.length > 0 ? (
+          {gallery?.details?.length > 0 ? (
             <PartnerGalleryCard service={service} setViewImage={setViewImage} />
           ) : (
             <p className="text-sm text-gray-400">No images uploaded.</p>
@@ -127,7 +136,17 @@ const PartnerServiceCard = ({ service,setViewImage,handleSeriveId, handleShowGal
             <p className="text-sm text-gray-400">No reviews yet.</p>
           )}
         </div>
+
+          <div className='flex justify-between items-center w-full'>
+        <button onClick={()=>setEditableService(service)} className='px-5 py-1 hover:bg-gray-300 transition-all duration-150 rounded-3xl  cursor-pointer font-semibold'>
+          Edit
+          </button>
+          <button onClick={()=>setDeleteableService(service)} className='px-5 py-1 rounded-3xl font-semibold hover:bg-gray-500 transition-all duration-150 hover:text-white cursor-pointer'>Delete-service</button>
       </div>
+      </div>
+
+
+    
     </div>
   );
 };

@@ -22,13 +22,13 @@ console.log(images)
 
   }
   return (
-    <div className='w-full relative gap-5 mt-5 max-h-lg flex overflow-scroll no-scrollbar rounded-lg'>
+    <div className='w-full relative gap-5 mt-5 max-h-lg  min-h-lg flex overflow-scroll no-scrollbar rounded-lg'>
       <i onClick={handleScrollRight} className="ri-arrow-left-s-line text-white absolute top-1/2 text-4xl z-50 "></i>
-      <div ref={imgScrollRef} className='w-full  gap-5 mt-5 max-h-lg flex overflow-scroll  overflow-x-scroll scroll-smooth transition-all duration-200 relative px-5'>
+      <div ref={imgScrollRef} className='w-full  gap-5 mt-5 min-h-lg flex overflow-scroll  overflow-x-scroll scroll-smooth transition-all duration-200 relative px-5'>
 
-        {images[0].details?.map((item, i) => (
+        {images?.details?.map((item, i) => (
          
-            <img onDoubleClick={()=>setViewImage(service?._id,item,images[0]?._id)} key={i} src={item?.url} className='h-64 rounded-lg object-cover' />
+            <img onDoubleClick={()=>setViewImage(service?._id,item,images?._id)} key={i} src={item?.url} className='h-64 rounded-lg object-cover' />
 
           
         

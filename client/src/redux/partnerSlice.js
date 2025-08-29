@@ -34,26 +34,27 @@ const partnerSlice = createSlice({
                console.log("updateServiceGallery")
                if (!state.partner || !Array.isArray(state.partner.services)) return;
                    console.log("inside updation")
-               const { service, deletedDoc } = action.payload;
-                  console.log(service);
-                  console.log(deletedDoc)
+               const { service, deletedId } = action.payload;
+               
                state.partner.services = state.partner.services.map(s => {
                     if (s._id.toString() === service._id.toString()) {
-                         return {
-                              ...s,
-                              gallery: {
-                                   ...s.gallery,
-                                   details: s.gallery[0].details.filter(img => img._id.toString() !== deletedDoc._id.toString())
-                              }
-                         };
+                        return service;
+                    }else{
+                            return s;
                     }
-                    return s;
+                 
                });
+          },
+        
+          deleteService : (state,action) =>{
+                const {service} = action.payload;
+                if(state.partner.services && Array.isArray(state.partner.services)){
+                    state.partner.services = state.partner.services.filter((s,i)=> s._id.toString() !== service._id.toString())
+                }
           }
-
      }
 })
 
 
-export const { setPartner, clearPartner, addService, updateService,updateServiceGallery } = partnerSlice.actions;
+export const { setPartner, clearPartner, addService, updateService,updateServiceGallery,deleteService } = partnerSlice.actions;
 export default partnerSlice.reducer;

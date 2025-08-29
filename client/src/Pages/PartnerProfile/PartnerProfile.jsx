@@ -5,13 +5,14 @@ import PartnerInfo from '../../Components/Parterner/PartnerInfo'
 import PartnerServiceCard from '../../Components/Parterner/PartnerServiceCard'
 import PartnerServiceModal from '../../Components/Parterner/PartnerServiceModal'
 import { getMe } from '../../utils/auth/getMe'
-import { addService, setPartner, updateService,updateServiceGallery } from '../../redux/partnerSlice'
+import { addService, deleteService, setPartner, updateService,updateServiceGallery } from '../../redux/partnerSlice'
 import Loader from '../../Components/Other/Loader'
 import ToastContainer from '../../Components/Other/ToastContainer'
 import axios from '../../utils/axios/axiosinstance'
 import ServiceGallery from '../../Components/Parterner/ServiceGallery'
 import { uploadFile } from '../../utils/cloudinary/uploadFile'
 import PartnerGalleryImageView from '../../Components/Parterner/PartnerGalleryImageView'
+import DeleteConfirmationMode from '../../Components/Parterner/DeleteConfirmationMode'
 
 const PartnerProfile = () => {
   const partner = useSelector((state) => state.partner.partner)
@@ -37,7 +38,8 @@ const PartnerProfile = () => {
 
     setViewImage(obj)
   }
-
+ const [DeleteableService, setDeleteableService] = useState(null);
+ const [EditableService, setEditableService] = useState(null);
 
   const handleSeriveId = (id) => {
     console.log("this is service id", id)
@@ -147,12 +149,18 @@ const PartnerProfile = () => {
     setGalleryFiles([]);
 
   }
-  const handleGalleryApply = async () => {
-    setisLoading(true);
-    try {
-      console.log("gallery files", GalleryFiles);
 
-      // Step 1: Sare uploads ek sath complete karo
+  const [uploadbleUrls, setuploadbleUrls] = useState(null);
+
+const handleGalleryApply = async () => {
+  setisLoading(true);
+  try {
+    console.log("gallery files", GalleryFiles);
+
+    let finalUrls = uploadbleUrls; // state ka purana value use kar lo
+
+    // Step 1: Agar state empty hai to nayi uploading karo
+    if (!finalUrls || finalUrls.length === 0) {
       const uploadedUrls = [];
       for (let i = 0; i < GalleryFiles.length; i++) {
         const response = await uploadFile(GalleryFiles[i]);
@@ -161,35 +169,34 @@ const PartnerProfile = () => {
           pId: response?.pId,
         });
       }
-
-      // Step 2: ek hi baar state update karo
-      // setUrls(uploadedUrls);
-
-      console.log("Uploaded URLs", uploadedUrls);
-
-      // Step 3: service update call
-      if (serviceId && uploadedUrls.length > 0) {
-        const { data } = await axios.put(`/api/services/${serviceId}`, {
-          gallery: uploadedUrls,
-        });
-
-        console.log("this is servicegallery daa", data)
-        handleSetToast("success", data?.message || "Service updated successfully");
-
-        dispatch(
-          updateService(data?.data)
-        );
-      } else {
-        handleSetToast("error", "Service ID required or no files selected");
-      }
-    } catch (error) {
-      console.log(error);
-      handleSetToast("error", error?.message || "Something went wrong");
-    } finally {
-      setisLoading(false);
-      setShowGalleryModal(false)
+      setuploadbleUrls(uploadedUrls); // ✅ yaha uploadedUrls set karna hai
+      finalUrls = uploadedUrls;
     }
-  };
+
+    console.log("Uploaded URLs", finalUrls);
+
+    // Step 2: service update call
+    if (serviceId && finalUrls.length > 0) {
+      const { data } = await axios.put(`/api/services/${serviceId}`, {
+        gallery: finalUrls,
+      });
+
+      console.log("this is servicegallery daa", data);
+      handleSetToast("success", data?.message || "Service updated successfully");
+
+      dispatch(updateService(data?.data));
+      setShowGalleryModal(false);
+    } else {
+      handleSetToast("error", "Service ID required or no files selected");
+    }
+  } catch (error) {
+    console.log(error);
+    handleSetToast("error", error?.message || "Something went wrong");
+  } finally {
+    setisLoading(false);
+  }
+};
+
 
   const handleImageDelete = async (serviceId, image,galleryId) => {
    console.log(galleryId)
@@ -215,6 +222,25 @@ const PartnerProfile = () => {
     }
   }
 
+  const handleServiceDelete = async(service)=>{
+        console.log("this is service to delete",service)
+        setisLoading(true)
+
+        try {
+          const {data} = await axios.delete(`/api/services/${service?._id}`);
+          console.log("this is service deleteble response",data);
+          dispatch(deleteService(data?.data))
+          handleSetToast("success",data?.message || "service delete successfully");
+
+        } catch (error) {
+          console.log(error)
+          handleSetToast("error",error?.message || "someting went wrong")
+          
+        }finally{
+               setisLoading(false)
+        }
+  }
+
 
   return (
     <div className='max-w-screen bg-gray-50 py-4 sm:py-12'>
@@ -229,7 +255,7 @@ const PartnerProfile = () => {
         </div>
         {
           partner?.services?.length > 0 ? partner?.services?.map((item, i) => (
-            <PartnerServiceCard handleSeriveId={handleSeriveId} service={item} ServiceCardOpen={item._id === ServiceCardOpen} handleShowGalleryModal={handleShowGalleryModal} setViewImage={handleViewImage} handleServiceCardOpen={handleServiceCardOpen} />
+            <PartnerServiceCard handleSeriveId={handleSeriveId} service={item} ServiceCardOpen={item._id === ServiceCardOpen} handleShowGalleryModal={handleShowGalleryModal} setViewImage={handleViewImage} handleServiceCardOpen={handleServiceCardOpen} setDeleteableService={setDeleteableService} setEditableService={setEditableService} />
           ))
             : <h2 className='text-sm text-gray-400 mt-4'>No Service Added</h2>}
 
@@ -241,6 +267,7 @@ const PartnerProfile = () => {
       }
 
       {ViewImage?.image?.url && <PartnerGalleryImageView image={ViewImage} handleImageDelete={handleImageDelete} setViewImage={setViewImage} />}
+      {DeleteableService && <DeleteConfirmationMode confirmDelete={handleServiceDelete} data={DeleteableService} cancel={()=>setDeleteableService(null)}/>}
     </div>
   )
 }

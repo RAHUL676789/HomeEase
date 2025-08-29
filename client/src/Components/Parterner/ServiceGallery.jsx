@@ -55,7 +55,7 @@ const ServiceGallery = ({ preview,handleRemoveFile,handleCloseGallery,handleGall
 
 
           <div className='flex justify-between items-center  w-full  py-2 px-1'>
-              <buttonm onClick={()=>handleCloseGallery()} className='font-semibold text-sm px-4 py-1 hover:bg-gray-200 duration-200 active:translate-y-0.5 rounded-3xl cursor-pointer '>Close</buttonm>
+              <button onClick={()=>handleCloseGallery()} className='font-semibold text-sm px-4 py-1 hover:bg-gray-200 duration-200 active:translate-y-0.5 rounded-3xl cursor-pointer '>Close</button>
             <button onClick={()=>handleGalleryApply()} className='bg-gray-400 cursor-pointer active:translate-y-0.5 rounded-3xl font-semibold  px-4 py-1 '>Apply</button>
           </div>
 
