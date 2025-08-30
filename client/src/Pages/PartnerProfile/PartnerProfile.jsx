@@ -5,7 +5,7 @@ import PartnerInfo from '../../Components/Parterner/PartnerInfo'
 import PartnerServiceCard from '../../Components/Parterner/PartnerServiceCard'
 import PartnerServiceModal from '../../Components/Parterner/PartnerServiceModal'
 import { getMe } from '../../utils/auth/getMe'
-import { addService, deleteService, setPartner, updateService,updateServiceGallery } from '../../redux/partnerSlice'
+import { addService, deleteService, setPartner, updateService, updateServiceGallery } from '../../redux/partnerSlice'
 import Loader from '../../Components/Other/Loader'
 import ToastContainer from '../../Components/Other/ToastContainer'
 import axios from '../../utils/axios/axiosinstance'
@@ -13,6 +13,7 @@ import ServiceGallery from '../../Components/Parterner/ServiceGallery'
 import { uploadFile } from '../../utils/cloudinary/uploadFile'
 import PartnerGalleryImageView from '../../Components/Parterner/PartnerGalleryImageView'
 import DeleteConfirmationMode from '../../Components/Parterner/DeleteConfirmationMode'
+import EditService from '../../Components/Parterner/EditService'
 
 const PartnerProfile = () => {
   const partner = useSelector((state) => state.partner.partner)
@@ -28,7 +29,7 @@ const PartnerProfile = () => {
   const [ViewImage, setViewImage] = useState(null)
   const dispatch = useDispatch();
 
-  const handleViewImage = (serviceId, image,galleryId) => {
+  const handleViewImage = (serviceId, image, galleryId) => {
     console.log(serviceId, image)
     const obj = {
       serviceId,
@@ -38,8 +39,8 @@ const PartnerProfile = () => {
 
     setViewImage(obj)
   }
- const [DeleteableService, setDeleteableService] = useState(null);
- const [EditableService, setEditableService] = useState(null);
+  const [DeleteableService, setDeleteableService] = useState(null);
+  const [EditableService, setEditableService] = useState(null);
 
   const handleSeriveId = (id) => {
     console.log("this is service id", id)
@@ -152,61 +153,61 @@ const PartnerProfile = () => {
 
   const [uploadbleUrls, setuploadbleUrls] = useState(null);
 
-const handleGalleryApply = async () => {
-  setisLoading(true);
-  try {
-    console.log("gallery files", GalleryFiles);
+  const handleGalleryApply = async () => {
+    setisLoading(true);
+    try {
+      console.log("gallery files", GalleryFiles);
 
-    let finalUrls = uploadbleUrls; // state ka purana value use kar lo
+      let finalUrls = uploadbleUrls; // state ka purana value use kar lo
 
-    // Step 1: Agar state empty hai to nayi uploading karo
-    if (!finalUrls || finalUrls.length === 0) {
-      const uploadedUrls = [];
-      for (let i = 0; i < GalleryFiles.length; i++) {
-        const response = await uploadFile(GalleryFiles[i]);
-        uploadedUrls.push({
-          url: response?.url,
-          pId: response?.pId,
-        });
+      // Step 1: Agar state empty hai to nayi uploading karo
+      if (!finalUrls || finalUrls.length === 0) {
+        const uploadedUrls = [];
+        for (let i = 0; i < GalleryFiles.length; i++) {
+          const response = await uploadFile(GalleryFiles[i]);
+          uploadedUrls.push({
+            url: response?.url,
+            pId: response?.pId,
+          });
+        }
+        setuploadbleUrls(uploadedUrls); // ✅ yaha uploadedUrls set karna hai
+        finalUrls = uploadedUrls;
       }
-      setuploadbleUrls(uploadedUrls); // ✅ yaha uploadedUrls set karna hai
-      finalUrls = uploadedUrls;
+
+      console.log("Uploaded URLs", finalUrls);
+
+      // Step 2: service update call
+      if (serviceId && finalUrls.length > 0) {
+        const { data } = await axios.put(`/api/services/${serviceId}`, {
+          gallery: finalUrls,
+        });
+
+        console.log("this is servicegallery daa", data);
+        handleSetToast("success", data?.message || "Service updated successfully");
+
+        dispatch(updateService(data?.data));
+        setShowGalleryModal(false);
+      } else {
+        handleSetToast("error", "Service ID required or no files selected");
+      }
+    } catch (error) {
+      console.log(error);
+      handleSetToast("error", error?.message || "Something went wrong");
+    } finally {
+      setisLoading(false);
     }
-
-    console.log("Uploaded URLs", finalUrls);
-
-    // Step 2: service update call
-    if (serviceId && finalUrls.length > 0) {
-      const { data } = await axios.put(`/api/services/${serviceId}`, {
-        gallery: finalUrls,
-      });
-
-      console.log("this is servicegallery daa", data);
-      handleSetToast("success", data?.message || "Service updated successfully");
-
-      dispatch(updateService(data?.data));
-      setShowGalleryModal(false);
-    } else {
-      handleSetToast("error", "Service ID required or no files selected");
-    }
-  } catch (error) {
-    console.log(error);
-    handleSetToast("error", error?.message || "Something went wrong");
-  } finally {
-    setisLoading(false);
-  }
-};
+  };
 
 
-  const handleImageDelete = async (serviceId, image,galleryId) => {
-   console.log(galleryId)
+  const handleImageDelete = async (serviceId, image, galleryId) => {
+    console.log(galleryId)
 
     try {
       setisLoading(true);
       const { data } = await axios.delete(
         `/api/services/${serviceId}/gallery/${galleryId}`,
         {
-          data: { image }, 
+          data: { image },
         }
       );
 
@@ -222,23 +223,102 @@ const handleGalleryApply = async () => {
     }
   }
 
-  const handleServiceDelete = async(service)=>{
-        console.log("this is service to delete",service)
-        setisLoading(true)
+  const handleServiceDelete = async (service) => {
+    console.log("this is service to delete", service)
+    setisLoading(true)
 
-        try {
-          const {data} = await axios.delete(`/api/services/${service?._id}`);
-          console.log("this is service deleteble response",data);
-          dispatch(deleteService(data?.data))
-          handleSetToast("success",data?.message || "service delete successfully");
+    try {
+      const { data } = await axios.delete(`/api/services/${service?._id}`);
+      console.log("this is service deleteble response", data);
+      dispatch(deleteService(data?.data))
+      handleSetToast("success", data?.message || "service delete successfully");
+      setDeleteableService(null);
 
-        } catch (error) {
-          console.log(error)
-          handleSetToast("error",error?.message || "someting went wrong")
-          
-        }finally{
-               setisLoading(false)
-        }
+    } catch (error) {
+      console.log(error)
+      handleSetToast("error", error?.message || "someting went wrong")
+
+    } finally {
+      setisLoading(false)
+    }
+  }
+
+
+  const handleChanges = (data) => {
+    if (!EditableService?._id) {
+      return false;
+    }
+    console.log(EditableService)
+    // Normalize function for trimming strings
+    const normalize = (val) => (typeof val === "string" ? val.trim() : val);
+
+    if (normalize(data?.title) !== normalize(EditableService?.title)) {
+      console.log("returning")
+      return true;
+    }
+
+    if (normalize(data?.description) !== normalize(EditableService?.description)) {
+      console.log("returning")
+      return true;
+    }
+
+    if (Number(data?.price) !== Number(EditableService?.price)) {
+      console.log("returning")
+      return true;
+    }
+
+    if (normalize(data?.duration) !== normalize(EditableService?.duration)) {
+      console.log("returning")
+      return true;
+    }
+
+    if (Number(data?.discount || 0) !== Number(EditableService?.discount || 0)) {
+      console.log("returning")
+      return true;
+    }
+
+    // Compare availableDays arrays (order independent)
+    const newDays = new Set(data?.availableDays || []);
+    const oldDays = new Set(EditableService?.availableDays || []);
+    if (newDays.size !== oldDays.size) {
+      console.log("returning")
+      return true;
+    }
+    for (let day of newDays) {
+      if (!oldDays.has(day)) {
+        console.log("returning")
+        return true;
+      }
+    }
+
+    if (normalize(data?.location) !== normalize(EditableService?.location)) {
+      console.log("returning")
+      return true;
+    }
+
+    return false;
+  };
+
+
+  const handleServiceUpdate = async (service) => {
+    console.log("this sd", service)
+    let changes = handleChanges(service);
+    if (!changes) {
+      handleSetToast("warning", "please make some changes")
+    } else {
+      try {
+        setisLoading(true);
+        const {data} = await axios.put(`/api/services/${service?.id}`,service);
+        handleSetToast("success",data.message || "service update successfully");
+        dispatch(updateService(data?.data))
+        setEditableService(null);
+      } catch (error) {
+        console.log(error)
+        handleSetToast("error", error?.message || "someting went wrong")
+      } finally {
+        setisLoading(false)
+      }
+    }
   }
 
 
@@ -267,7 +347,9 @@ const handleGalleryApply = async () => {
       }
 
       {ViewImage?.image?.url && <PartnerGalleryImageView image={ViewImage} handleImageDelete={handleImageDelete} setViewImage={setViewImage} />}
-      {DeleteableService && <DeleteConfirmationMode confirmDelete={handleServiceDelete} data={DeleteableService} cancel={()=>setDeleteableService(null)}/>}
+      {DeleteableService && <DeleteConfirmationMode confirmDelete={handleServiceDelete} data={DeleteableService} cancel={() => setDeleteableService(null)} />}
+
+      {EditableService?._id && <EditService service={EditableService} close={() => setEditableService(null)} handleServiceUpdate={handleServiceUpdate} />}
     </div>
   )
 }
