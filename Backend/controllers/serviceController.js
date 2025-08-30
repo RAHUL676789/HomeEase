@@ -76,7 +76,12 @@ module.exports.deleteServiceById = async (req, res, next) => {
           return res.status(404).json({ message: "service not found", success: false });
      }
      await Partner.findByIdAndUpdate(deleteService?.serviceProvider,{$pull:{services:deleteService?._id.toString()}})
-     deleteService?.gallery?._id &&  await gallerSchema.findByIdAndDelete(deleteService?.gallery?._id.toString());
+
+    if(deleteService?.gallery){
+        let result =   await gallerSchema.findByIdAndDelete(deleteService?.gallery?.toString());
+
+        console.log(result);
+    }
 
      return res.status(200).json({
           message: "Service deleted successfully",
@@ -87,7 +92,7 @@ module.exports.deleteServiceById = async (req, res, next) => {
 
 module.exports.updateServiceById = async (req, res, next) => {
   const { id } = req.params;
-  const { title, description, price, category, gallery } = req.body;
+  const { title, description, price, duration, gallery,discount,availableDays,location } = req.body;
 
   if (!id) {
     return res.status(400).json({ message: "id is required", success: false });
@@ -128,7 +133,10 @@ module.exports.updateServiceById = async (req, res, next) => {
   service.title = title ?? service.title;
   service.description = description ?? service.description;
   service.price = price ?? service.price;
-  service.category = category ?? service.category;
+  service.location = location ?? service.location,
+  service.availableDays = availableDays ?? service.availableDays,
+  service.discount = discount ?? service.discount
+  service.duration = duration ?? service.duration
 
   await service.save();
 

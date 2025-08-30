@@ -16,15 +16,17 @@ const gallerySchema = new mongoose.Schema({
   ]
 }, { timestamps: true });
 
-module.exports = mongoose.model("Gallery", gallerySchema);
-
-
 gallerySchema.post("findOneAndDelete",async(docs,next)=>{
-
+      console.log("this is findOneAndDelete",docs)
    if(docs?.details?.length > 0  ){
     for(let i = 0; i < docs.details.length ; i++){
-       await cloudinary?.uploader?.destroy(docs.details[i].pId)
+    let result =   await cloudinary?.uploader?.destroy(docs.details[i].pId);
+    console.log(result);
     }
    }
    next()
 })
+
+module.exports = mongoose.model("Gallery", gallerySchema);
+
+
