@@ -1,6 +1,6 @@
 const express = require("express");
 const { asyncWrap } = require("../utils/asyncWrap");
-const { signup, otpSend, getPartneDtail,updatePartner } = require("../controllers/partnerController.js");
+const { signup, otpSend, getPartneDtail,updatePartner,deletePartner } = require("../controllers/partnerController.js");
 const { validateSignup, isLoggedIn, isEmailExist, isPhoneExist } = require("../middleware.js");
 const Router = express.Router({mergeParams:true});
 
@@ -16,6 +16,7 @@ Router.route("/signup")
 Router.route("/:id")
 .get(isLoggedIn,asyncWrap(getPartneDtail))
 .put(isLoggedIn,asyncWrap(updatePartner))
+.delete(isLoggedIn,asyncWrap(deletePartner))
 
 
 module.exports = Router;

@@ -3,6 +3,9 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const sendOTP = require("../Helper/sendOtp.js");
 const { storedOtp, verifyOtp } = require("../Helper/otpSerivce.js");
+const cloudinary = require("../Helper/cloudinary.js")
+const serviceModel = require("../models/serviceSchema.js");
+const gallerSchema = require("../models/gallerSchema.js");
 
 
 
@@ -107,7 +110,7 @@ module.exports.updatePartner = async (req, res, next) => {
   let updatedPartner;
   if (req.body.documents) {
     const newDocs = { url: req?.body?.documents?.url, pid: req?.body?.documents?.pid }
-    updatedPartner = await partnerModel.findByIdAndUpdate(id, { $push: { documents: newDocs }, verified:true }, { new: true, runValidators: true }).populate({
+    updatedPartner = await partnerModel.findByIdAndUpdate(id, { $push: { documents: newDocs }, verified: true }, { new: true, runValidators: true }).populate({
       path: "services",
       populate: {
         path: "gallery"
@@ -131,3 +134,64 @@ module.exports.updatePartner = async (req, res, next) => {
   delete updatedPartner.password;
   res.status(200).json({ message: "profile updated successFully", success: true, data: updatedPartner });
 }
+
+
+module.exports.deletePartner = async (req, res, next) => {
+
+    const { id } = req.params;
+    if (!id) {
+      return res.status(400).json({ message: "partner id required", success: false });
+    }
+
+    const deletedPartner = await partnerModel.findById(id);
+    if (!deletedPartner) {
+      return res.status(404).json({ message: "partner not found", success: false });
+    }
+
+    // 1. Delete profile picture from cloudinary
+    if (deletedPartner.profilePicture?.pid) {
+      await cloudinary.uploader.destroy(deletedPartner.profilePicture.pid);
+    }
+
+    // 2. Delete background image from cloudinary
+    if (deletedPartner.backGroundImage?.pid) {
+      await cloudinary.uploader.destroy(deletedPartner.backGroundImage.pid);
+    }
+
+    // 3. Delete related services + galleries
+    const services = await serviceModel.find({ serviceProvider: id });
+
+    for (let service of services) {
+      const galleries = await gallerSchema.find({ serviceId: service._id });
+
+      for (let gallery of galleries) {
+        for (let detail of gallery.details) {
+          if (detail.pId) {
+            await cloudinary.uploader.destroy(detail.pId);
+          }
+        }
+      }
+
+      // Delete gallery docs of this service
+      await gallerSchema.deleteMany({ serviceId: service._id });
+    }
+
+    // Delete services
+    await serviceModel.deleteMany({ serviceProvider: id });
+
+    // Finally delete partner
+    await partnerModel.findByIdAndDelete(id);
+
+    req.session.destroy((err)=>{
+          if(err){
+            return res.status(500).json({message:"internal server error",data:null,success:false})
+          }
+           res.clearCookie("connect.sid"); 
+             res.clearCookie("token"); 
+             return res.status(200).json({ message: "Partner and related data deleted", success: true,data:null });
+    });
+
+    
+
+  
+};

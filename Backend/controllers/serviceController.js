@@ -8,91 +8,93 @@ const cloudinary = require("../Helper/cloudinary.js");
 
 
 module.exports.getAll = async (req, res, next) => {
-     const allService = await serviceModel.find();
-     res.status(200).json({ message: "all service", success: true, data: allService });
+  const allService = await serviceModel.find();
+  res.status(200).json({ message: "all service", success: true, data: allService });
 }
 
 
 module.exports.addNewService = async (req, res, next) => {
-     const { title, description, price, duration, category, availableDays, tags, location } = req.body;
-     console.log(req.body)
-     const newService = new serviceModel({
-          title,
-          description,
-          price,
-          category,
-          duration,
-          serviceProvider: req.session.user,
-          availableDays,
-          tags,
-          location
-     });
+  const { title, description, price, duration, category, availableDays, tags, location } = req.body;
+  console.log(req.body)
+  const newService = new serviceModel({
+    title,
+    description,
+    price,
+    category,
+    duration,
+    serviceProvider: req.session.user,
+    availableDays,
+    tags,
+    location
+  });
 
-     const currentPartner = await Partner.findById(req.session.user).populate("services");
-
-     currentPartner?.services?.map((item, i) => {
-          if (item.category === category) {
-               return res.status(400).json({ message: "category already exist", success: false, data: null })
-          }
-     })
+  const currentPartner = await Partner.findById(req.session.user).populate("services");
 
 
+  let availbleCategory = currentPartner?.services?.some(
+    (service) => service.category === category
+  ) || false;
 
-     const savedService = await newService.save();
-     await Partner.findByIdAndUpdate(req.session.user, {
-          $push: { services: savedService._id },
-     });
-     return res.status(200).json({ message: "service created successfully", success: true, data: savedService });
+  if (availbleCategory) {
+    return res.status(400).json({ message: "category already exist", success: false, data: null })
+  }
+
+
+  const savedService = await newService.save();
+  await Partner.findByIdAndUpdate(req.session.user, {
+    $push: { services: savedService._id },
+  });
+  return res.status(200).json({ message: "service created successfully", success: true, data: savedService });
 }
 
 
 module.exports.getServiceById = async (req, res, next) => {
-     const { id } = req.params;
-     console.log(req.params)
-     if (!id) {
-          return res.status(401).json({ message: "service id required", success: false })
-     }
-     const service = await serviceModel.findById(id);
+  const { id } = req.params;
+  console.log(req.params)
+  if (!id) {
+    return res.status(401).json({ message: "service id required", success: false })
+  }
+  const service = await serviceModel.findById(id);
 
-     if (!service) {
-          return res.status(404).json({ message: "service not found", success: false })
-     }
-     return res.status(200).json({ message: "service fetched successfully ", success: true, data: service })
+  if (!service) {
+    return res.status(404).json({ message: "service not found", success: false })
+  }
+  return res.status(200).json({ message: "service fetched successfully ", success: true, data: service })
 }
 
 
 module.exports.deleteServiceById = async (req, res, next) => {
-     const { id } = req.params;
-     console.log("this is service id for delete",id)
-     if (!id) {
-          return res.status(401).json({ message: "service id required", success: false })
-     }
+  const { id } = req.params;
+  console.log("this is service id for delete", id)
+  if (!id) {
+    return res.status(401).json({ message: "service id required", success: false })
+  }
 
-     const deleteService = await serviceModel.findByIdAndDelete(id);
+  const deleteService = await serviceModel.findByIdAndDelete(id);
 
-     console.log("this is delete service",deleteService)
+  console.log("this is delete service", deleteService)
 
-     if (!deleteService) {
-          return res.status(404).json({ message: "service not found", success: false });
-     }
-     await Partner.findByIdAndUpdate(deleteService?.serviceProvider,{$pull:{services:deleteService?._id.toString()}})
+  if (!deleteService) {
+    return res.status(404).json({ message: "service not found", success: false });
+  }
+  await Partner.findByIdAndUpdate(deleteService?.serviceProvider, { $pull: { services: deleteService?._id.toString() } })
 
-    if(deleteService?.gallery){
-        let result =   await gallerSchema.findByIdAndDelete(deleteService?.gallery?.toString());
+  if (deleteService?.gallery) {
+    let result = await gallerSchema.findByIdAndDelete(deleteService?.gallery?.toString());
 
-        console.log(result);
-    }
+    console.log(result);
+  }
 
-     return res.status(200).json({
-          message: "Service deleted successfully",
-          success: true,
-          data: {service:deleteService},
-     });
+  return res.status(200).json({
+    message: "Service deleted successfully",
+    success: true,
+    data: { service: deleteService },
+  });
 }
 
 module.exports.updateServiceById = async (req, res, next) => {
   const { id } = req.params;
-  const { title, description, price, duration, gallery,discount,availableDays,location } = req.body;
+  const { title, description, price, duration, gallery, discount, availableDays, location } = req.body;
 
   if (!id) {
     return res.status(400).json({ message: "id is required", success: false });
@@ -108,13 +110,13 @@ module.exports.updateServiceById = async (req, res, next) => {
     let savedServiceGallery = await gallerSchema.findOne({ serviceId: id });
 
     if (!savedServiceGallery) {
-     
+
       savedServiceGallery = new gallerSchema({
         serviceId: id,
         details: [...gallery],
       });
     } else {
-   
+
       savedServiceGallery.details.push(...gallery);
     }
 
@@ -129,13 +131,13 @@ module.exports.updateServiceById = async (req, res, next) => {
     }
   }
 
- 
+
   service.title = title ?? service.title;
   service.description = description ?? service.description;
   service.price = price ?? service.price;
   service.location = location ?? service.location,
-  service.availableDays = availableDays ?? service.availableDays,
-  service.discount = discount ?? service.discount
+    service.availableDays = availableDays ?? service.availableDays,
+    service.discount = discount ?? service.discount
   service.duration = duration ?? service.duration
 
   await service.save();
