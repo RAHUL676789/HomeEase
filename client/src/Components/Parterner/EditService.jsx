@@ -1,11 +1,13 @@
 import { useEffect } from 'react'
 import { useForm } from "react-hook-form"
+import Button from '../buttons/Button'
 
 const EditService = ({ service, close, handleServiceUpdate }) => {
   const divClass = "flex flex-col gap-1"
   const inputClass = `px-4 py-3 border border-gray-400 rounded-sm focus:outline-none focus:ring-1 focus:ring-teal-500`
   const labelClass = `text-gray-800 font-medium text-sm`
   const errorClass = "text-red-600 font-semibold text-sm"
+
   const daysOptions = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
 
   useEffect(() => {
@@ -47,14 +49,14 @@ const EditService = ({ service, close, handleServiceUpdate }) => {
 
 
   const onSubmit = (data) => {
-  const payload = { ...data, id: service._id }; 
-  handleServiceUpdate(payload);
-};
+    const payload = { ...data, id: service._id };
+    handleServiceUpdate(payload);
+  };
 
   return (
     <div className="h-screen w-screen bg-black/20 fixed inset-0 z-50">
       <div className="w-full overflow-y-scroll md:w-[75%] bg-white h-screen mx-auto rounded">
-        
+
         {/* Header */}
         <div className="sticky top-0 border-b border-b-gray-300 py-2 px-4 w-full bg-white flex justify-between items-center">
           <h1 className="text-lg font-semibold">Edit Service</h1>
@@ -172,19 +174,21 @@ const EditService = ({ service, close, handleServiceUpdate }) => {
 
             {/* Buttons */}
             <div className="flex justify-between px-4 py-2 mb-3">
-              <button
-                type="button"
+              <Button
+                variant="cancel"
+                htmlType="button"
                 onClick={close}
-                className="px-5 py-1 rounded-3xl font-semibold bg-gray-300 cursor-pointer active:translate-y-0.5"
+
               >
                 Close
-              </button>
-              <button
-                type="submit"
-                className="px-5 py-1 rounded-3xl font-semibold bg-gray-300 hover:bg-gray-600 hover:text-white transition-all duration-150 cursor-pointer active:-translate-y-0.5"
+              </Button>
+              <Button
+                htmlType="submit"
+                variant="apply"
+
               >
                 Apply Changes
-              </button>
+              </Button>
             </div>
 
           </form>

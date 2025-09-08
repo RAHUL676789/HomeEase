@@ -12,7 +12,7 @@ import Login from './Components/auth/login'
 import Signup from './Components/auth/Signup'
 import PartnerProfile from './Pages/PartnerProfile/PartnerProfile'
 // import HeroSection from './Components/HeroSection'
-
+import ServiceListing from "./Components/Service/ServiceListing"
 function App() {
  
   return (
@@ -37,6 +37,9 @@ function App() {
 
       </Route>
         <Route path="/signup" element={<Signup/>}>
+
+      </Route>
+        <Route path="/services/:category" element={<ServiceListing/>}>
 
       </Route>
      </Routes>

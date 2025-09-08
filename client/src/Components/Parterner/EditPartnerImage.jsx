@@ -3,6 +3,7 @@ import cover1 from "../../assets/cover1.jpg"
 import { useEditableImage } from '../../Hooks/useEditableImage'
 import { useDispatch } from 'react-redux'
 import Loader from '../Other/Loader'
+import Button from '../buttons/Button'
 
 const EditPartnerImage = ({ setshowEditImage,backImage,updateField,updateFilter,adjustFilterField,resetCover ,handleApply}) => {
     // console.log(picType)
@@ -326,7 +327,7 @@ const EditPartnerImage = ({ setshowEditImage,backImage,updateField,updateFilter,
 
                                     <div className='  flex gap-5 py-4 '>
                                         {Object.entries(adjustOptions).map(([key, value]) => (
-                                            <button  onClick={() => setcurrentAdjust(key)} className='border text-blue-500 font-semibold rounded-3xl px-3 py-1' key={key}>{key.charAt(0).toUpperCase() + key.slice(1)}</button>
+                                            <Button  onClick={() => setcurrentAdjust(key)} type="next" key={key}>{key.charAt(0).toUpperCase() + key.slice(1)}</Button>
 
 
                                         ))
@@ -343,12 +344,12 @@ const EditPartnerImage = ({ setshowEditImage,backImage,updateField,updateFilter,
 
                     <div className='flex justify-between '>
                       <div className='flex  gap-3'>
-                          <button className='self-start px-5 py-1 hover:bg-gray-300 transition-all duration-400 rounded-3xl'>Delete Photo</button>
-                         <button onClick={()=>dispatch(resetCover())} className='self-start px-5 py-1 hover:bg-gray-300 transition-all duration-400 rounded-3xl'> Reset</button>
+                          <Button type="delete">Delete Photo</Button >
+                         <Button onClick={()=>dispatch(resetCover())} variant="next"> Reset</Button>
                       </div>
                         <div className='flex gap-5'>
-                            <button onClick={()=>handleApply()} className='px-7 bg-blue-500 text-white font-semibold active:translate-y-0.5 py-1 rounded-3xl border'>Apply</button>
-                            <button className='px-7 py-1 border rounded-3xl'>Change Photo</button>
+                            <Button onClick={()=>handleApply()} variant="apply">Apply</Button>
+                            <Button variant="next">Change Photo</Button>
                         </div>
                     </div>
                 </div>

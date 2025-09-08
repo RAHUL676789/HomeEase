@@ -12,6 +12,7 @@ import { setPartner } from '../../redux/partnerSlice.js';
 import Loader from '../Other/Loader.jsx';
 import { uploadFile } from '../../utils/cloudinary/uploadFile.js';
 import { useEditableImage } from '../../Hooks/useEditableImage.js';
+import Button from '../buttons/Button.jsx';
 
 
 const AddCoverPhoto = ({ handleAddCoverPhoto,handleSetToast,handleNextEditCoverPhoto ,backImage,updateField}) => {
@@ -43,14 +44,6 @@ const AddCoverPhoto = ({ handleAddCoverPhoto,handleSetToast,handleNextEditCoverP
     };
 
     const partner = useSelector((state) => state.partner)
-//    const {backImage,updateField} = useEditableImage();
-
-
-    // const handleNextEditCoverPhoto = ()=>{
-
-    // }
-   
-   
 
     const hanldeInputChangeFile = async(e)=>{
         setisLoading(true);
@@ -96,7 +89,7 @@ const AddCoverPhoto = ({ handleAddCoverPhoto,handleSetToast,handleNextEditCoverP
                     <input onChange={hanldeInputChangeFile} ref={coverPhotoFileRef} type="file"  className='hidden'/>
                     <h2 className='font-semibold text-2xl my-0.5'>Upload a photo</h2>
                     <p className='opacity-70 text-lg mb-2'>Showcase your interest, work or top moments</p>
-                    <button onClick={()=>coverPhotoFileRef.current.click()}  className='border rounded-3xl px-3 py-1 hover:border-2 transition-all duration-150 mb-3'>Upload Photo</button>
+                    <Button onClick={()=>coverPhotoFileRef.current.click()} variant="apply" >Upload Photo</Button>
                 </div>
 
                 <div className='px-3 border-b border-b-gray-500 pb-6 mb-4'>
@@ -137,7 +130,7 @@ const AddCoverPhoto = ({ handleAddCoverPhoto,handleSetToast,handleNextEditCoverP
                 </div>
 
                { selectedPic &&  <div className='ml-auto flex justify-end'>
-                    <button onClick={()=>handleNextEditCoverPhoto()}  className='border bg-blue-600 px-7 py-1.5 rounded-3xl font-semibold text-white cursor-pointer'>Next</button>
+                   <Button onClick={()=>handleNextEditCoverPhoto()} variant="next" disabled={false} children={"Next"}/>
                 </div> }
             </div>
         </div>

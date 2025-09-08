@@ -6,6 +6,7 @@ import axios from '../../utils/axios/axiosinstance.js';
 import { useNavigate } from 'react-router-dom';
 import {useDispatch} from "react-redux"
 import { setPartner } from '../../redux/partnerSlice.js';
+import Button from '../buttons/Button.jsx';
 
 const Preview = ({ data, onCancel, submit }) => {
   const [isLoading, setIsLoading] = useState(false);
@@ -123,18 +124,18 @@ const Preview = ({ data, onCancel, submit }) => {
       ))}
 
       <div className='flex gap-4 justify-end pt-4'>
-        <button
+        <Button
           onClick={onCancel}
-          className='px-6 py-2 text-sm font-semibold bg-red-600 hover:bg-red-700 text-white  rounded-3xl transition active:translate-y-0.5'
+          variant="cancel"
         >
           Cancel
-        </button>
-        <button
+        </Button>
+        <Button
           onClick={handleSendOtp}
-          className='px-6 py-2 text-sm font-semibold bg-green-600 hover:bg-green-700 text-white rounded-3xl transition active:translate-y-0.5'
+         variant={"next"}
         >
           Send OTP
-        </button>
+        </Button>
       </div>
     </div>
   );

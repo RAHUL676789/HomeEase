@@ -1,4 +1,5 @@
 import React, { useEffect } from "react";
+import Button from "../buttons/Button";
 
 const DeleteConfirmationMode = ({ confirmDelete, cancel, data }) => {
   useEffect(() => {
@@ -19,18 +20,19 @@ const DeleteConfirmationMode = ({ confirmDelete, cancel, data }) => {
         </p>
 
         <div className="flex justify-end gap-3">
-          <button
+          <Button
             onClick={()=>cancel()}
-            className="px-5 py-2 rounded-3xl border border-gray-300 text-gray-600 hover:bg-gray-100 transition"
+           variant="cancel"
           >
             Cancel
-          </button>
-          <button
+          </Button>
+          <Button
+
             onClick={() => confirmDelete(data)}
-            className="px-5 py-2 rounded-3xl bg-red-600 text-white hover:bg-red-700 transition"
+            variant="delete"
           >
             Delete
-          </button>
+          </Button>
         </div>
       </div>
     </div>

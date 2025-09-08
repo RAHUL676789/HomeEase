@@ -19,7 +19,7 @@ const PartnerCoverPhoto = () => {
 
             <div className='sticky top-0 w-full flex border-b border-b-gray-300 justify-between px-5 py-2'>
                 <h2 className='text-2xl font-semibold'>Cover Photo</h2>
-                <button><i className='ri-close-line'></i></button>
+                <span><i className='ri-close-line'></i></span>
             </div>
 
         </div>

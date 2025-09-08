@@ -3,6 +3,7 @@ import WebLoader from '../Other/Loader'
 import pinApi from '../../utils/Apis'
 import { useForm } from 'react-hook-form'
 import ToastContainer from '../Other/ToastContainer'
+import Button from '../buttons/Button'
 
 const PartnerForm2 = ({ handlePreviData, prevStep }) => {
 
@@ -158,8 +159,8 @@ const PartnerForm2 = ({ handlePreviData, prevStep }) => {
       )}
 
       <div className='flex gap-4'>
-        <button onClick={prevStep} type='button' className='px-7 py-2 rounded-3xl bg-teal-600 text-white my-5 cursor-pointer active:translate-y-0.5 font-bold'>Prev</button>
-        <button type='submit' className='px-7 py-2 rounded-3xl bg-teal-600 text-white my-5 cursor-pointer active:translate-y-0.5 font-bold'>Next</button>
+        <Button onClick={prevStep} htmlType='button' variant="next">Prev</Button>
+        <Button htmlType='submit' variant="next">Next</Button>
       </div>
     </form>
   )

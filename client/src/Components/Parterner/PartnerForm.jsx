@@ -1,5 +1,6 @@
 import React from 'react'
 import { useForm } from "react-hook-form"
+import Button from '../buttons/Button';
 const PartnerForm = ({handlePreviData}) => {
 
     const { register, handleSubmit, formState: { errors } } = useForm();
@@ -57,7 +58,7 @@ const PartnerForm = ({handlePreviData}) => {
                 })} type="password" placeholder='Enter Your Full Name' className='bg-white py-3 px-2 border-0 outline-0' />
                 {errors.password && <p className='text-red-500 text-sm'>* {errors.password.message}</p>}
             </div>
-            <button className='bg-teal-500 text-white font-bold active:translate-y-0.5 cursor-pointer px-7 py-2 rounded-3xl'>Next</button>
+            <Button variant="next" htmlType='submit'>Next</Button>
 
         </form>
     )

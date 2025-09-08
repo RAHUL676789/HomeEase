@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react'
+import Button from '../buttons/Button';
 
 const PartnerGalleryImageView = ({ image,handleImageDelete,setViewImage }) => {
   console.log(image)
@@ -11,7 +12,7 @@ const PartnerGalleryImageView = ({ image,handleImageDelete,setViewImage }) => {
 
   }, [])
 
-  const btnClass = "px-4 py-1 rounded-3xl hover:bg-gray-300 cursor-pointer hover:font-semibold"
+ 
   return (
     <div className='fixed   inset-0 h-screen w-screen bg-black/20 z-50 '>
       <div className='w-[75%] overflow-scroll  flex flex-col  mx-auto rounded h-screen bg-white  '>
@@ -25,8 +26,8 @@ const PartnerGalleryImageView = ({ image,handleImageDelete,setViewImage }) => {
         </div>
 
         <div className = " flex justify-between items-center px-4 my-3">
-          <button onClick={()=>handleImageDelete(image?.serviceId,image?.image,image?.galleryId)} className={btnClass}>Delete</button>
-          <button onClick={()=>setViewImage(null)} className={btnClass}>Close</button>
+          <Button onClick={()=>handleImageDelete(image?.serviceId,image?.image,image?.galleryId)} >Delete</Button>
+          <Button onClick={()=>setViewImage(null)} >Close</Button>
         </div>
 
 

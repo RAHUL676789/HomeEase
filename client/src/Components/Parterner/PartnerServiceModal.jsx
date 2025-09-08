@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import {useForm} from "react-hook-form"
 import axios from "../../utils/axios/axiosinstance.js"
+import Button from '../buttons/Button.jsx'
 
 const PartnerServiceModal = ({modal,handleAddService}) => {
   const daysOptions = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
@@ -205,7 +206,7 @@ const PartnerServiceModal = ({modal,handleAddService}) => {
             </div>
 
 
-            <button className='w-full py-2 border rounded-lg font-semibold bg-teal-700 text-white cursor-pointer'>Add-Service</button>
+            <Button htmlType='submit' variant={"apply"}>Add-Service</Button>
           </form>
         </div>
 

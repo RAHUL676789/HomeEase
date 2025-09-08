@@ -17,8 +17,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import Loader from '../Other/Loader.jsx';
 import { uploadFile } from '../../utils/cloudinary/uploadFile.js';
 import DocumentPreview from '../Other/DocumentPreview.jsx';
+import Button from '../buttons/Button.jsx';
 
-const PartnerInfo = ({ partner }) => {
+const PartnerInfo = ({ partner,setPartnerProfileEdit,deletePartner }) => {
   const [showAddCoverPhoto, setshowAddCoverPhoto] = useState(false);
   const [showEditImage, setshowEditImage] = useState(false)
   const [ShowcoverPhotoOptions, setShowcoverPhotoOptions] = useState(false)
@@ -90,6 +91,8 @@ const PartnerInfo = ({ partner }) => {
 
   }, [partner]);
 
+  const profileOptionRef = useRef();
+  const optionIconRef = useRef();
 
 
   useEffect(() => {
@@ -99,6 +102,12 @@ const PartnerInfo = ({ partner }) => {
       if (optionRef.current && !optionRef.current.contains(event.target)) {
         setShowcoverPhotoOptions(false);
       }
+
+      if((profileOptionRef.current && !profileOptionRef.current.contains(event.target)) && event.target !== optionIconRef.current){
+        
+        setProfileOptions(false)
+      }
+
 
     }
 
@@ -204,6 +213,7 @@ const [profileInp, setprofileInp] = useState(null);
   const [pdfUrl, setpdfUrl] = useState("");
   const [showPdfPreview, setshowPdfPreview] = useState(false)
   const [documentFile, setdocumentFile] = useState("");
+  const [ProfileOptions, setProfileOptions] = useState(false)
 
   const handleDocumentUpload = async (e) => {
     const file = e.target.files[0];
@@ -300,7 +310,7 @@ const [profileInp, setprofileInp] = useState(null);
       <div className="relative">
         {/* Background Image or Fallback */}
         <div className="w-full relative h-48 overflow-hidden">
-          {backGroundImage ? (
+          {backGroundImage?.url !=="" ? (
             <img
 
               style={{
@@ -338,7 +348,7 @@ const [profileInp, setprofileInp] = useState(null);
           }
         }} className='absolute -bottom-16 left-6 z-10'>
           <div className='h-32 w-32 p-1 bg-white border rounded-full flex items-center justify-center overflow-hidden shadow-md'>
-            {profilePicture ? (
+            {profilePicture?.url !== "" ? (
               <img src={profilePicture?.url} alt="Profile" className='h-full w-full rounded-full object-cover' />
             ) : (
               <div className="h-full w-full rounded-full bg-gradient-to-br from-gray-300 to-gray-100 flex items-center justify-center text-4xl font-bold text-gray-600">
@@ -352,6 +362,20 @@ const [profileInp, setprofileInp] = useState(null);
 
       {/* 🧾 MAIN BODY CONTENT (outside header) */}
       <div className='mt-20 pt-6 px-5 pb-6 sm:flex sm:flex-row flex-col justify-between relative z-0'>
+
+        <div className='absolute right-6 -top-12 cursor-pointer  px-2 rounded-full hover:bg-gray-200 transition-all duration-150 py-1 '>
+          <i ref={optionIconRef} onClick={()=>setProfileOptions(true)} className="ri-more-2-line font-bold"></i>
+
+        </div>
+
+        {ProfileOptions && <div ref={profileOptionRef} className='absolute right-16 -top-16 shadow-sm shadow-gray-200 px-2 py-3 rounded-sm'>
+          <ul>
+            <li onClick={()=>setPartnerProfileEdit(true)} className='transition-all rounded-sm duration-150 px-3 py-1 hover:shadow-sm font-semibold hover:shadow-gray-300 cursor-pointer'>Edit-Profile</li>
+            <li onClick={()=>deletePartner()} className=' transition-all duration-150 px-3 py-1 hover:shadow-sm hover:shadow-gray-300  rounded-sm font-semibold cursor-pointer'>Delete-Profile</li>
+          </ul>
+
+
+        </div>}
 
         {/* Info Section */}
         <div className='mb-5'>
@@ -386,10 +410,10 @@ const [profileInp, setprofileInp] = useState(null);
         </div>
 
         {/* Uploaded Documents */}
-        {documents.length > 0 ? (
+        {documents?.length > 0 ? (
           <div className="space-y-3 p-4 mb-4 rounded-lg bg-gray-50 border border-gray-200 max-w-md">
             <h3 className="text-xl font-semibold text-gray-800 mb-2">Uploaded Documents</h3>
-            {documents.map((doc, index) => (
+            {documents?.map((doc, index) => (
               <div key={index} className="flex items-center justify-between p-3 bg-white rounded-lg shadow-sm border hover:shadow-md transition">
                 <div className="flex items-center gap-3">
                   <i className="ri-file-pdf-line text-red-500 text-2xl">
@@ -398,7 +422,7 @@ const [profileInp, setprofileInp] = useState(null);
                   <p className="text-gray-800 font-medium">{doc.name || `Document ${index + 1}`}</p>
                 </div>
                 <div className="flex gap-2">
-                 <button className='px-3 py-1 rounded-3xl  cursor-pointer underline  text-red-700'>Delete</button>
+                 <Button variant="delete">Delete</Button>
                 </div>
               </div>
             ))}

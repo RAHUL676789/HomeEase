@@ -1,6 +1,7 @@
 import React, { useEffect, useRef,useState } from 'react';
 import PartnerGalleryCard from './PartnerGalleryCard';
 import PartnerReview from './PartnerReview'; // ✅ Make sure this file exists
+import Button from '../buttons/Button';
 
 const PartnerServiceCard = ({ service,setViewImage,handleSeriveId, handleShowGalleryModal, ServiceCardOpen, handleServiceCardOpen,setDeleteableService,setEditableService }) => {
   if (!service) return null;
@@ -107,16 +108,16 @@ const PartnerServiceCard = ({ service,setViewImage,handleSeriveId, handleShowGal
         <div className="pt-3 overflow-scroll no-scrollbar">
           <div className="flex  justify-between items-center">
             <h2 className="font-semibold text-lg text-gray-800">Gallery</h2>
-            <button onClick={(e) => {
+            <Button onClick={(e) => {
               e.preventDefault();
               e.stopPropagation(); // ✅ parent div ke click ko roka
               if (galleryRef.current) {
                 galleryRef.current.click();
                 handleSeriveId(service?._id || service?.id)
               }
-            }} title="Add Gallery" className="border cursor-pointer px-2 rounded-full py-1">
+            }} title="Add Gallery" variant={"apply"}>
               <i className="ri-add-line"></i>
-            </button>
+            </Button>
             <input onChange={(e)=>handleShowGalleryModal(e.target.files)} onClick={(e)=>e.stopPropagation()} ref={galleryRef} type="file" multiple className='hidden' />
 
           </div>
@@ -138,10 +139,10 @@ const PartnerServiceCard = ({ service,setViewImage,handleSeriveId, handleShowGal
         </div>
 
           <div className='flex justify-between items-center w-full'>
-        <button onClick={()=>setEditableService(service)} className='px-5 py-1 hover:bg-gray-300 transition-all duration-150 rounded-3xl  cursor-pointer font-semibold'>
+        <Button variant={"edit"} onClick={()=>setEditableService(service)} >
           Edit
-          </button>
-          <button onClick={()=>setDeleteableService(service)} className='px-5 py-1 rounded-3xl font-semibold hover:bg-gray-500 transition-all duration-150 hover:text-white cursor-pointer'>Delete-service</button>
+          </Button>
+          <Button onClick={()=>setDeleteableService(service)} variant="delete">Delete-service</Button>
       </div>
       </div>
 
