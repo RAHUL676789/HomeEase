@@ -12,6 +12,7 @@ const PartnerGalleryImageView = ({ image,handleImageDelete,setViewImage }) => {
 
   }, [])
 
+
  
   return (
     <div className='fixed   inset-0 h-screen w-screen bg-black/20 z-50 '>

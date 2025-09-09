@@ -27,6 +27,7 @@ function HeroSlider() {
     setCurrent((prev) => (prev - 1 + heroData.length) % heroData.length);
   };
 
+  // console.log(x)
   return (
     <div className="w-full relative inset-0 bg-[#f0fdf4] py-15 px-4 md:px-16">
       {toast && <ToastContainer type="error" content="error content" />}

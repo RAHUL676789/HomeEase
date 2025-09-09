@@ -35,7 +35,7 @@ const PartnerServiceCard = ({ service,setViewImage,handleSeriveId, handleShowGal
     }
   },[ServiceCardOpen,gallery,reviews])
 
-
+  
 
   return (
     <div

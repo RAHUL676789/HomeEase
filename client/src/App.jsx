@@ -13,10 +13,14 @@ import Signup from './Components/auth/Signup'
 import PartnerProfile from './Pages/PartnerProfile/PartnerProfile'
 // import HeroSection from './Components/HeroSection'
 import ServiceListing from "./Components/Service/ServiceListing"
+import ErrorBoundary from './Components/Other/ErrorBoundary'
 function App() {
  
   return (
    <BrowserRouter>
+   <ErrorBoundary>
+
+ 
      <Navbar/>
     
     
@@ -43,6 +47,7 @@ function App() {
 
       </Route>
      </Routes>
+     </ErrorBoundary>
    </BrowserRouter>
   )
 }
