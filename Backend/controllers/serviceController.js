@@ -3,13 +3,33 @@ const serviceModel = require("../models/serviceSchema.js");
 const Partner = require("../models/partnerSchema.js");
 const gallerSchema = require("../models/gallerSchema.js");
 const cloudinary = require("../Helper/cloudinary.js");
+const { json } = require("express");
 
 
 
 
-module.exports.getAll = async (req, res, next) => {
-  const allService = await serviceModel.find();
-  res.status(200).json({ message: "all service", success: true, data: allService });
+module.exports.getServiceQuery = async (req, res, next) => {
+  let  {category,price,rating,location} = req.query;
+  console.log(rating)
+  let query = {};
+  if(category){
+    query.category = {$in:{category:category.split(",")}}
+  }
+  
+  if(price){
+    price = JSON.parse(price);
+    query.price = {$lt:{price:price.max},$gt:{price:price.min}}
+  }
+  if (rating) {
+  query["reviews.rating"] = { $gte: Number(rating) };
+}
+ if (location) {
+  query.location = { $regex: location, $options: "i" };
+}
+
+console.log(query)
+  // const allService = await serviceModel.find();
+  res.status(200).json({ message: "all service" });
 }
 
 
@@ -228,6 +248,7 @@ module.exports.deleteServiceGalleryImage = async (req, res, next) => {
     });
   }
 };
+
 
 
 

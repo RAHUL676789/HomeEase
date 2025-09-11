@@ -1,5 +1,5 @@
 const express = require("express");
-const { getAll,addNewService,getServiceById,deleteServiceById,updateServiceById, deleteServiceGalleryImage } = require("../controllers/serviceController");
+const { getServiceQuery,addNewService,getServiceById,deleteServiceById,updateServiceById, deleteServiceGalleryImage } = require("../controllers/serviceController");
 const { asyncWrap } = require("../utils/asyncWrap");
 const { isLoggedIn,isOwner } = require("../middleware");
 const Router = express.Router({ mergeParams: true });
@@ -8,7 +8,7 @@ const Router = express.Router({ mergeParams: true });
 
 
 Router.route("/")
-    .get(asyncWrap(getAll))
+    .get(asyncWrap(getServiceQuery))
     .post(isLoggedIn,asyncWrap(addNewService));
 
 Router.route("/:id")
@@ -17,7 +17,9 @@ Router.route("/:id")
     .get(isLoggedIn,asyncWrap(getServiceById));
 
  Router.route("/:id/gallery/:galleryId")  
-       .delete(isLoggedIn,isOwner,asyncWrap(deleteServiceGalleryImage)) 
+       .delete(isLoggedIn,isOwner,asyncWrap(deleteServiceGalleryImage)) ;
+
+     
     
 
  
