@@ -10,26 +10,35 @@ const { json } = require("express");
 
 module.exports.getServiceQuery = async (req, res, next) => {
   let  {category,price,rating,location} = req.query;
-  console.log(rating)
+ 
   let query = {};
   if(category){
-    query.category = {$in:{category:category.split(",")}}
+    query.category = {$in:category.split(",")}
   }
   
   if(price){
     price = JSON.parse(price);
-    query.price = {$lt:{price:price.max},$gt:{price:price.min}}
+    query.price = {};
+    if(price.min !== undefined) query.price.$gt = price.min;
+    if(price.max !== undefined)query.price.$lt = price.max;
   }
   if (rating) {
-  query["reviews.rating"] = { $gte: Number(rating) };
+    rating = Number(rating);
+    if(!isNaN(rating))query["reviews.rating"] = { $gte: Number(rating) };
+
 }
  if (location) {
   query.location = { $regex: location, $options: "i" };
 }
 
-console.log(query)
-  // const allService = await serviceModel.find();
-  res.status(200).json({ message: "all service" });
+if(Object.keys(query).length === 0){
+  return res.status(400).json({message:"query needed",data:null,success:false})
+}
+
+ const queryData = await serviceModel.find(query).populate("gallery").populate("serviceProvider","-password").limit(6);
+ 
+
+  res.status(200).json({ message: "Data Fetched SuccessFully",data:queryData,success:true });
 }
 
 
