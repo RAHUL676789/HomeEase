@@ -6,15 +6,13 @@ import computer from "../../assets/computer.svg"
 // import Electrican from "../../assets/Electrican.svg"
  
 const ServiceCard = ({service,category}) => {
+  console.log(service)
    const img = {
     cleaning:cleaning,
     Beautician:Beautician,
     CarWash:CarWash,
     Maintenance:computer,
   
-
-
-
    }
 
    const [defaultImage, setdefaultImage] = useState(null)
@@ -30,7 +28,7 @@ const ServiceCard = ({service,category}) => {
           <h2 className="text-3xl font-semibold mb-3">Available Services</h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2  gap-6">
-            {[1, 2, 3, 4, 5, 6].map((item) => (
+           
               <div className="bg-white rounded-xl shadow hover:shadow-lg transition overflow-hidden flex flex-col">
                 {/* Image */}
                 <div className="relative">
@@ -71,7 +69,7 @@ const ServiceCard = ({service,category}) => {
                 </div>
               </div>
 
-            ))}
+         
           </div>
        
       

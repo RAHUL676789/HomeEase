@@ -113,7 +113,7 @@ const PartnerServiceModal = ({modal,handleAddService}) => {
                 <option value="electrical">electrical</option>
                 <option value="cleaning">cleaning</option>
                 <option value="repair">repair</option>
-                <option value="other">other</option>
+                <option value="beauty">other</option>
 
 
               </select>
