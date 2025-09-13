@@ -35,7 +35,8 @@ if(Object.keys(query).length === 0){
   return res.status(400).json({message:"query needed",data:null,success:false})
 }
 
- const queryData = await serviceModel.find(query).populate("gallery").populate("serviceProvider","-password").limit(6);
+console.log(query)
+ const queryData = await serviceModel.find(query).populate("gallery").populate("serviceProvider","-password").limit(4);
  
 
   res.status(200).json({ message: "Data Fetched SuccessFully",data:queryData,success:true });

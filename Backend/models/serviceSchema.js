@@ -1,7 +1,9 @@
 const mongoose = require("mongoose");
-const Gallery = require("../models/gallerSchema.js")
+const Gallery = require("../models/gallerSchema.js");
+// const { dbConnection } = require("../config/config.js");
 
 const { Schema } = mongoose;
+
 
 
 const serviceSchema = new Schema({
@@ -12,7 +14,7 @@ const serviceSchema = new Schema({
     type: String,
     required: true,
     lowercase: true,
-    enum: ["plumbing", "electrical", "cleaning", "repair", "other"]
+    enum: ["plumbing", "electrical", "cleaning", "repair", "beauty"]
   },
   serviceProvider: {
     type: mongoose.Schema.Types.ObjectId,
