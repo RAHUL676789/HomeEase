@@ -1,7 +1,8 @@
 import React, { useEffect } from "react";
 import Cover1 from "../../assets/cover1.jpg";
+import Button from "../buttons/Button";
 
-const ViewService = ({ service, onClose }) => {
+const ViewService = ({ service, handleViewService }) => {
   // Fake data fallback
   const {
     title = "Premium Home Cleaning",
@@ -16,8 +17,7 @@ const ViewService = ({ service, onClose }) => {
       ],
     },
     review = [
-      { name: "Amit Sharma", comment: "Amazing service! My home looks spotless now.", rating: 5 },
-      { name: "Priya Verma", comment: "Good experience, staff was polite and professional.", rating: 4 },
+    
     ],
   } = service || {};
 
@@ -34,7 +34,7 @@ const ViewService = ({ service, onClose }) => {
         {/* Header */}
         <header className="flex justify-between items-center px-6 py-4 border-b shadow-sm bg-white sticky top-0 z-10">
           <h1 className="text-2xl font-bold text-gray-800">Service Details</h1>
-          <button onClick={onClose} className="text-2xl hover:text-red-500 transition">
+          <button onClick={()=>handleViewService(null)} className="text-2xl hover:text-red-500 transition">
             <i className="ri-close-line"></i>
           </button>
         </header>
@@ -44,14 +44,14 @@ const ViewService = ({ service, onClose }) => {
           {/* Provider Info */}
           <div className="flex justify-between items-center">
             <div className="flex gap-3 items-center">
-              <img src={Cover1} alt="provider" className="h-14 w-14 rounded-full object-cover" />
+              <img src={ service?.serviceProvider?.profilePicture?.url || Cover1} alt="provider" className="h-14 w-14 rounded-full object-cover" />
               <div>
-                <p className="font-semibold text-gray-800">Rahul Lodhi</p>
+                <p className="font-semibold text-gray-800">{service?.serviceProvider?.fullName}</p>
                 <p className="text-sm text-gray-500">Verified Provider</p>
               </div>
             </div>
             <span className="px-3 py-1 text-sm bg-green-100 text-green-700 rounded-full">
-              Cleaning
+              {service?.category}
             </span>
           </div>
 
@@ -62,9 +62,9 @@ const ViewService = ({ service, onClose }) => {
             <div className="grid grid-cols-2 gap-4 text-gray-700">
               <p><strong>Price:</strong> ₹{price}</p>
               <p><strong>Location:</strong> {location}</p>
-              <p><strong>Available Days:</strong> Sunday, Monday, Thursday</p>
-              <p><strong>Duration:</strong> Full Day</p>
-              <p><strong>Discount:</strong> 10% Off</p>
+              <p ><strong>Available Days:</strong>{service?.availableDays?.map((item,i)=>(item))}</p>
+              <p><strong>Duration:</strong>{service?.duration}</p>
+              <p><strong>Discount:</strong> {service?.discount && ""  } %OFF</p>
             </div>
           </div>
 
@@ -72,7 +72,7 @@ const ViewService = ({ service, onClose }) => {
           <div>
             <h2 className="text-xl font-semibold mb-3">Gallery</h2>
             {gallery?.details?.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+              <div className=" overflow-scroll flex gap-5">
                 {gallery.details.map((item, i) => (
                   <img
                     key={i}
@@ -88,7 +88,7 @@ const ViewService = ({ service, onClose }) => {
           </div>
 
           {/* Reviews */}
-          <div>
+          <div className="max-h-96 overflow-scroll no-scrollbar">
             <h2 className="text-xl font-semibold mb-3">Customer Reviews</h2>
             {review?.length > 0 ? (
               <div className="space-y-4">
@@ -98,10 +98,10 @@ const ViewService = ({ service, onClose }) => {
                     className="bg-white p-4 rounded-lg shadow flex items-start gap-3"
                   >
                     <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center font-bold text-blue-700">
-                      {item.name[0]}
+                      {item?.user?.fullName[0]}
                     </div>
                     <div>
-                      <p className="font-semibold text-gray-800">{item.name}</p>
+                      <p className="font-semibold text-gray-800">{item?.user?.fullName}</p>
                       <p className="text-sm text-gray-600">{item.comment}</p>
                       <p className="text-yellow-500 text-sm">
                         {"⭐".repeat(item.rating)}{" "}
@@ -116,6 +116,11 @@ const ViewService = ({ service, onClose }) => {
             )}
           </div>
         </main>
+
+        <div className="flex justify-end px-4 pt-2">
+           
+          <Button variant="apply" children={"Book Now"}/>
+        </div>
       </div>
     </div>
   );

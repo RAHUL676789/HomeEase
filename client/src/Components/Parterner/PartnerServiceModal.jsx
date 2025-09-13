@@ -110,10 +110,10 @@ const PartnerServiceModal = ({modal,handleAddService}) => {
               })} id='category' className={inputClass} type="text" placeholder='Service cateogary' name='category' >
                 <option value="">choose Cateogary</option>
                 <option value="plumbing">plumbing</option>
-                <option value="electrical">electrical</option>
+                <option value="electrician">electrical</option>
                 <option value="cleaning">cleaning</option>
                 <option value="repair">repair</option>
-                <option value="beauty">other</option>
+                <option value="beauty">beauty</option>
 
 
               </select>
