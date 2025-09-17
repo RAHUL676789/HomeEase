@@ -9,7 +9,7 @@ const { json } = require("express");
 
 
 module.exports.getServiceQuery = async (req, res, next) => {
-  let  {category,price,rating,location} = req.query;
+  let  {category,price,rating,location,page} = req.query;
  
   let query = {};
   if(category){
@@ -36,7 +36,7 @@ if(Object.keys(query).length === 0){
 }
 
 console.log(query)
- const queryData = await serviceModel.find(query).populate("gallery").populate("serviceProvider","-password").limit(4);
+ const queryData = await serviceModel.find(query).skip((page - 1) * 4).populate("gallery").populate("serviceProvider","-password").limit(4);
  
 
   res.status(200).json({ message: "Data Fetched SuccessFully",data:queryData,success:true });

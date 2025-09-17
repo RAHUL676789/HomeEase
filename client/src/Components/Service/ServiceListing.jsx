@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState, useCallback } from 'react'
 import ServiceCard from './ServiceCard'
 import ViewService from './ViewService'
 import axios from "../../utils/axios/axiosinstance.js"
@@ -9,22 +9,27 @@ import ViewListingSkeleton from './ViewListingSkeleton.jsx'
 import { useSelector, useDispatch } from "react-redux"
 import { setListing } from '../../redux/listingSlice.js'
 import { debounce } from '../../utils/helper/debounce.js'
+import NotFound from "../../assets/NotFound.svg"
 
 const ServiceListing = () => {
   const location = useLocation();
   const dispatch = useDispatch();
   const { listing } = useSelector((state) => state.listing);
 
-  const [isLoading, setisLoading] = useState(false)
-  const [toast, settoast] = useState({
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const rightPaneRef = useRef(null);
+
+  const [isLoading, setIsLoading] = useState(false);
+  const [toast, setToast] = useState({
     type: null,
     content: "",
     trigger: Date.now(),
     status: false
-  })
-  const [viewServiceDetil, setviewServiceDetil] = useState(null);
+  });
+  const [viewServiceDetail, setViewServiceDetail] = useState(null);
 
-  const [queryObject, setqueryObject] = useState({
+  const [queryObject, setQueryObject] = useState({
     category: location?.state ? [location.state] : [],
     price: [],
     rating: [],
@@ -40,10 +45,10 @@ const ServiceListing = () => {
       { label: "above 1000", min: 1000, max: Infinity }
     ],
     rating: ["2", "3", "4"],
-    location:[]
+    location: []
   }
 
-  const [features, setfeatures] = useState({
+  const [features, setFeatures] = useState({
     category: false,
     price: false,
     rating: false,
@@ -57,19 +62,19 @@ const ServiceListing = () => {
       trigger: Date.now(),
       status: true
     }
-    settoast(newToast);
+    setToast(newToast);
   }
 
   const updateFilters = (key) => {
-    setfeatures((prev) => ({
+    setFeatures((prev) => ({
       ...prev,
       [key]: !prev[key]
     }))
   }
 
-  // ✅ Checkbox toggle logic (for all filters)
+  // ✅ Checkbox toggle logic
   const handleFilterQuery = (key, value) => {
-    setqueryObject((prev) => {
+    setQueryObject((prev) => {
       if (key === "price") {
         const exists = prev.price.find(
           (p) => p.min === value.min && p.max === value.max
@@ -98,8 +103,8 @@ const ServiceListing = () => {
     });
   };
 
-  // ✅ Debounced API Call
-  const handleApiCall = debounce(async () => {
+  // ✅ Helper to build query
+  const buildQuery = () => {
     const query = new URLSearchParams();
 
     if (queryObject.category.length > 0) {
@@ -114,22 +119,57 @@ const ServiceListing = () => {
     if (queryObject.location) {
       query.append("location", queryObject.location)
     }
+    query.append("page", page);
 
+    return query.toString();
+  }
+
+  // ✅ API Call
+  const fetchServices = useCallback(async () => {
     try {
-      setisLoading(true)
-      const { data } = await axios.get(`/api/services?${query.toString()}`)
-      dispatch(setListing(data?.data));
-      handleSetToast("success", data?.message || "fetched ")
+      setIsLoading(true);
+      const { data } = await axios.get(`/api/services?${buildQuery()}`);
+
+      if (page === 1) {
+        dispatch(setListing(data?.data));
+      } else {
+        dispatch(setListing([...listing, ...data?.data]));
+      }
+
+      if (data?.data.length < 4) {
+        setHasMore(false);
+      } else {
+        setHasMore(true);
+      }
+
+      if (page === 1) {
+        handleSetToast("success", data?.message || "Fetched services");
+      }
+
     } catch (error) {
-      console.log(error)
+      console.log(error);
+      handleSetToast("error", "Something went wrong while fetching");
     } finally {
-      setisLoading(false)
+      setIsLoading(false);
     }
-  }, 1000)
+  }, [page, queryObject]);
+
+  // ✅ Filters change → reset page
+  useEffect(() => {
+    setPage(1);
+    setHasMore(true);
+  }, [queryObject]);
+
+ 
+  const debouncedFetch = useCallback(debounce(fetchServices, 800), [fetchServices]);
 
   useEffect(() => {
-    handleApiCall();
-  }, [queryObject])
+    if (page === 1) {
+      debouncedFetch();
+    } else {
+      fetchServices();
+    }
+  }, [page, queryObject]);
 
   const handleCurrentLocation = () => {
     if (!navigator.geolocation) {
@@ -141,20 +181,20 @@ const ServiceListing = () => {
       async (position) => {
         const { latitude, longitude } = position.coords;
         try {
-          setisLoading(true)
+          setIsLoading(true)
           const location = await fetchLocation(latitude, longitude);
           handleFilterQuery("location", location)
-          handleSetToast("success", "location fetched successfully")
+          handleSetToast("success", "Location fetched successfully")
         } catch (err) {
           console.error("Error fetching location:", err);
-          handleSetToast("error", "location not fetched")
+          handleSetToast("error", "Location not fetched")
         } finally {
-          setisLoading(false)
+          setIsLoading(false)
         }
       },
       (error) => {
         console.error("Geolocation error:", error);
-        handleSetToast("error", error.message || "location not fetched")
+        handleSetToast("error", error.message || "Location not fetched")
       },
       { enableHighAccuracy: true, timeout: 10000 }
     );
@@ -176,18 +216,37 @@ const ServiceListing = () => {
   };
 
   const handleViewService = (service) => {
-    setviewServiceDetil(service);
+    setViewServiceDetail(service);
+  }
+
+  const handleScroll = () => {
+    if (!rightPaneRef.current || isLoading || !hasMore) return;
+    const container = rightPaneRef.current;
+
+    if (container.scrollTop + container.clientHeight >= container.scrollHeight - 50) {
+      setPage((prev) => prev + 1);
+    }
   }
 
   if (!listing) {
     return <ViewListingSkeleton />
   }
 
+  const handleBookNow =  (service)=>{
+    try {
+      
+    } catch (error) {
+      
+    }finally{
+      
+    }
+  }
+
   return (
     <div className='min-h-screen w-screen bg-gray-100'>
-      {viewServiceDetil && <ViewService handleViewService={handleViewService} service={viewServiceDetil} />}
+      {viewServiceDetail && <ViewService handleViewService={handleViewService} service={viewServiceDetail} />}
 
-      {isLoading && <Loader />}
+      {isLoading && page === 1 && <Loader />}
       {toast.status && <ToastContainer trigger={toast.trigger} key={toast.trigger} type={toast.type} content={toast.content} />}
 
       <div className='h-full w-full flex'>
@@ -197,7 +256,6 @@ const ServiceListing = () => {
 
           {Object.keys(filters).map((filterKey, i) => (
             <div key={i} className='mb-3'>
-              {/* header */}
               <button
                 onClick={() => updateFilters(filterKey)}
                 className='w-full justify-between items-center px-3 py-2 flex bg-white rounded shadow hover:bg-gray-100'
@@ -206,7 +264,6 @@ const ServiceListing = () => {
                 <span className='text-gray-600'>+</span>
               </button>
 
-              {/* content */}
               {features[filterKey] && (
                 <div className='space-y-2 mt-2 ml-2'>
                   {filterKey === "location" && (
@@ -253,7 +310,7 @@ const ServiceListing = () => {
         </div>
 
         {/* right panel */}
-        <div className='overflow-y-auto w-full md:w-3/4 p-6'>
+        <div ref={rightPaneRef} onScroll={handleScroll} className='overflow-y-scroll w-full md:w-3/4 p-6 max-h-screen'>
           <h2 className="text-3xl font-semibold mb-3">Available Services</h2>
           <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
             {listing?.length > 0 ? listing.map((list, i) => (
@@ -263,10 +320,19 @@ const ServiceListing = () => {
                 service={list}
                 key={list._id}
               />
-            )) : <div className='h-[50vh] flex px-5 py-3  shadow-sm shadow-gray-200 justify-center items-center  w-[100vh] '> 
-              <h2 className='text-4xl font-bold'>No service Available on given Filter</h2>
-              </div>}
+            )) : (
+              <div className='col-span-2 flex flex-col px-5 py-3 shadow-sm shadow-gray-200 justify-center items-center'>
+                <h2 className='text-4xl mb-3 text-gray-400'>
+                  oops! no service Available on given Filter
+                </h2>
+                <img src={NotFound} alt="Not Found" />
+              </div>
+            )}
           </div>
+
+          {/* Infinite scroll loader & end message */}
+          {isLoading && page > 1 && <p className="text-center py-4">Loading more...</p>}
+          {!hasMore && listing?.length > 0 && <p className="text-center py-4 text-gray-500">No more services</p>}
         </div>
       </div>
     </div>

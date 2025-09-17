@@ -28,6 +28,20 @@ module.exports.validateSignup = [
 ];
 
 
+module.exports.validateUsersignup =[
+  body("fullName").notEmpty().withMessage("fullName is required").isLength({min:3}).withMessage("fullName should be at least 3 character"),
+  body("email").isEmail().withMessage("email should be valid"),
+  body("password").isLength({min:6}).withMessage("password should be at least 6 character"),
+   
+  (req,res,next)=>{
+    const errors = validationResult(req);
+    if(!errors.isEmpty()){
+       return res.status(400).json({ message: "validation failed", errors: errors.array() })
+    }
+    next()
+  }
+]
+
 
 
 module.exports.validateLoginPartner = [

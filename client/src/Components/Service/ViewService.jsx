@@ -46,7 +46,7 @@ const ViewService = ({ service, handleViewService }) => {
             <div className="flex gap-3 items-center">
               <img src={ service?.serviceProvider?.profilePicture?.url || Cover1} alt="provider" className="h-14 w-14 rounded-full object-cover" />
               <div>
-                <p className="font-semibold text-gray-800">{service?.serviceProvider?.fullName}</p>
+                <p className="font-semibold text-gray-800">{service?.serviceProvider?.fullName || "Unknown"}</p>
                 <p className="text-sm text-gray-500">Verified Provider</p>
               </div>
             </div>
@@ -56,17 +56,85 @@ const ViewService = ({ service, handleViewService }) => {
           </div>
 
           {/* Service Details */}
-          <div className="bg-white p-6 rounded-xl shadow-md">
-            <h2 className="text-2xl font-semibold mb-3">{title}</h2>
-            <p className="text-gray-600 mb-4">{description}</p>
-            <div className="grid grid-cols-2 gap-4 text-gray-700">
-              <p><strong>Price:</strong> ₹{price}</p>
-              <p><strong>Location:</strong> {location}</p>
-              <p ><strong>Available Days:</strong>{service?.availableDays?.map((item,i)=>(item))}</p>
-              <p><strong>Duration:</strong>{service?.duration}</p>
-              <p><strong>Discount:</strong> {service?.discount && ""  } %OFF</p>
-            </div>
-          </div>
+        {/* Service Details */}
+<div className="bg-white p-6 rounded-xl shadow-md">
+  <h2 className="text-2xl font-semibold mb-3">{title}</h2>
+  <p className="text-gray-600 mb-4">{description}</p>
+  <div className="grid grid-cols-2 gap-4 text-gray-700">
+    <p><strong>Price:</strong> ₹{price}</p>
+    <p><strong>Location:</strong> {location}</p>
+    <p>
+      <strong>Available Days:</strong>{" "}
+      {service?.availableDays?.map((item, i) => (
+        <span key={i} className="ml-1">{item}</span>
+      ))}
+    </p>
+    <p><strong>Duration:</strong> {service?.duration}</p>
+    <p><strong>Discount:</strong> {service?.discount ? `${service.discount}% OFF` : "No discount"}</p>
+  </div>
+
+  {/* --- User Requirement (NEW) --- */}
+  <div className="mt-8 border-t pt-6">
+    <h2 className="text-xl font-semibold mb-4">Your Requirement</h2>
+
+    <form className="space-y-4">
+      {/* Payment */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700">
+          Payment You Offer (₹)
+        </label>
+        <input
+          type="number"
+          placeholder="Enter amount"
+          className="w-full mt-1 p-2 border rounded-md focus:ring focus:ring-blue-200"
+        />
+      </div>
+
+      {/* Select Day */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700">
+          Select Preferred Day
+        </label>
+        <select className="w-full mt-1 p-2 border rounded-md focus:ring focus:ring-blue-200">
+          {service?.availableDays?.length > 0 ? (
+            service.availableDays.map((day, i) => (
+              <option key={i} value={day}>
+                {day}
+              </option>
+            ))
+          ) : (
+            <option disabled>No days available</option>
+          )}
+        </select>
+      </div>
+
+      {/* Select Duration */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700">
+          Select Preferred Duration
+        </label>
+        <input
+          type="text"
+          placeholder="e.g. 2 hours, 3 days"
+          className="w-full mt-1 p-2 border rounded-md focus:ring focus:ring-blue-200"
+        />
+      </div>
+
+      {/* Notes */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700">
+          Additional Notes
+        </label>
+        <textarea
+          rows="3"
+          placeholder="Describe your requirement..."
+          className="w-full mt-1 p-2 border rounded-md focus:ring focus:ring-blue-200"
+        />
+      </div>
+    </form>
+  </div>
+</div>
+
 
           {/* Gallery */}
           <div>

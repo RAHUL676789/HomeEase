@@ -5,8 +5,9 @@ import { useSelector } from "react-redux";
 
 function Navbar() {
   const [isMobileOpen, setIsMobileOpen] = useState(true);
-  const  partner = useSelector((state) => state.partner);
-   const   user = useSelector((state) => state.user);
+  const partner = useSelector((state) => state.partner?.partner);
+  const user = useSelector((state) => state.user?.user);
+
   const navRef = useRef();
   const [lastScrollY, setLastScrollY] = useState(0);
   const [shownav, setShownav] = useState(false);
@@ -21,27 +22,39 @@ function Navbar() {
     { name: "Service", path: "/service", icon: <i className="ri-service-fill mr-1"></i> },
   ];
 
-  const actionItems = [
-    { name: "Become a partner", path: "/partner", icon: <i className="ri-medal-line text-fuchsia-500"></i> },
-    { name: "signup", path: "/signup", icon: <i className="ri-logout-circle-line text-green-500 rotate-90"></i> },
-    { name: "login", path: "/login", icon: <i className="ri-login-circle-line text-green-600 rotate-90"></i> },
+  // ---------------- LOGIN STATES ----------------
+  const guestActions = [
+    { name: "Become a Partner", path: "/partner", icon: <i className="ri-medal-line text-fuchsia-500"></i> },
+    { name: "Signup", path: "/signup", icon: <i className="ri-logout-circle-line text-green-500 rotate-90"></i> },
+    { name: "Login", path: "/login", icon: <i className="ri-login-circle-line text-green-600 rotate-90"></i> },
   ];
 
-  const partnerName = partner?.partner?.fullName || user?.user?.fullName;
-
-  const partnerItem = [
+  const userActions = [
     {
-      name: "Hi " + partnerName,
-      path: user.user ? "/userProfile" : "/partnerProfile",
+      name: `Hi ${user?.fullName}`,
+      path: "/userProfile",
       icon: <i className="ri-user-3-fill text-teal-400"></i>,
     },
-    {
-      name: "logOut",
-      path: "/logOut",
-      icon: <i className="ri-login-circle-line text-green-600"></i>,
-    },
+    { name: "Logout", path: "/logout", icon: <i className="ri-logout-circle-line text-red-600"></i> },
   ];
 
+  const partnerActions = [
+    {
+      name: `Hi ${partner?.fullName}`,
+      path: "/partnerProfile",
+      icon: <i className="ri-user-star-fill text-yellow-500"></i>,
+    },
+    { name: "Logout", path: "/logout", icon: <i className="ri-logout-circle-line text-red-600"></i> },
+  ];
+
+  // Select which menu to show
+  const actionItems = user
+    ? userActions
+    : partner
+    ? partnerActions
+    : guestActions;
+
+  // ---------------- SCROLL HIDE LOGIC ----------------
   useEffect(() => {
     const handleScrollY = () => {
       if (window.scrollY > lastScrollY && window.scrollY > 50) {
@@ -56,6 +69,7 @@ function Navbar() {
     return () => window.removeEventListener("scroll", handleScrollY);
   }, [lastScrollY]);
 
+  // ---------------- RETURN JSX ----------------
   return (
     <div
       ref={navRef}
@@ -82,35 +96,18 @@ function Navbar() {
       </div>
 
       {/* Desktop Buttons */}
-      {(!user.user && !partner.partner) && (
-        <div className="ml-5 hidden md:flex gap-5">
-          {actionItems.map((item) => (
-            <NavLink
-              to={item.path}
-              key={item.name}
-              onClick={() => setIsMobileOpen(true)}
-              className="font-light text-sm hover:border border-green-500 px-2 py-2 cursor-pointer flex items-center gap-1"
-            >
-              {item.icon} {item.name}
-            </NavLink>
-          ))}
-        </div>
-      )}
-
-      {(partner?.partner || user?.user) && (
-        <div className="ml-5 hidden md:flex gap-5">
-          {partnerItem.map((item) => (
-            <NavLink
-              to={item.path}
-              key={item.name}
-              onClick={() => setIsMobileOpen(true)}
-              className="font-light text-sm hover:border border-green-500 px-2 py-2 cursor-pointer flex items-center gap-1"
-            >
-              {item.icon} {item.name}
-            </NavLink>
-          ))}
-        </div>
-      )}
+      <div className="ml-5 hidden md:flex gap-5">
+        {actionItems.map((item) => (
+          <NavLink
+            to={item.path}
+            key={item.name}
+            onClick={() => setIsMobileOpen(true)}
+            className="font-light text-sm hover:border border-green-500 px-2 py-2 cursor-pointer flex items-center gap-1"
+          >
+            {item.icon} {item.name}
+          </NavLink>
+        ))}
+      </div>
 
       {/* Mobile Menu Button */}
       <div className="md:hidden">
@@ -147,35 +144,18 @@ function Navbar() {
           ))}
         </div>
 
-        {(!user.user && !partner.partner) && (
-          <div className="ml-5 items-center flex flex-col gap-2 mt-3">
-            {actionItems.map((item) => (
-              <NavLink
-                to={item.path}
-                key={item.name}
-                onClick={() => setIsMobileOpen(true)}
-                className="font-light w-fit text-sm hover:border border-green-500 px-2 py-2 cursor-pointer active:translate-y-4 flex items-center gap-1"
-              >
-                {item.icon} {item.name}
-              </NavLink>
-            ))}
-          </div>
-        )}
-
-        {(partner?.partner || user?.user) && (
-          <div className="ml-5 items-center flex flex-col gap-2 mt-3">
-            {partnerItem.map((item) => (
-              <NavLink
-                to={item.path}
-                key={item.name}
-                onClick={() => setIsMobileOpen(true)}
-                className="font-light w-fit text-sm hover:border border-green-500 px-2 py-2 cursor-pointer active:translate-y-4 flex items-center gap-1"
-              >
-                {item.icon} {item.name}
-              </NavLink>
-            ))}
-          </div>
-        )}
+        <div className="ml-5 items-center flex flex-col gap-2 mt-3">
+          {actionItems.map((item) => (
+            <NavLink
+              to={item.path}
+              key={item.name}
+              onClick={() => setIsMobileOpen(true)}
+              className="font-light w-fit text-sm hover:border border-green-500 px-2 py-2 cursor-pointer active:translate-y-4 flex items-center gap-1"
+            >
+              {item.icon} {item.name}
+            </NavLink>
+          ))}
+        </div>
       </div>
     </div>
   );

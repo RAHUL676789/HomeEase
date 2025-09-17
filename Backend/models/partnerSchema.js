@@ -63,7 +63,8 @@ const partnerSchema = new mongoose.Schema({
       type: String,
       default: ""
     }
-  }]
+  }],
+  bookings:[{type:mongoose.Schema.Types.ObjectId,ref:"Booking"}]
 }, { timestamps: true });
 
 module.exports = mongoose.model("Partner", partnerSchema);

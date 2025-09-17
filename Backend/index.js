@@ -2,11 +2,12 @@ require("dotenv").config();
 
 const express = require("express");
 const cors = require("cors");
-const app = express();
+const {app,server} = require("./server.js")
 const {dbConnection} = require("./config/config.js");
 const serviceRouter = require("./routes/serviceRoute.js");
 const partnerRouter = require("./routes/partnerRoute.js")
 const authRouter = require("./routes/authRoute.js")
+const userRouter = require("./routes/userRouter.js")
 const ExpressError = require("./utils/ExpressError.js");
 const cookieParser = require("cookie-parser")
 const session = require("express-session");
@@ -45,7 +46,8 @@ app.use(session(sessionOption))
 
 app.use("/api/auth",authRouter);
 app.use("/api/services",serviceRouter);
-app.use("/api/partner",partnerRouter)
+app.use("/api/partner",partnerRouter);
+app.use("/api/users",userRouter)
 
 app.all("*",(req,res,next)=>{
     next(new ExpressError(404,"page not found"));
@@ -58,6 +60,6 @@ app.use((err,req,res,next)=>{
     res.status(status).json({message:message,success:false});
 });
 
-app.listen(process.env.PORT,()=>{
+server.listen(process.env.PORT,()=>{
     console.log("app is listing in the port 8080")
 })

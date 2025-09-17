@@ -42,7 +42,7 @@ const Modal = ({ verifyOtp, cancelOtp }) => {
   const handleVerify = () => {
     const otpSend = inputsRef.map(ref => ref.current.value).join('');
     console.log(otpSend);
-    verifyOtp(otpSend); // pass full OTP to parent
+    verifyOtp(otpSend); 
   };
 
   const handlePaste  = (e) =>{

@@ -21,11 +21,7 @@ const verifyOtp = async (email, enterOtp) => {
     console.log("🔍 Verifying OTP");
 
     const savedOtp = await redis.get(`otp:${email}`);
-    console.log(savedOtp)
-    console.log(typeof savedOtp);
-    console.log(typeof enterOtp);
-
-
+    
     if (savedOtp === enterOtp) {
       await redis.del(`otp:${email}`); // Delete after success
       return  true;

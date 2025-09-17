@@ -14,6 +14,7 @@ import PartnerProfile from './Pages/PartnerProfile/PartnerProfile'
 // import HeroSection from './Components/HeroSection'
 import ServiceListing from "./Components/Service/ServiceListing"
 import ErrorBoundary from './Components/Other/ErrorBoundary'
+import UserProfile from './Components/User/UserProfile'
 function App() {
  
   return (
@@ -28,6 +29,9 @@ function App() {
         <Route path="/" element={<HeroSlider />} />
 
       <Route path="/partner" element={<BecomePartner/>}>
+
+      </Route>
+       <Route path="/userProfile" element={<UserProfile/>}>
 
       </Route>
 
