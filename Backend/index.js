@@ -2,7 +2,7 @@ require("dotenv").config();
 
 const express = require("express");
 const cors = require("cors");
-const {app,server} = require("./server.js")
+const {app,server,io} = require("./server.js")
 const {dbConnection} = require("./config/config.js");
 const serviceRouter = require("./routes/serviceRoute.js");
 const partnerRouter = require("./routes/partnerRoute.js")
@@ -12,7 +12,28 @@ const ExpressError = require("./utils/ExpressError.js");
 const cookieParser = require("cookie-parser")
 const session = require("express-session");
 const MongoStore = require("connect-mongo");
+const { bookMyService } = require("./socket/bookingSocket.js");
 dbConnection();
+io.on("connection",(socket)=>{
+  
+ 
+  socket.on("partner-join",(id)=>{
+   
+    socket.join(id)
+  })
+
+  socket.on("user-join",(id)=>{
+    console.log("this is user id ",id)
+    socket.join(id)
+  })
+
+  bookMyService(io,socket)
+
+
+  socket.on("disconnect",()=>{
+    console.log("socket connection stop")
+  })
+})
 
 app.use(cors({
   origin:process.env.FRONTENDURL,

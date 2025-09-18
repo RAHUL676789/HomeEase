@@ -90,7 +90,16 @@ module.exports.getPartneDtail = async (req, res, next) => {
     pupulate: {
       path: "gallery"
     }
+  }).populate({
+    path:"bookings",
+    populate:{
+      path:"user",
+      select:"-password"
+    }
+
   });
+
+  console.log(partner)
 
   if (!partner) {
     return res.status(404).json({ message: "partner not found", success: false });

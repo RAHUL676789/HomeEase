@@ -26,6 +26,12 @@ module.exports.getMe = async (req, res) => {
             populate: {
                 path: "gallery"
             }
+        }).populate({
+            path:"bookings",
+            populate:{
+                path:"user",
+                select:"-password"
+            }
         }),
         adminModel.findById(userId),
     ]);

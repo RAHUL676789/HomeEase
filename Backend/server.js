@@ -16,4 +16,4 @@ const io = new Server(server,{
 
 
 
-module.exports = {app,server}
+module.exports = {app,server,io}
