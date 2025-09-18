@@ -1,21 +1,19 @@
 import React, { useEffect } from "react";
 import Cover1 from "../../assets/cover1.jpg";
 import Button from "../buttons/Button";
+import { socket } from "../../socket/socket";
+import { useSelector } from "react-redux";
+
 
 const ViewService = ({ service, handleViewService }) => {
   // Fake data fallback
+  const {user} = useSelector((state)=>state.user)
   const {
     title = "Premium Home Cleaning",
     description = "We provide top-notch home cleaning services with eco-friendly products and professional staff.",
     price = 499,
     location = "Jabalpur, India",
-    gallery = {
-      details: [
-        { url: "https://source.unsplash.com/600x400/?cleaning,home" },
-        { url: "https://source.unsplash.com/600x400/?house,interior" },
-        { url: "https://source.unsplash.com/600x400/?vacuum,cleaning" },
-      ],
-    },
+    gallery ,
     review = [
     
     ],
@@ -26,6 +24,11 @@ const ViewService = ({ service, handleViewService }) => {
     body.style.overflow = "hidden"; // prevent background scroll
     return () => (body.style.overflow = "auto");
   }, []);
+
+  const handleBooking = (service,details={})=>{
+    console.log(service)
+        socket.emit("new-booking",{service,details,user:user?._id,provider:service?.serviceProvider?._id,details:{}})
+  }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
@@ -187,7 +190,7 @@ const ViewService = ({ service, handleViewService }) => {
 
         <div className="flex justify-end px-4 pt-2">
            
-          <Button variant="apply" children={"Book Now"}/>
+          <Button onClick={()=>handleBooking(service)} variant="apply" children={"Book Now"}/>
         </div>
       </div>
     </div>

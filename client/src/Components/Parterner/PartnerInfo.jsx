@@ -296,7 +296,7 @@ const [profileInp, setprofileInp] = useState(null);
 
   }
   return (
-    <div className='w-full sm:max-w-2xl mb-14 rounded-lg bg-white sm:ml-6 shadow-md border border-gray-200 overflow-hidden'>
+    <div className='w-full sm:max-w-xl mb-14 rounded-lg bg-white sm:ml-6 shadow-md border border-gray-200 overflow-hidden'>
       {/* <PartnerCoverPhoto/> */}
       {isLoading && <Loader />}
       {showPdfPreview && <DocumentPreview changePdf={handleChangePhoto} apply={handleDocumetApply} cancel={handleDocumentCancel} url={pdfUrl} />}

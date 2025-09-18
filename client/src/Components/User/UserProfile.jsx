@@ -1,9 +1,17 @@
 import React from "react";
+import { useEffect } from "react";
 import { useSelector } from "react-redux";
+import { socket } from "../../socket/socket";
 
 const UserProfile = () => {
     const {user} = useSelector((state)=>state.user)
     console.log(user)
+
+    useEffect(()=>{
+      socket.on("service-request-send",(data)=>{
+        console.log(data)
+      })
+    },[])
   return (
     <div className="min-h-screen bg-gray-100 p-6">
       {/* Header */}

@@ -1,4 +1,4 @@
-import { StrictMode } from 'react'
+import { StrictMode, useEffect } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.jsx'
@@ -10,7 +10,8 @@ import { socket } from './socket/socket.js'
 
 function SocketHandler(){
   const dispatch = useDispatch();
-  socket.on("connect",(data)=>{
+    useEffect(()=>{
+     socket.on("connect",(data)=>{
     console.log("socket connected")
   })
 
@@ -26,7 +27,8 @@ function SocketHandler(){
     socket.off("new-booking")
     socket.off("booking-status")
   }
-
+ 
+    },[])
   return null  
 
 }

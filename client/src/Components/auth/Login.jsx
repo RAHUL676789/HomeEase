@@ -10,6 +10,7 @@ import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { setPartner } from '../../redux/partnerSlice';
 import { setUser } from '../../redux/userSlice';
+import { socket } from '../../socket/socket';
 
 const Login = () => {
     const { handleSubmit, register, formState: { errors } } = useForm();
@@ -34,10 +35,12 @@ const Login = () => {
             if(response.data.role == "Partner"){
                 navigate("/partnerProfile")
                 dispatch(setPartner(response.data.data))
+                socket.emit("partner-join",(response.data.data._id))
 
             }else if(response?.data?.role == "User"){
                 navigate("/userProfile")
                 dispatch(setUser(response?.data.data));
+                 socket.emit("user-join",(response.data.data._id))
             }
         } catch (error) {
            

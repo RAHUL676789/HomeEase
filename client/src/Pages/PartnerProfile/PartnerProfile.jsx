@@ -17,7 +17,7 @@ import EditService from '../../Components/Parterner/EditService'
 import EditProfile from '../../Components/Parterner/EditProfile'
 import DeleteUSer from '../../Components/Other/DeleteUSer'
 import Button from '../../Components/buttons/Button'
-
+import {socket} from "../../socket/socket.js"
 const PartnerProfile = () => {
   const partner = useSelector((state) => state.partner.partner)
   const navigate = useNavigate();
@@ -32,6 +32,7 @@ const PartnerProfile = () => {
   const [ViewImage, setViewImage] = useState(null)
   const dispatch = useDispatch();
   const [PartnerProfileEdit, setPartnerProfileEdit] = useState(false)
+  const filterButtonsClass = 'px-3 py-2 rounded-3xl font-semibold text-xs border'
 
   const handleViewImage = (serviceId, image, galleryId) => {
     console.log(serviceId, image)
@@ -65,10 +66,11 @@ const PartnerProfile = () => {
         setisLoading(true)
         try {
           const data = await getMe();
-          console.log(data);
+          console.log("this is fetched data",data);
           if (!data.data) {
             return navigate("/login")
           }
+
           dispatch(setPartner(data?.data));
         } catch (error) {
           console.log(error);
@@ -398,38 +400,157 @@ const PartnerProfile = () => {
 
     }
   }
+
+
+  useEffect(()=>{
+    socket.on("new-service-request",(data)=>{
+      console.log(data);
+      console.log("thi sis request")
+    })
+    return ()=>{
+      socket.off("new-service-request")
+    }
+  },[partner,socket])
+
   return (
-    <div className='max-w-screen bg-gray-50 py-4 sm:py-12'>
-      {isLoading && <Loader />}
-      {Toast.status && <ToastContainer trigger={Toast.trigger} key={Toast.trigger} type={Toast.type} content={Toast.content} />}
-      <PartnerInfo deletePartner={()=>setpartnerDelete(true)} partner={partner} setPartnerProfileEdit={setPartnerProfileEdit} />
-      <div className='max-w-2xl bg-gray-100 rounded-lg sm:ml-6 shadow-md shadow-gray-500 p-5'>
-        <div className='flex w-full justify-between'>
-          <h1 className='text-2xl font-bold 
-        '>Service offered</h1>
-          <Button title='add Services' variant={"apply"} onClick={handleServiceModal} ><i className="ri-add-line"></i></Button>
+  <div className="max-w-screen bg-gray-50 py-4 sm:py-12">
+  {isLoading && <Loader />}
+  {Toast.status && (
+    <ToastContainer
+      trigger={Toast.trigger}
+      key={Toast.trigger}
+      type={Toast.type}
+      content={Toast.content}
+    />
+  )}
+
+  {/* Main Layout */}
+  <div className="flex flex-col sm:flex-row gap-6 px-4">
+    
+    {/* Left Panel (60%) */}
+    <div className="sm:w-3/5 space-y-6">
+      {/* Partner Info */}
+      <PartnerInfo
+        deletePartner={() => setpartnerDelete(true)}
+        partner={partner}
+        setPartnerProfileEdit={setPartnerProfileEdit}
+      />
+
+      {/* Services Offered */}
+      <div className="w-full bg-gray-100 rounded-lg shadow-md shadow-gray-500 p-5">
+        <div className="flex w-full justify-between">
+          <h1 className="text-2xl font-bold">Service Offered</h1>
+          <Button
+            title="add Services"
+            variant={"apply"}
+            onClick={handleServiceModal}
+          >
+            <i className="ri-add-line"></i>
+          </Button>
         </div>
-        {
-          partner?.services?.length > 0 ? partner?.services?.map((item, i) => (
-            <PartnerServiceCard key={item._id || item.id} handleSeriveId={handleSeriveId} service={item} ServiceCardOpen={item._id === ServiceCardOpen} handleShowGalleryModal={handleShowGalleryModal} setViewImage={handleViewImage} handleServiceCardOpen={handleServiceCardOpen} setDeleteableService={setDeleteableService} setEditableService={setEditableService} />
+        {partner?.services?.length > 0 ? (
+          partner?.services?.map((item) => (
+            <PartnerServiceCard
+              key={item._id || item.id}
+              handleSeriveId={handleSeriveId}
+              service={item}
+              ServiceCardOpen={item._id === ServiceCardOpen}
+              handleShowGalleryModal={handleShowGalleryModal}
+              setViewImage={handleViewImage}
+              handleServiceCardOpen={handleServiceCardOpen}
+              setDeleteableService={setDeleteableService}
+              setEditableService={setEditableService}
+            />
           ))
-            : <h2 className='text-sm text-gray-400 mt-4'>No Service Added</h2>}
-
+        ) : (
+          <h2 className="text-sm text-gray-400 mt-4">No Service Added</h2>
+        )}
       </div>
-      {serviceModal && <PartnerServiceModal modal={handleServiceModal} handleAddService={handleAddService} />}
-
-      {
-        ShowGalleryModal && previewUrls.length > 0 && <ServiceGallery handleGalleryApply={handleGalleryApply} preview={previewUrls} handleCloseGallery={handleCloseGallery} handleRemoveFile={handleRemoveFile} />
-      }
-
-      {ViewImage?.image?.url && <PartnerGalleryImageView image={ViewImage} handleImageDelete={handleImageDelete} setViewImage={setViewImage} />}
-      {DeleteableService && <DeleteConfirmationMode confirmDelete={handleServiceDelete} data={DeleteableService} cancel={() => setDeleteableService(null)} />}
-
-      {EditableService?._id && <EditService service={EditableService} close={() => setEditableService(null)} handleServiceUpdate={handleServiceUpdate} />}
-
-      {PartnerProfileEdit && <EditProfile handleEditPartnerProfile={handleEditPartnerProfile} partner={partner} setPartnerProfileEdit={setPartnerProfileEdit} />}
-      {partnerDelete &&  <DeleteUSer cancel={()=>setpartnerDelete(false)} deleteUser={deletePartner} user={partner}/>}
     </div>
+
+    {/* Right Panel (40%) */}
+    <div className="sm:w-2/5 max-h-screen overflow-scroll no-scrollbar shadow shadow-gray-300 ml-2 rounded">
+      <div className="w-full bg-white rounded-lg shadow-md p-5">
+      <header>
+          <h1 className="text-2xl font-bold mb-4">Bookings</h1>
+          <div className='flex gap-2 mb-3'>
+            <button className={filterButtonsClass}>Request</button>
+            <button className={filterButtonsClass}>Incoming</button>
+            <button className={filterButtonsClass}>Completed</button>
+          </div>
+      </header>
+        {partner?.bookings?.length > 0 ? (
+          partner.bookings.map((booking, i) => (
+            <div
+              key={i}
+              className="p-3 mb-2 border rounded-lg bg-gray-50 flex justify-between items-center"
+            >
+              <div>
+                <p className="font-medium">{booking.serviceName}</p>
+                <p className="text-sm text-gray-500">{booking.userName}</p>
+              </div>
+              <span className="text-sm text-green-600">{booking.date}</span>
+            </div>
+          ))
+        ) : (
+          <p className="text-sm text-gray-400">No Bookings yet</p>
+        )}
+      </div>
+    </div>
+  </div>
+
+  {/* Modals (unchanged) */}
+  {serviceModal && (
+    <PartnerServiceModal
+      modal={handleServiceModal}
+      handleAddService={handleAddService}
+    />
+  )}
+  {ShowGalleryModal && previewUrls.length > 0 && (
+    <ServiceGallery
+      handleGalleryApply={handleGalleryApply}
+      preview={previewUrls}
+      handleCloseGallery={handleCloseGallery}
+      handleRemoveFile={handleRemoveFile}
+    />
+  )}
+  {ViewImage?.image?.url && (
+    <PartnerGalleryImageView
+      image={ViewImage}
+      handleImageDelete={handleImageDelete}
+      setViewImage={setViewImage}
+    />
+  )}
+  {DeleteableService && (
+    <DeleteConfirmationMode
+      confirmDelete={handleServiceDelete}
+      data={DeleteableService}
+      cancel={() => setDeleteableService(null)}
+    />
+  )}
+  {EditableService?._id && (
+    <EditService
+      service={EditableService}
+      close={() => setEditableService(null)}
+      handleServiceUpdate={handleServiceUpdate}
+    />
+  )}
+  {PartnerProfileEdit && (
+    <EditProfile
+      handleEditPartnerProfile={handleEditPartnerProfile}
+      partner={partner}
+      setPartnerProfileEdit={setPartnerProfileEdit}
+    />
+  )}
+  {partnerDelete && (
+    <DeleteUSer
+      cancel={() => setpartnerDelete(false)}
+      deleteUser={deletePartner}
+      user={partner}
+    />
+  )}
+</div>
+
   )
 }
 
