@@ -19,8 +19,8 @@ module.exports.getMe = async (req, res) => {
     const userId = decoded.id;
 
     // Try all roles
-    const [user, partner, admin] = await Promise.all([
-        userModel.findById(userId),
+    let [user, partner, admin] = await Promise.all([
+        userModel.findById(userId).populate({path:"bookings",populate:[{path:"provider",select:"-password -services -backGroundImage "},{path:"service",select:"-gallery -serviceProvider"}]}),
         partnerModel.findById(userId).populate({
             path: "services",
             populate: {
@@ -28,15 +28,18 @@ module.exports.getMe = async (req, res) => {
             }
         }).populate({
             path:"bookings",
-            populate:{
-                path:"user",
-                select:"-password"
-            }
+            populate:[
+                {path:"user",
+                select:"-password -bookings"},
+                {path:"service",select:"-serviceProvider -gallery -reviews -tags"}
+    ]
         }),
         adminModel.findById(userId),
     ]);
 
     if (user) {
+        user = user.toObject();
+        delete user.password;
         return res.status(200).json({
             message: "User fetched successfully",
             data: user,
@@ -46,6 +49,8 @@ module.exports.getMe = async (req, res) => {
     }
 
     if (partner) {
+        partner = partner.toObject();
+        delete partner.password
         return res.status(200).json({
             message: "Partner fetched successfully",
             data: partner,
@@ -55,6 +60,8 @@ module.exports.getMe = async (req, res) => {
     }
 
     if (admin) {
+        admin = admin.toObject;
+        delete  admin.password;
         return res.status(200).json({
             message: "Admin fetched successfully",
             data: admin,

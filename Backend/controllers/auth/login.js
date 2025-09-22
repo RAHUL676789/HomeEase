@@ -10,23 +10,41 @@ module.exports.login = async (req, res, next) => {
   let user = null;
   let role = null;
 
- 
-    // 🔍 Check in all 3 models
-    user = await userModel.findOne({ email });
+  
+    // 🔍 Check in User model
+    user = await userModel.findOne({ email }).select("fullName email password");
     if (user) role = "User";
 
+    // 🔍 Check in Admin model
     if (!user) {
-      user = await adminModel.findOne({ email });
+      user = await adminModel.findOne({ email })
+        .select("fullName email password") // admin ke basic fields
+        .populate({
+          path: "bookings",
+          populate: [
+            { path: "user" },      // Admin ke liye full user info
+            { path: "provider" },  // Admin ke liye full provider info
+            { path: "service" },   // Admin ke liye full service info
+          ]
+        });
       if (user) role = "Admin";
     }
 
+    // 🔍 Check in Partner model
     if (!user) {
       user = await partnerModel.findOne({ email }).populate({
-        path: "services",
-        populate: {
-          path: "gallery"
-        }
-      });
+          path: "services",// sirf required service info
+          populate: {
+            path: "gallery", // sirf required gallery fields
+          }
+        })
+        .populate({
+          path: "bookings", // bookings ke required fields
+          populate: [
+            { path: "user", select: "fullName email" },      
+            { path: "service", select: "title description price category" } // Partner ko service ka relevant info
+          ]
+        });
       if (user) role = "Partner";
     }
 
@@ -74,5 +92,5 @@ module.exports.login = async (req, res, next) => {
       role
     });
 
-
+ 
 };
