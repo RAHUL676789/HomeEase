@@ -18,6 +18,7 @@ import EditProfile from '../../Components/Parterner/EditProfile'
 import DeleteUSer from '../../Components/Other/DeleteUSer'
 import Button from '../../Components/buttons/Button'
 import {socket} from "../../socket/socket.js"
+import PartnerBookingCard from '../../Components/Parterner/PartnerBookingCard.jsx'
 const PartnerProfile = () => {
   const partner = useSelector((state) => state.partner.partner)
   const navigate = useNavigate();
@@ -32,7 +33,7 @@ const PartnerProfile = () => {
   const [ViewImage, setViewImage] = useState(null)
   const dispatch = useDispatch();
   const [PartnerProfileEdit, setPartnerProfileEdit] = useState(false)
-  const filterButtonsClass = 'px-3 py-2 rounded-3xl font-semibold text-xs border'
+  const filterButtonsClass = 'px-3 py-2 rounded-3xl font-semibold text-xs border text-white'
 
   const handleViewImage = (serviceId, image, galleryId) => {
     console.log(serviceId, image)
@@ -411,6 +412,12 @@ const PartnerProfile = () => {
       socket.off("new-service-request")
     }
   },[partner,socket])
+  const [BookingCardOptionOpen, setBookingCardOptionOpen] = useState(null)
+
+  const hadleBookingOptionOpen = (value)=>{
+    setBookingCardOptionOpen((prev)=>prev === value ? null : value);
+
+  }
 
   return (
   <div className="max-w-screen bg-gray-50 py-4 sm:py-12">
@@ -425,7 +432,7 @@ const PartnerProfile = () => {
   )}
 
   {/* Main Layout */}
-  <div className="flex flex-col sm:flex-row gap-6 px-4">
+  <div className="flex flex-col sm:flex-row gap-2 px-4">
     
     {/* Left Panel (60%) */}
     <div className="sm:w-3/5 space-y-6">
@@ -437,7 +444,7 @@ const PartnerProfile = () => {
       />
 
       {/* Services Offered */}
-      <div className="w-full bg-gray-100 rounded-lg shadow-md shadow-gray-500 p-5">
+      <div className="w-xl ml-5 bg-gray-100 rounded-lg shadow-md shadow-gray-500 p-5">
         <div className="flex w-full justify-between">
           <h1 className="text-2xl font-bold">Service Offered</h1>
           <Button
@@ -469,32 +476,27 @@ const PartnerProfile = () => {
     </div>
 
     {/* Right Panel (40%) */}
-    <div className="sm:w-2/5 max-h-screen overflow-scroll no-scrollbar shadow shadow-gray-300 ml-2 rounded">
-      <div className="w-full bg-white rounded-lg shadow-md p-5">
-      <header>
-          <h1 className="text-2xl font-bold mb-4">Bookings</h1>
-          <div className='flex gap-2 mb-3'>
+    <div className="sm:w-2/5 max-h-screen overflow-scroll no-scrollbar shadow-md shadow-gray-600  rounded-lg bg-gray-500  ">
+      <div className="w-full bg-gray-100 rounded-lg shadow-md ">
+      <header className='sticky w-full top-0 bg-zinc-900   px-3 py-2'>
+          <h1 className="text-2xl font-bold mb-4 text-center text-white">Bookings</h1>
+          <div className='flex gap-2 mb-3 justify-center'>
             <button className={filterButtonsClass}>Request</button>
             <button className={filterButtonsClass}>Incoming</button>
             <button className={filterButtonsClass}>Completed</button>
           </div>
-      </header>
+      </header >
+      <div className='overflow-scroll scroll-smooth no-scrollbar  '> 
+
+    
         {partner?.bookings?.length > 0 ? (
           partner.bookings.map((booking, i) => (
-            <div
-              key={i}
-              className="p-3 mb-2 border rounded-lg bg-gray-50 flex justify-between items-center"
-            >
-              <div>
-                <p className="font-medium">{booking.serviceName}</p>
-                <p className="text-sm text-gray-500">{booking.userName}</p>
-              </div>
-              <span className="text-sm text-green-600">{booking.date}</span>
-            </div>
+          <PartnerBookingCard BookingCardOptionOpen={BookingCardOptionOpen} hadleBookingOptionOpen={hadleBookingOptionOpen} key={booking._id} booking={booking}/>
           ))
         ) : (
           <p className="text-sm text-gray-400">No Bookings yet</p>
         )}
+      </div>
       </div>
     </div>
   </div>
