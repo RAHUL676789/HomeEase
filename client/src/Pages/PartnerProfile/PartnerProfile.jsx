@@ -33,7 +33,7 @@ const PartnerProfile = () => {
   const [ViewImage, setViewImage] = useState(null)
   const dispatch = useDispatch();
   const [PartnerProfileEdit, setPartnerProfileEdit] = useState(false)
-  const filterButtonsClass = 'px-3 py-2 rounded-3xl font-semibold text-xs border text-white'
+  const filterButtonsClass = 'px-3 py-2 rounded-3xl font-semibold text-xs border  border-1 border-teal-500  text-teal-600'
 
   const handleViewImage = (serviceId, image, galleryId) => {
     console.log(serviceId, image)
@@ -432,7 +432,7 @@ const PartnerProfile = () => {
   )}
 
   {/* Main Layout */}
-  <div className="flex flex-col sm:flex-row gap-2 px-4">
+  <div className="flex flex-col sm:flex-row gap-6 px-4">
     
     {/* Left Panel (60%) */}
     <div className="sm:w-3/5 space-y-6">
@@ -444,7 +444,7 @@ const PartnerProfile = () => {
       />
 
       {/* Services Offered */}
-      <div className="w-xl ml-5 bg-gray-100 rounded-lg shadow-md shadow-gray-500 p-5">
+      <div className="w-2xl ml-5 bg-gray-100 rounded-lg shadow-md shadow-gray-500 p-5">
         <div className="flex w-full justify-between">
           <h1 className="text-2xl font-bold">Service Offered</h1>
           <Button
@@ -476,29 +476,7 @@ const PartnerProfile = () => {
     </div>
 
     {/* Right Panel (40%) */}
-    <div className="sm:w-2/5 max-h-screen overflow-scroll no-scrollbar shadow-md shadow-gray-600  rounded-lg bg-gray-500  ">
-      <div className="w-full bg-gray-100 rounded-lg shadow-md ">
-      <header className='sticky w-full top-0 bg-zinc-900   px-3 py-2'>
-          <h1 className="text-2xl font-bold mb-4 text-center text-white">Bookings</h1>
-          <div className='flex gap-2 mb-3 justify-center'>
-            <button className={filterButtonsClass}>Request</button>
-            <button className={filterButtonsClass}>Incoming</button>
-            <button className={filterButtonsClass}>Completed</button>
-          </div>
-      </header >
-      <div className='overflow-scroll scroll-smooth no-scrollbar  '> 
-
     
-        {partner?.bookings?.length > 0 ? (
-          partner.bookings.map((booking, i) => (
-          <PartnerBookingCard BookingCardOptionOpen={BookingCardOptionOpen} hadleBookingOptionOpen={hadleBookingOptionOpen} key={booking._id} booking={booking}/>
-          ))
-        ) : (
-          <p className="text-sm text-gray-400">No Bookings yet</p>
-        )}
-      </div>
-      </div>
-    </div>
   </div>
 
   {/* Modals (unchanged) */}

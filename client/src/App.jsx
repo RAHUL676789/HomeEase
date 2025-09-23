@@ -15,6 +15,8 @@ import PartnerProfile from './Pages/PartnerProfile/PartnerProfile'
 import ServiceListing from "./Components/Service/ServiceListing"
 import ErrorBoundary from './Components/Other/ErrorBoundary'
 import UserProfile from './Components/User/UserProfile'
+import PartnerBookingCard from './Components/Parterner/PartnerBookingCard'
+import PartnerBookings from './Pages/PartnerProfile/PartnerBookings'
 function App() {
  
   return (
@@ -48,6 +50,9 @@ function App() {
 
       </Route>
         <Route path="/services/:category" element={<ServiceListing/>}>
+
+      </Route>
+         <Route path="/:id/Bookings" element={<PartnerBookings/>}>
 
       </Route>
      </Routes>

@@ -1,86 +1,76 @@
-import React, { useRef } from 'react';
+import React, { useEffect,useRef,useState } from 'react'
+import cleaning from "../../assets/Beauty.svg"
+import Button from '../buttons/Button';
 
-const PartnerBookingCard = ({ booking,hadleBookingOptionOpen,BookingCardOptionOpen }) => {
-  const { user, service, status, date } = booking;
-  const offerRef = useRef(null)
-  const chatRef = useRef(null)
+const PartnerBookingCard = ({booking}) => {
+  const [ViewCardOptions, setViewCardOptions] = useState(false);
+  const optionRef = useRef(null);
+  console.log(booking)
+  const iconsName = booking?.user?.fullName[0] + booking?.user?.fullName[1]
+
+  useEffect(()=>{
+    const handleMouseDown  = (e)=>{
+      console.log(e.currentTarget !== optionRef.current)
+      console.log(ViewCardOptions)
+      if((e.currentTarget !== optionRef?.current) && ViewCardOptions){
+        console.log("click")
+          setViewCardOptions(false)
+      }
+    }
+
+    window.addEventListener("click",handleMouseDown)
+    return ()=>window.removeEventListener("click",handleMouseDown)
+  },[ViewCardOptions])
 
   return (
-    <div className="m-3 p-4 shadow-lg rounded-xl border border-gray-200 hover:shadow-2xl transition-shadow duration-300 bg-white">
-      {/* Header */}
-      <div className="flex justify-between items-center border-b pb-3 mb-3 border-gray-300">
-        {/* User Info */}
-        <div className="flex items-center gap-3">
-          <div className="h-12 w-12 rounded-full bg-purple-600 flex items-center justify-center text-white font-bold text-lg">
-            {user?.fullName
-              ? user.fullName
-                .split(" ")
-                .map(n => n[0])
-                .join("")
-                .toUpperCase()
-              : "NA"}
-          </div>
-          <div>
-            <p className="font-semibold text-gray-800">{user?.fullName || "Unknown User"}</p>
-            <p className="text-gray-500 text-sm">{user?.email}</p>
-          </div>
-        </div>
+    <div className='rounded-xl shadow-sm shadow-gray-400 relative '>
+    <header className='w-full flex rounded-t-xl  border py-3 px-1 relative bg-teal-700 text-white'>
 
-        {/* Booking Status */}
-        <div className="flex items-center gap-3">
-          <span
-            className={`px-3 py-1 rounded-full text-white font-semibold text-sm ${status === "pending"
-                ? "bg-yellow-500"
-                : status === "completed"
-                  ? "bg-green-600"
-                  : "bg-red-600"
-              }`}
-          >
-            {status || "Pending"}
-          </span>
-          <p className="text-gray-500 text-sm">{new Date(booking.createdAt).toLocaleDateString()}</p>
+      <div className='flex gap-1 justify-center items-center'>
+        <div className='h-10 w-10 border flex justify-center items-center flex-col rounded-full bg-white text-teal-900 font-semibold uppercase'>{iconsName}</div>
+        <div className='flex flex-col leading-3 justify-start text-sm items-start'>
+          <span>Rahul lodhi</span>
+          <span className='font-semibold'>{booking?.user?.email}</span>
         </div>
       </div>
 
-      {/* Service Info */}
-      <div className="mb-3">
-        <h3 className="font-semibold text-gray-800 text-lg">{service?.title}</h3>
-        <p className="text-gray-600 text-sm">{service?.description}</p>
-        <div className="flex justify-between mt-2">
-          <p className="text-gray-700 font-medium">Price: ₹{service?.price}</p>
-          <p className="text-gray-700 font-medium">
-            Category: {service?.category || "General"}
-          </p>
-        </div>
+      <div className='flex justify-center items-center  flex-1 mt-2'>
+        <span className='px-3 rounded-xl bg-yellow-500 font-semibold'>{booking.status}</span>
+      
       </div>
+        <span className='text-xs font-semibold text-white absolute right-2 top-1'><i className="ri-more-2-line text-lg" ref={optionRef} onClick={(e)=>{
+          e.stopPropagation();
+        setViewCardOptions((prev)=>prev == true ? false : true )
+        }}></i></span>
 
-      {/* Actions */}
-      <div>
-        <div className='flex justify-between flex-col rounded-lg py-3 px-2 shadow shadow-gray-400 mb-3'>
-         <div className='flex justify-between'>
-            <h3 className='font-semibold text-lg'>View-Offers</h3>
-          <i onClick={()=>hadleBookingOptionOpen(`${booking._id}:offer`)} className={`ri-arrow-down-s-line ${BookingCardOptionOpen === `${booking._id}:offer`? "rotate-180":"rotate-0" } transition-all duration-150`}></i>
-         </div>
-          <div ref={offerRef} style={
-            {maxHeight:BookingCardOptionOpen === `${booking._id}:offer` ? offerRef.current.scrollHeight+"px" : "0px"}
-            } className=' overflow-hidden duration-300'>
-            Lorem ipsum dolor, sit amet consectetur adipisicing elit. Deserunt sed assumenda repellat beatae natus minima qui quam eius, minus ad. Rerum earum error atque! Distinctio eaque delectus cupiditate quam repellendus!
-          </div>
-        </div>
-        <div className='flex justify-between  flex-col rounded-lg py-3 px-2 shadow shadow-gray-400 mb-3'>
-        <div className='flex justify-between'>
-            <h3 className='text-lg font-semibold'>Chats</h3>
-          <i onClick={()=>hadleBookingOptionOpen(`${booking._id}:chat`)}  className={`ri-arrow-down-s-line ${BookingCardOptionOpen === `${booking._id}:chat`? "rotate-180":"rotate-0" } transition-all duration-150`}></i>
-        </div>
-          <div style={
-            {maxHeight:BookingCardOptionOpen === `${booking._id}:chat` ? offerRef.current.scrollHeight+"px" : "0px"}
-            } className='max-h-0 overflow-hidden transition-all scroll-smooth duration-300'>
-            Lorem ipsum dolor sit, amet consectetur adipisicing elit. Repudiandae quibusdam qui quis illo repellat dolores sit nostrum ducimus amet aspernatur eligendi exercitationem nam, voluptatum vitae. Sunt iste nobis dignissimos ipsum?
-          </div>
+    </header>
+    <main className='flex flex-col rounded-xl py-3 '>
+      <div className='w-full'>
+        <img src={cleaning} alt="" className='h-48 w-full object-cover '/>
+        <div className=' rounded-b-xl flex-col  px-3 flex flex-wrap'>
+          <p><strong>Category </strong>{booking?.service?.category}</p>
+          <p><strong>Price </strong>{booking?.service?.price}</p>
+      
         </div>
       </div>
+      <div className=' flex justify-end px-5'>
+        <Button variant={"next"}>Chat</Button>
+      </div>
+    </main>
+
+    
+     {ViewCardOptions &&  <div className='absolute top-2 rounded-lg bg-gray-50  right-5'>
+       <ul className='flex flex-col '>
+        <li className='w-full rounded-lg cursor-pointer px-3 py-1  hover:shadow hover:shadow-gray-500 transition-all duration-150'>view-more</li>
+        <li className='w-full  rounded-lg  cursor-pointer  px-3 py-1  hover:shadow hover:shadow-gray-500 transition-all duration-150'>accept</li>
+        <li className='w-full cursor-pointer  px-3 py-1  hover:shadow hover:shadow-gray-500  rounded-lg  transition-all duration-150'>reject</li>
+       </ul>
+        
+      </div>}
+ 
+      
     </div>
-  );
-};
+  )
+}
 
-export default PartnerBookingCard;
+export default PartnerBookingCard

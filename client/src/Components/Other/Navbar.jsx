@@ -19,7 +19,7 @@ function Navbar() {
     { name: "Home", path: "/", icon: <i className="ri-home-8-fill mr-1"></i> },
     { name: "About", path: "/about", icon: <i className="ri-gitlab-fill mr-1"></i> },
     { name: "Contact", path: "/contact", icon: <i className="ri-mail-line mr-1"></i> },
-    { name: "Service", path: "/service", icon: <i className="ri-service-fill mr-1"></i> },
+    
   ];
 
   // ---------------- LOGIN STATES ----------------
@@ -36,6 +36,7 @@ function Navbar() {
       icon: <i className="ri-user-3-fill text-teal-400"></i>,
     },
     { name: "Logout", path: "/logout", icon: <i className="ri-logout-circle-line text-red-600"></i> },
+    { name: "My-Orders", path: "/MyOrders", icon: <i className="ri-service-fill mr-1"></i> },
   ];
 
   const partnerActions = [
@@ -45,6 +46,7 @@ function Navbar() {
       icon: <i className="ri-user-star-fill text-yellow-500"></i>,
     },
     { name: "Logout", path: "/logout", icon: <i className="ri-logout-circle-line text-red-600"></i> },
+    { name: "Booking", path: `/${partner?._id}/Bookings`, icon: <i className="ri-service-fill mr-1"></i> },
   ];
 
   // Select which menu to show
