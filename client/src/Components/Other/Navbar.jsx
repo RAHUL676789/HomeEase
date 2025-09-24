@@ -1,13 +1,22 @@
 import { useEffect, useRef, useState } from "react";
 import { NavLink } from "react-router-dom";
 import "remixicon/fonts/remixicon.css";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { getMe } from "../../utils/auth/getMe";
+import {setPartner} from "../../redux/partnerSlice"
+import {setUser} from "../../redux/userSlice"
 
 function Navbar() {
   const [isMobileOpen, setIsMobileOpen] = useState(true);
-  const partner = useSelector((state) => state.partner?.partner);
+  const dispatch = useDispatch();
+  
+
+ 
+const partner = useSelector((state) => state.partner?.partner);
   const user = useSelector((state) => state.user?.user);
 
+  console.log(partner)
+  console.log(user)
   const navRef = useRef();
   const [lastScrollY, setLastScrollY] = useState(0);
   const [shownav, setShownav] = useState(false);

@@ -1,13 +1,16 @@
-import React, { useEffect } from "react";
+import React, { useEffect ,useRef} from "react";
 import Cover1 from "../../assets/cover1.jpg";
 import Button from "../buttons/Button";
 import { socket } from "../../socket/socket";
 import { useSelector } from "react-redux";
+import { useForm } from "react-hook-form";
 
 
 const ViewService = ({ service, handleViewService }) => {
   // Fake data fallback
   const {user} = useSelector((state)=>state.user)
+  const {handleSubmit,register,formState:{errors}} = useForm();
+  const submitRef = useRef(null);
   const {
     title = "Premium Home Cleaning",
     description = "We provide top-notch home cleaning services with eco-friendly products and professional staff.",
@@ -25,10 +28,18 @@ const ViewService = ({ service, handleViewService }) => {
     return () => (body.style.overflow = "auto");
   }, []);
 
-  const handleBooking = (service,details={})=>{
-    console.log(service)
+  const handleBooking = (details)=>{
+    
         socket.emit("new-booking",{service,details,user:user?._id,provider:service?.serviceProvider?._id,details:{}})
   }
+
+  useEffect(()=>{
+    socket.on("service-request-send",(data)=>{
+           console.log(data)
+    })
+  },[socket])
+
+
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
@@ -80,7 +91,7 @@ const ViewService = ({ service, handleViewService }) => {
   <div className="mt-8 border-t pt-6">
     <h2 className="text-xl font-semibold mb-4">Your Requirement</h2>
 
-    <form className="space-y-4">
+    <form onSubmit={handleSubmit(handleBooking)} className="space-y-4">
       {/* Payment */}
       <div>
         <label className="block text-sm font-medium text-gray-700">
@@ -98,7 +109,11 @@ const ViewService = ({ service, handleViewService }) => {
         <label className="block text-sm font-medium text-gray-700">
           Select Preferred Day
         </label>
-        <select className="w-full mt-1 p-2 border rounded-md focus:ring focus:ring-blue-200">
+        <select 
+         {...register("preferdDay",{
+      required:{value:true,message:"please select a preferdDay"}
+    })}
+         className="w-full mt-1 p-2 border rounded-md focus:ring focus:ring-blue-200">
           {service?.availableDays?.length > 0 ? (
             service.availableDays.map((day, i) => (
               <option key={i} value={day}>
@@ -112,16 +127,26 @@ const ViewService = ({ service, handleViewService }) => {
       </div>
 
       {/* Select Duration */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700">
-          Select Preferred Duration
-        </label>
-        <input
-          type="text"
-          placeholder="e.g. 2 hours, 3 days"
-          className="w-full mt-1 p-2 border rounded-md focus:ring focus:ring-blue-200"
-        />
-      </div>
+     <div>
+  <label className="block text-sm font-medium text-gray-700">
+    Select Preferred Duration
+  </label>
+  <select
+    {...register("offerDuration",{
+      required:{value:true,message:"please select a duration"}
+    })}
+    className="w-full mt-1 p-2 border rounded-md focus:ring focus:ring-blue-200"
+  >
+    <option value="">-- Select Duration --</option>
+    <option value="full-day">Full Day</option>
+    <option value="half-day">Half Day</option>
+    <option value="2-hours">2 Hours</option>
+    <option value="6-hours">6 Hours</option>
+  </select>
+
+  {errors.offerDuration && <p className="text-red-800 font-semibold text-sm">{errors.offerDuration.message}</p>}
+</div>
+
 
       {/* Notes */}
       <div>
@@ -134,6 +159,8 @@ const ViewService = ({ service, handleViewService }) => {
           className="w-full mt-1 p-2 border rounded-md focus:ring focus:ring-blue-200"
         />
       </div>
+
+      <button ref={submitRef} className="hidden" type="submit">submit</button>
     </form>
   </div>
 </div>
@@ -190,7 +217,7 @@ const ViewService = ({ service, handleViewService }) => {
 
         <div className="flex justify-end px-4 pt-2">
            
-          <Button onClick={()=>handleBooking(service)} variant="apply" children={"Book Now"}/>
+          <Button onClick={()=>submitRef.current.click()} variant="apply" children={"Book Now"}/>
         </div>
       </div>
     </div>

@@ -3,7 +3,8 @@ import { createSlice } from "@reduxjs/toolkit";
 
 
 const initialState = {
-     partner: null
+     partner: null,
+     loading:true
 }
 
 const partnerSlice = createSlice({
@@ -11,14 +12,18 @@ const partnerSlice = createSlice({
      initialState,
      reducers: {
           setPartner: (state, action) => {
+               console.log("setingpartnber")
                state.partner = action.payload;
+               state.loading = false
           },
           clearPartner: (state, action) => {
                state.partner = null;
+               state.loading = false
           },
           addService: (state, action) => {
                console.log(action.payload)
                state.partner?.services?.push(action.payload);
+                 state.loading = false
           },
           updateService: (state, action) => {
                if (!state.partner || !Array.isArray(state.partner.services)) return;
@@ -29,6 +34,8 @@ const partnerSlice = createSlice({
                state.partner.services = state.partner.services.map(service =>
                     service._id === targetId ? action.payload : service
                );
+                 state.loading = false
+
           },
           updateServiceGallery: (state, action) => {
                console.log("updateServiceGallery")
@@ -44,6 +51,8 @@ const partnerSlice = createSlice({
                     }
                  
                });
+                 state.loading = false
+
           },
         
           deleteService : (state,action) =>{
@@ -51,6 +60,8 @@ const partnerSlice = createSlice({
                 if(state.partner.services && Array.isArray(state.partner.services)){
                     state.partner.services = state.partner.services.filter((s,i)=> s._id.toString() !== service._id.toString())
                 }
+                 state.loading = false
+
           }
      }
 })

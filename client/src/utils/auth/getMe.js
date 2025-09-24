@@ -1,4 +1,4 @@
-import { setPartner } from "../../redux/partnerSlice";
+
 import axios from "../axios/axiosinstance";
 
 
@@ -8,7 +8,7 @@ export const getMe =  async()=>{
          console.log(response.data)
          
          return {
-            data:response?.data?.data,
+            data:response?.data,
             message:response?.data?.message
          }
     } catch (error) {

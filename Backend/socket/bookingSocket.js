@@ -53,6 +53,7 @@ module.exports.bookMyService = (io, socket) => {
                 message: "Request has been sent",
                 data: updatedUser
             });
+            
         } catch (err) {
             console.error("❌ Error in booking:", err);
             socket.emit("booking-error", { error: "Booking failed" });
