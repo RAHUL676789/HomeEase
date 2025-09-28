@@ -31,7 +31,7 @@ class ErrorBoundary extends React.Component {
             
             {/* Error Icon */}
             <div className="flex justify-center mb-4">
-              <i class="ri-error-warning-line h-16 w-16 text-red-600"></i>
+              <i className="ri-error-warning-line h-16 w-16 text-red-600"></i>
             </div>
 
             {/* Heading */}

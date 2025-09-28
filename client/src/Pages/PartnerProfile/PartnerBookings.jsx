@@ -1,15 +1,42 @@
 import React, { useState, useEffect } from 'react'
 import ServiceCard from '../../Components/Service/ServiceCard'
 import PartnerBookingCard from '../../Components/Parterner/PartnerBookingCard'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import PartnerViewBooking from '../../Components/Parterner/PartnerViewBooking'
+import {debounce} from "../../utils/helper/debounce.js"
 
 const PartnerBookings = () => {
   
   const { partner, loading } = useSelector((state) => state.partner)
   const navigate = useNavigate()
   const [ViewBookingItem, setViewBookingItem] = useState(null)
+  const [filters, setfilters] = useState({category:[],status:[]})
+  const dispatch = useDispatch();
+   let bookings = partner?.bookings || []
+
+  const handleSetViewItem = (data) => {
+    console.log("clicking")
+    setViewBookingItem(data)
+  }
+
+  const handleFilters =(cat,value)=>{
+    console.log(cat)
+      setfilters((prev)=>{
+        return {
+          ...prev,
+          [cat]:[...prev[cat],value]
+        }
+      })
+
+      console.log(filters)
+  }
+
+  const applyFilters = (filter)=>{
+        console.log("clikc debounce")
+  }
+
+
 
   
   useEffect(() => {
@@ -17,6 +44,16 @@ const PartnerBookings = () => {
       navigate("/login")
     }
   }, [partner, loading, navigate])
+
+  
+  useEffect(()=>{
+     const hadnleApply = ()=>{
+      debounce(applyFilters,1000)
+     }
+  hadnleApply()
+
+  },[filters])
+
 
  if (loading) {
     console.log("partner profile loading")
@@ -27,12 +64,6 @@ const PartnerBookings = () => {
     )
   }
 
-  const bookings = partner?.bookings || []
-
-  const handleSetViewItem = (data) => {
-    console.log("clicking")
-    setViewBookingItem(data)
-  }
   
   return (
     <div className='bg-gray-50 h-screen w-screen'>
@@ -57,9 +88,9 @@ const PartnerBookings = () => {
               <div>
                 <div className='flex flex-col'>
                   <h3 className='text-lg font-semibold text-teal-700 border-b'>Status</h3>
-                  {["Accepted", "Rejected", "Request", "Pending"].map((item, i) => (
+                  {["accepted", "rejected", "requested", "pending"].map((item, i) => (
                     <label key={i} className='m-1 shadow-sm shadow-gray-200 hover:shadow-gray-400 transition-all duration-150 py-2 px-3 rounded'>
-                      <input type="checkbox" name='status' className='accent-teal-400 m-1 ' />
+                      <input onChange={(e)=>handleFilters("category",e.target.value)} type="checkbox" name='status' value={item} className='accent-teal-400 m-1 ' />
                       {item}
                     </label>
                   ))}

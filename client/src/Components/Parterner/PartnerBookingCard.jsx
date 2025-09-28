@@ -5,13 +5,12 @@ import Button from '../buttons/Button';
 const PartnerBookingCard = ({booking,setViewBookingItem}) => {
   const [ViewCardOptions, setViewCardOptions] = useState(false);
   const optionRef = useRef(null);
-  console.log(booking)
+ 
   const iconsName = booking?.user?.fullName[0] + booking?.user?.fullName[1]
  
   useEffect(()=>{
     const handleMouseDown  = (e)=>{
       console.log(e.currentTarget !== optionRef.current)
-      console.log(ViewCardOptions)
       if((e.currentTarget !== optionRef?.current) && ViewCardOptions){
         console.log("click")
           setViewCardOptions(false)

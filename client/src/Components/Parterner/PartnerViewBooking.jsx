@@ -9,6 +9,7 @@ const PartnerViewBooking = ({ booking, handleSetViewItem }) => {
         body.style.overflow = "hidden"
         return () => body.style.overflow = "auto"
     }, [])
+    
     return (
         <div className='bg-black/20 fixed inset-0 z-50'>
 
@@ -58,7 +59,7 @@ const PartnerViewBooking = ({ booking, handleSetViewItem }) => {
 
                             </div>
                             <div>
-                                <p><strong>AvailableDays </strong>{booking?.service?.availableDays.join(" ") || "NA"}</p>
+                                <p><strong>AvailableDays </strong>{booking?.service?.availableDays?.join(" ") || "NA"}</p>
                                 <p><strong>price </strong> &#8377;{booking?.service?.price || "NA"}</p>
 
                             </div>

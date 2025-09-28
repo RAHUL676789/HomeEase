@@ -3,7 +3,7 @@ import { useRef } from "react";
 
 
 export const debounce = (func,delay)=>{
-    const timer = useRef();
+ let timer = null
     
     return (...args)=>{
         if(timer.current) clearTimeout(timer.current);
