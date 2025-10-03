@@ -1,137 +1,182 @@
-import React, { useState, useEffect } from 'react'
-import ServiceCard from '../../Components/Service/ServiceCard'
-import PartnerBookingCard from '../../Components/Parterner/PartnerBookingCard'
-import { useDispatch, useSelector } from 'react-redux'
-import { useNavigate } from 'react-router-dom'
-import PartnerViewBooking from '../../Components/Parterner/PartnerViewBooking'
-import {debounce} from "../../utils/helper/debounce.js"
+import React, { useState, useEffect, useCallback } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+
+import PartnerBookingCard from "../../Components/Parterner/PartnerBookingCard";
+import PartnerViewBooking from "../../Components/Parterner/PartnerViewBooking";
+import { debounce } from "../../utils/helper/debounce.js";
 
 const PartnerBookings = () => {
-  
-  const { partner, loading } = useSelector((state) => state.partner)
-  const navigate = useNavigate()
-  const [ViewBookingItem, setViewBookingItem] = useState(null)
-  const [filters, setfilters] = useState({category:[],status:[]})
+  const { partner, loading } = useSelector((state) => state.partner);
   const dispatch = useDispatch();
-   let bookings = partner?.bookings || []
+  const navigate = useNavigate();
 
-  const handleSetViewItem = (data) => {
-    console.log("clicking")
-    setViewBookingItem(data)
-  }
+  // State
+  const [viewBookingItem, setViewBookingItem] = useState(null);
+  const [filters, setFilters] = useState({ category: [], status: [] });
+  const [filteredBookings, setFilteredBookings] = useState(null);
 
-  const handleFilters =(cat,value)=>{
-    console.log(cat)
-      setfilters((prev)=>{
-        return {
-          ...prev,
-          [cat]:[...prev[cat],value]
-        }
-      })
+  // -------------------- Handlers --------------------
 
-      console.log(filters)
-  }
+  // Toggle filter values (status / category)
+  const handleFilters = (key, value) => {
+    setFilters((prev) => ({
+      ...prev,
+      [key]: prev[key].includes(value.toLowerCase())
+        ? prev[key].filter((item) => item !== value.toLowerCase())
+        : [...prev[key], value.toLowerCase()],
+    }));
+  };
 
-  const applyFilters = (filter)=>{
-        console.log("clikc debounce")
-  }
-
-
-
-  
-  useEffect(() => {
-    if (!partner && !loading) {
-      navigate("/login")
+  // Apply filters to partner bookings
+  const applyFilters = () => {
+    if (filters.category.length === 0 && filters.status.length === 0) {
+      setFilteredBookings(null); // reset
+      return;
     }
-  }, [partner, loading, navigate])
 
-  
-  useEffect(()=>{
-     const hadnleApply = ()=>{
-      debounce(applyFilters,1000)
-     }
-  hadnleApply()
+    const result = partner?.bookings?.filter((item) => {
+      const matchCategory = filters.category.includes(
+        item.service?.category?.toLowerCase()
+      );
+      const matchStatus = filters.status.includes(
+        item.status?.toLowerCase()
+      );
+      console.log(matchStatus)
+      return matchCategory || matchStatus;
+    });
 
-  },[filters])
+    setFilteredBookings(result);
+  };
 
+  // Debounced version of applyFilters
+  const debouncedApplyFilters = useCallback(
+    debounce(applyFilters, 500),
+    [filters, partner]
+  );
 
- if (loading) {
-    console.log("partner profile loading")
+  // -------------------- Effects --------------------
+
+  // Redirect if no partner
+  useEffect(() => {
+    if (!partner && !loading) navigate("/login");
+  }, [partner, loading, navigate]);
+
+  // Trigger filter when filters change
+  useEffect(() => {
+    debouncedApplyFilters();
+  }, [filters, debouncedApplyFilters]);
+
+  // Final bookings list (either filtered or all)
+  const bookingsToRender = filteredBookings || partner?.bookings;
+
+  // -------------------- Render --------------------
+
+  if (loading) {
     return (
-      <div className='h-screen w-screen flex justify-center items-center flex-col '>
-        loading...
+      <div className="h-screen w-screen flex justify-center items-center">
+        <p className="text-lg font-semibold text-gray-600">Loading partner data...</p>
       </div>
-    )
+    );
   }
 
-  
   return (
-    <div className='bg-gray-50 h-screen w-screen'>
-      {ViewBookingItem && <PartnerViewBooking booking={ViewBookingItem} handleSetViewItem={handleSetViewItem} />}
+    <div className="bg-gray-50 h-screen w-screen">
+      {/* Booking detail view */}
+      {viewBookingItem && (
+        <PartnerViewBooking
+          booking={viewBookingItem}
+          handleSetViewItem={setViewBookingItem}
+        />
+      )}
 
-      <div className='flex gap-6 max-w-[100vw] pr-6'>
-        {/* ✅ Left panel intact */}
-        <div className='w-64 h-screen overflow-scroll no-scrollbar bg-white shadow-sm shadow-gray-400 hidden md:block'>
-          <header className='bg-gray-100 shadow shadow-gray-200 rounded'>
-            <div className='flex px-1 gap-1 py-3 '>
-              <div className='h-12 w-12 bg-teal-700 font-semibold text-xl text-white flex justify-center items-center flex-col rounded-full'>
+      <div className="flex gap-6 max-w-[100vw] pr-6">
+        {/* ---------------- Sidebar Filters ---------------- */}
+        <aside className="w-64 h-screen overflow-y-scroll no-scrollbar bg-white shadow-sm shadow-gray-400 hidden md:block">
+          <header className="bg-gray-100 shadow rounded">
+            <div className="flex items-center gap-2 px-2 py-3">
+              <div className="h-12 w-12 bg-teal-700 text-white font-semibold text-xl flex items-center justify-center rounded-full">
                 {partner?.fullName?.[0] || "?"}
               </div>
-              <div className='flex flex-col items-start justify-center leading-3 text-sm overflow-scroll no-scrollbar'>
-                <span>{partner?.fullName || "Unknown Partner"}</span>
-                <span className='font-semibold'>{partner?.email || "no-email"}</span>
+              <div className="flex flex-col leading-4 text-sm overflow-hidden">
+                <span className="truncate">{partner?.fullName || "Unknown Partner"}</span>
+                <span className="font-semibold truncate">{partner?.email || "no-email"}</span>
               </div>
             </div>
           </header>
-          <main className='px-1 py-2'>
+
+          <main className="px-2 py-3 space-y-5">
+            {/* Status Filters */}
             <div>
-              <div>
-                <div className='flex flex-col'>
-                  <h3 className='text-lg font-semibold text-teal-700 border-b'>Status</h3>
-                  {["accepted", "rejected", "requested", "pending"].map((item, i) => (
-                    <label key={i} className='m-1 shadow-sm shadow-gray-200 hover:shadow-gray-400 transition-all duration-150 py-2 px-3 rounded'>
-                      <input onChange={(e)=>handleFilters("category",e.target.value)} type="checkbox" name='status' value={item} className='accent-teal-400 m-1 ' />
-                      {item}
-                    </label>
-                  ))}
-                </div>
-                <div className='flex flex-col'>
-                  <h3 className='font-semibold text-lg text-teal-700 border-b'>Category</h3>
-                  {["Cleaning", "Plumber", "Beauty", "Car-wash"].map((item, i) => (
-                    <label key={i} className='m-1 shadow-sm shadow-gray-200 hover:shadow-gray-400 transition-all duration-150 py-2 px-3 rounded'>
-                      <input type="checkbox" name='Category' className='accent-teal-400 p-3 m-1' />
-                      {item}
-                    </label>
-                  ))}
-                </div>
-              </div>
+              <h3 className="text-lg font-semibold text-teal-700 border-b mb-2">Status</h3>
+              {["accepted", "rejected", "requested", "pending"].map((status) => (
+                <label
+                  key={status}
+                  className="flex items-center gap-2 m-1 shadow-sm hover:shadow-gray-400 transition-all duration-150 py-2 px-3 rounded cursor-pointer"
+                >
+                  <input
+                    type="checkbox"
+                    value={status}
+                    className="accent-teal-400"
+                    onChange={(e) => handleFilters("status", e.target.value)}
+                  />
+                  {status}
+                </label>
+              ))}
+            </div>
+
+            {/* Category Filters */}
+            <div>
+              <h3 className="text-lg font-semibold text-teal-700 border-b mb-2">Category</h3>
+              {["Cleaning", "Plumber", "Beauty", "Car-wash"].map((cat) => (
+                <label
+                  key={cat}
+                  className="flex items-center gap-2 m-1 shadow-sm hover:shadow-gray-400 transition-all duration-150 py-2 px-3 rounded cursor-pointer"
+                >
+                  <input
+                    type="checkbox"
+                    value={cat}
+                    className="accent-teal-400"
+                    onChange={(e) => handleFilters("category", e.target.value)}
+                  />
+                  {cat}
+                </label>
+              ))}
             </div>
           </main>
-        </div>
+        </aside>
 
-        {/* ✅ Right panel */}
-        <div className='flex-1 overflow-scroll no-scrollbar max-h-screen'>
-          <header className='w-[90%] mx-auto shadow-sm shadow-gray-500 rounded-3xl mt-3'>
+        {/* ---------------- Bookings List ---------------- */}
+        <main className="flex-1 overflow-y-scroll no-scrollbar max-h-screen">
+          {/* Search bar */}
+          <header className="w-[90%] mx-auto mt-3 shadow-sm shadow-gray-500 rounded-3xl">
             <input
               type="text"
-              placeholder='search here...'
-              className='bg-white outline-0 px-5 py-3 w-full rounded-3xl'
+              placeholder="Search here..."
+              className="bg-white outline-0 px-5 py-3 w-full rounded-3xl"
             />
           </header>
 
-          <div className='grid grid-cols-1 md:grid-cols-2 gap-3 mt-3'>
-            {bookings.map((booking, i) => (
+          {/* Booking Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 px-3">
+            {bookingsToRender?.map((booking, i) => (
               <PartnerBookingCard
-                booking={booking}
                 key={booking._id || i}
-                setViewBookingItem={handleSetViewItem}
+                booking={booking}
+                setViewBookingItem={setViewBookingItem}
               />
             ))}
+
+            {bookingsToRender?.length === 0 && (
+              <p className="text-center text-gray-500 col-span-2 mt-6">
+                No bookings match your filters.
+              </p>
+            )}
           </div>
-        </div>
+        </main>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default PartnerBookings
+export default PartnerBookings;
