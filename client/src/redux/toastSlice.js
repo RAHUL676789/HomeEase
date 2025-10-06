@@ -18,7 +18,7 @@ const toastSlice = createSlice({
             state.toast.type = action?.payload?.type;
             state.toast.content = action?.payload?.content,
             state.toast.trigger = action?.payload?.trigger || Date.now(),
-            state.toast.key = action?.payload?.key || Date.now()
+            state.toast.status = true
 
         }
     }

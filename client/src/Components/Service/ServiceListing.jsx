@@ -3,13 +3,13 @@ import ServiceCard from './ServiceCard'
 import ViewService from './ViewService'
 import axios from "../../utils/axios/axiosinstance.js"
 import Loader from '../Other/Loader.jsx'
-import ToastContainer from '../Other/ToastContainer.jsx'
 import { useLocation } from "react-router-dom"
 import ViewListingSkeleton from './ViewListingSkeleton.jsx'
 import { useSelector, useDispatch } from "react-redux"
 import { setListing } from '../../redux/listingSlice.js'
 import { debounce } from '../../utils/helper/debounce.js'
 import NotFound from "../../assets/NotFound.svg"
+import { setToast } from '../../redux/toastSlice.js'
 
 const ServiceListing = () => {
   const location = useLocation();
@@ -55,15 +55,6 @@ const ServiceListing = () => {
     location: false
   })
 
-  const handleSetToast = (type, content) => {
-    const newToast = {
-      type,
-      content,
-      trigger: Date.now(),
-      status: true
-    }
-    setToast(newToast);
-  }
 
   const updateFilters = (key) => {
     setFeatures((prev) => ({
@@ -143,12 +134,12 @@ const ServiceListing = () => {
       }
 
       if (page === 1) {
-        handleSetToast("success", data?.message || "Fetched services");
+        dispatch(setToast({type:"success", content:data?.message || "Fetched services"}));
       }
 
     } catch (error) {
       console.log(error);
-      handleSetToast("error", "Something went wrong while fetching");
+      dispatch(setToast({type:"error", content : "Something went wrong while fetching"}));
     } finally {
       setIsLoading(false);
     }
@@ -194,7 +185,7 @@ const ServiceListing = () => {
       },
       (error) => {
         console.error("Geolocation error:", error);
-        handleSetToast("error", error.message || "Location not fetched")
+        dispatch(setToast({type:"error",content: error.message || "Location not fetched"}))
       },
       { enableHighAccuracy: true, timeout: 10000 }
     );
@@ -247,7 +238,7 @@ const ServiceListing = () => {
       {viewServiceDetail && <ViewService handleViewService={handleViewService} service={viewServiceDetail} />}
 
       {isLoading && page === 1 && <Loader />}
-      {toast.status && <ToastContainer trigger={toast.trigger} key={toast.trigger} type={toast.type} content={toast.content} />}
+     
 
       <div className='h-full w-full flex'>
         {/* left panel */}

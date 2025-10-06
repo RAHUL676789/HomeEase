@@ -17,6 +17,7 @@ import EditProfile from '../../Components/Parterner/EditProfile'
 import DeleteUSer from '../../Components/Other/DeleteUSer'
 import Button from '../../Components/buttons/Button'
 import { socket } from "../../socket/socket.js"
+import {setToast} from "../../redux/toastSlice.js"
 
 const PartnerProfile = () => {
   const { partner, loading } = useSelector((state) => state.partner)
@@ -36,12 +37,7 @@ const PartnerProfile = () => {
   const [DeleteableService, setDeleteableService] = useState(null);
   const [EditableService, setEditableService] = useState(null);
   const [partnerDelete, setpartnerDelete] = useState(false)
-  const [Toast, setToast] = useState({
-    type: "",
-    content: "",
-    trigger: Date.now(),
-    status: false
-  })
+  
   const [uploadbleUrls, setuploadbleUrls] = useState(null);
   const [BookingCardOptionOpen, setBookingCardOptionOpen] = useState(null)
 
@@ -75,24 +71,18 @@ const PartnerProfile = () => {
   const handleSeriveId = (id) => setserviceId(id)
   const handleServiceModal = () => setserviceModal((prev) => !prev)
 
-  const handleSetToast = (type, content) => {
-    setToast({
-      type,
-      content,
-      trigger: Date.now(),
-      status: true
-    })
-  }
+ 
 
   const handleAddService = async (data) => {
     setisLoading(true);
     try {
       const response = await axios.post("/api/services", data);
       setserviceModal(false);
-      handleSetToast("success", response?.data?.message || "service added ")
+      dispatch(setToast({type:"success", content:response?.data?.message || "service added "}))
+      console.log(response.data.data)
       dispatch(addService(response?.data?.data))
     } catch (error) {
-      handleSetToast("error", error?.response?.data?.message || "someting went wrong")
+      dispatch(setToast({type:"error", content :error?.response?.data?.message || "someting went wrong"}))
     } finally {
       setisLoading(false);
     }
@@ -142,14 +132,14 @@ const PartnerProfile = () => {
         const { data } = await axios.put(`/api/services/${serviceId}`, {
           gallery: finalUrls,
         });
-        handleSetToast("success", data?.message || "Service updated successfully");
+        dispatch(setToast({type:"success", content:data?.message || "Service updated successfully"}));
         dispatch(updateService(data?.data));
         setShowGalleryModal(false);
       } else {
-        handleSetToast("error", "Service ID required or no files selected");
+        dispatch(setToast({type:"error",content: "Service ID required or no files selected"}));
       }
     } catch (error) {
-      handleSetToast("error", error?.message || "Something went wrong");
+      dispatch(setToast({type:"error",content: error?.message || "Something went wrong"}));
     } finally {
       setisLoading(false);
     }
@@ -162,11 +152,11 @@ const PartnerProfile = () => {
         `/api/services/${serviceId}/gallery/${galleryId}`,
         { data: { image } }
       );
-      handleSetToast("success", data?.message || "image deleted");
+      dispatch(setToast({type:"success", content :data?.message || "image deleted"}));
       dispatch(updateServiceGallery(data?.data));
       setViewImage(null);
     } catch (error) {
-      handleSetToast("error", error?.message || "someting went wrong")
+      dispatch(setToast({type:"error", content:error?.message || "someting went wrong"}))
     } finally {
       setisLoading(false)
     }
@@ -177,10 +167,10 @@ const PartnerProfile = () => {
     try {
       const { data } = await axios.delete(`/api/services/${service?._id}`);
       dispatch(deleteService(data?.data))
-      handleSetToast("success", data?.message || "service delete successfully");
+      dispatch(setToast({type:"success",content: data?.message || "service delete successfully"}));
       setDeleteableService(null);
     } catch (error) {
-      handleSetToast("error", error?.message || "someting went wrong")
+      dispatch(setToast({type:"error", content:error?.message || "someting went wrong"}))
     } finally {
       setisLoading(false)
     }
@@ -232,15 +222,15 @@ const PartnerProfile = () => {
 
   const handleEditPartnerProfile = async (formData) => {
     const result = detectProfileChanges(formData);
-    if (!result) return handleSetToast("warning", "please some changes")
+    if (!result) return dispatch(setToast({type:"warning",content: "please some changes"}))
     try {
       setisLoading(true)
       const { data } = await axios.put(`/api/partner/${partner?._id}`, formData);
-      handleSetToast("success", data.message);
+      dispatch(setToast({type:"success",content: data.message}));
       dispatch(setPartner(data?.data))
       setPartnerProfileEdit(false)
     } catch (error) {
-      handleSetToast("error", error?.message || "someting went wrong")
+      dispatch(setToast({type:"error", contnet:error?.message || "someting went wrong"}))
     } finally {
       setisLoading(false)
     }
@@ -251,10 +241,10 @@ const PartnerProfile = () => {
       setisLoading(true);
       const deleteResponse = await axios.delete(`/api/partner/${partner?._id}`);
       dispatch(setPartner(deleteResponse?.data?.data));
-      handleSetToast("success", "partner deleted")
+      dispatch(setToast({type:"success", content:"partner deleted"}))
       setpartnerDelete(false)
     } catch (error) {
-      handleSetToast("error", error?.message || "someting went wrong")
+      dispatch(setToast({type:"error", content:error?.message || "someting went wrong"}))
     } finally {
       setisLoading(false)
     }
@@ -268,14 +258,7 @@ const PartnerProfile = () => {
   return (
     <div className="max-w-screen bg-gray-50 py-4 sm:py-12">
       {isLoading && <Loader />}
-      {Toast.status && (
-        <ToastContainer
-          trigger={Toast.trigger}
-          key={Toast.trigger}
-          type={Toast.type}
-          content={Toast.content}
-        />
-      )}
+     
 
       <div className="flex flex-col sm:flex-row gap-6 px-4">
         {/* Left Panel (60%) */}

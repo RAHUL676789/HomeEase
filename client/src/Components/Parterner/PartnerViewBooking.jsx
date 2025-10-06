@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react'
 import Button from '../buttons/Button';
 import { socket } from '../../socket/socket';
+import PartnerUpcomingTimer from './PartnerUpcomingTimer';
 
 const PartnerViewBooking = ({ booking, handleSetViewItem }) => {
     console.log(booking)
@@ -12,14 +13,23 @@ const PartnerViewBooking = ({ booking, handleSetViewItem }) => {
     }, [])
 
 
-    const handleAcceptBooking = (bookingId)=>{
-             console.log(bookingId,"bookingId")
-             socket.emit("accept-booking",{
-                bookingId,
-                provider:booking?.provider,
-                user:booking?.user?._id
-             })
+    const handleAcceptBooking = (bookingId) => {
+        console.log(bookingId, "bookingId")
+        socket.emit("accept-booking", {
+            bookingId,
+            provider: booking?.provider,
+            user: booking?.user?._id
+        })
     }
+
+    const handleRejectBooking = (bookingId) => {
+        socket.emit("reject-booking", {
+            bookingId,
+            provider: booking?.provider,
+            user: booking?.user?._id
+        })
+    }
+    
 
     return (
         <div className='bg-black/20 fixed inset-0 z-50'>
@@ -27,7 +37,11 @@ const PartnerViewBooking = ({ booking, handleSetViewItem }) => {
             <div className='mx-auto h-screen w-full md:w-[75%] bg-white overflow-scroll  relative rounded-sm'>
                 <header className='py-3 px-2 flex justify-between sticky top-0 bg-white border-b b border-b-gray-300'>
                     <h1 className='text-xl font-semibold'>ViewBookings</h1>
+                     <div>
+                        <PartnerUpcomingTimer workingDate={booking?.details?.workingDate}/>
+                    </div>
                     <i onClick={() => handleSetViewItem(null)} className='ri-close-line text-lg'></i>
+                   
                 </header>
                 <main>
                     <div className='flex flex-col '>
@@ -50,7 +64,7 @@ const PartnerViewBooking = ({ booking, handleSetViewItem }) => {
 
                             </div>
 
-                            <span className='text-xs text-gray-400'>{new Date(booking?.service?.updatedAt).toDateString()}</span>
+                            <span className='text-xs text-gray-400'>{new Date(booking?.workingDate || booking?.service?.createdAt).toDateString()}</span>
 
                         </div>
 
@@ -81,10 +95,12 @@ const PartnerViewBooking = ({ booking, handleSetViewItem }) => {
                             {booking?.details ?
                                 <div className='px-3 mt-3 '>
                                     <h3 className='text-lg text-gray-400  font-medium'>Addtional Details</h3>
-                                    <p><strong>OfferPayment </strong> <span className='font-bold'>&#8377;</span>{booking?.details?.offerPayment || 345} </p>
+                                    <p><strong>OfferPayment </strong> <span className='font-bold'>&#8377;</span>{booking?.details?.offerPayment || "NA"} </p>
                                     <p><strong>Prefer-Day </strong>{booking?.details?.preferdDay || "monday"}</p>
                                     <p><strong>OfferDuration </strong>{booking?.details?.OfferDuration || "4hour"}</p>
+
                                     <p><strong>Message </strong>{booking?.details?.notes || "i am waiting for you"}</p>
+                                     <p><strong>workingDate </strong>{new Date(booking?.details?.workingDate).toLocaleDateString() || "i am waiting for you"}</p>
 
                                 </div> : <div className='px-3 mt-3  '>
                                     <h3 className='text-lg font-semibold text-gray-400 mb-3 flex-1'>No Additonal Details Availables</h3></div>}
@@ -95,14 +111,20 @@ const PartnerViewBooking = ({ booking, handleSetViewItem }) => {
 
                     <div className='flex gap-2  items-center   w-full justify-center pt-3 
                  px-3   '>
-                        <Button onClick={()=>handleAcceptBooking(booking._id)} variant={"apply"}>Accept</Button>
-                        <Button variant={"delete"}>Reject</Button>
-                     
-                           <div className='ml-auto'>
-                             <Button variant={"next"}>Chat</Button>
-                           </div>
-                
-                        
+                          {booking.status !== "accepted" &&  <Button onClick={() => handleAcceptBooking(booking._id)} variant={"apply"}>Accept</Button>}
+                       {booking.status !== "accepted" &&  <Button variant={"delete"} onClick={()=>handleRejectBooking(booking._id)}>Reject</Button>}  
+
+                       {
+                        booking.status === "accepted" && <Button variant={"cancel"}>
+                            Cancel
+                        </Button>
+                       }
+
+                        <div className='ml-auto'>
+                            <Button variant={"next"}>Chat</Button>
+                        </div>
+
+
                     </div>
 
 

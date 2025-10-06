@@ -41,7 +41,7 @@ const Preview = ({ data, onCancel, submit }) => {
     try {
       setIsLoading(true);
       const response = await axios.post('/api/partner/signup', { ...data, otp });
-      handleShowToast("success",response?.data?.message || "signup successful")
+      dispatch(setToast({type:"success",content : response?.data?.message || "signup successful"}))
       console.log(response.data);
       dispatch(setPartner(response.data.data))
      

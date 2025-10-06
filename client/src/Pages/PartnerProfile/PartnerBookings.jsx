@@ -18,20 +18,15 @@ const PartnerBookings = () => {
 
   // State
   const [viewBookingItem, setViewBookingItem] = useState(null);
-  const [filters, setFilters] = useState({ category: [], status: [] });
-  const [filteredBookings, setFilteredBookings] = useState(null);
-  const [searchInp, setsearchInp] = useState("");
-  const [toast, settoast] = useState({
-    status: false,
-    type: "",
-    content: "",
-    trigger: ""
-  })
+  const [filters, setFilters] = useState({ category: [], status: [],searchInp:"" });
+  const [filteredBookings, setFilteredBookings] = useState([]);
+
 
   // -------------------- Handlers --------------------
 
   // Toggle filter values (status / category)
   const handleFilters = (key, value) => {
+    console.log(key,value)
     setFilters((prev) => ({
       ...prev,
       [key]: prev[key].includes(value.toLowerCase())
@@ -42,7 +37,8 @@ const PartnerBookings = () => {
 
   // Apply filters to partner bookings
   const applyFilters = () => {
-    if (filters.category.length === 0 && filters.status.length === 0) {
+    if (filters.category.length === 0 && filters.status.length === 0 && filters.searchInp === "") {
+      console.log("return form here")
       setFilteredBookings(null); // reset
       return;
     }
@@ -54,40 +50,28 @@ const PartnerBookings = () => {
       const matchStatus = filters.status.includes(
         item.status?.toLowerCase()
       );
-      console.log(matchStatus)
-      return matchCategory || matchStatus;
+
+      const matchSearch =  handleSearch(item);
+      console.log(matchSearch)
+      return matchCategory || matchStatus || matchSearch;
     });
 
     setFilteredBookings(result);
   };
 
-  const handleSearch = () => {
-
-    console.log("searchFilter", searchInp)
-    const searchFilter = partner?.bookings?.filter((item, i) => {
-      const mathTitle = item?.service?.title?.toLowerCase().includes(searchInp.toLowerCase())
-      const matchCategory = item?.service?.category?.toLowerCase().includes(searchInp.toLowerCase())
-      const matchStatus = item?.status?.toLowerCase().includes(searchInp.toLowerCase());
-
-      return mathTitle || matchCategory || matchStatus;
-    })
-
-    console.log("searchFilter", searchFilter)
-
-    setFilteredBookings(searchFilter);
+  const handleSearch = (item) => {
+     if(filters?.searchInp === ""){
+      return; 
+     }
+      const mathTitle = item?.service?.title?.includes(filters?.searchInp)
+      const matchCategory = item?.service?.category?.includes(filters?.searchInp)
+      const matchStatus = item?.status?.includes(filters?.searchInp);
+          console.log(matchCategory,matchStatus,mathTitle)
+     return mathTitle || matchCategory || matchStatus;
+  
   }
 
-  const handleSetToast = (type, content) => {
-    const newToast = {
-      status: true,
-      type,
-      content,
-      trigger: Date.now()
-    }
-
-    settoast(newToast)
-
-  }
+  
 
   // Debounced version of applyFilters
   const debouncedApplyFilters = useCallback(
@@ -95,7 +79,7 @@ const PartnerBookings = () => {
     [filters, partner]
   );
 
-  const debounceSearch = useCallback(debounce(handleSearch, 1000), [searchInp])
+ 
 
   // -------------------- Effects --------------------
 
@@ -109,16 +93,13 @@ const PartnerBookings = () => {
     debouncedApplyFilters();
   }, [filters, debouncedApplyFilters]);
 
-  useEffect(() => {
-    debounceSearch();
-  }, [searchInp])
 
- 
-  
 
 
   // Final bookings list (either filtered or all)
-  const bookingsToRender = filteredBookings || partner?.bookings;
+  let bookingsToRender = filteredBookings || partner?.bookings;
+  bookingsToRender = [...bookingsToRender].sort((a,b)=> new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
+
 
   // -------------------- Render --------------------
 
@@ -140,7 +121,8 @@ const PartnerBookings = () => {
         />
       )}
 
-      {toast.status && <ToastContainer type={toast.type} content={toast.content} trigger={toast.trigger} key={toast.trigger} />}
+    
+    
 
       <div className="flex gap-6 max-w-[100vw] pr-6">
         {/* ---------------- Sidebar Filters ---------------- */}
@@ -205,7 +187,13 @@ const PartnerBookings = () => {
             <input
               type="text"
               maxLength={15}
-              onChange={(e) => setsearchInp(e.target.value)}
+             onChange={(e)=>setFilters((prev)=>{
+              return {
+                ...prev,
+                searchInp:e.target.value
+              }
+             })}
+              
               placeholder="Search here..."
               className="bg-white outline-0 px-5 py-3 w-full rounded-3xl"
             />

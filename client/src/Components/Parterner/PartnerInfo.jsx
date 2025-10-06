@@ -286,7 +286,7 @@ const PartnerInfo = ({ partner, setPartnerProfileEdit, deletePartner }) => {
       {/* <PartnerCoverPhoto/> */}
       {isLoading && <Loader />}
       {showPdfPreview && <DocumentPreview changePdf={handleChangePhoto} apply={handleDocumetApply} cancel={handleDocumentCancel} url={pdfUrl} />}
-      {Toast.status && <ToastContainer trigger={Toast.trigger} key={Toast.trigger} type={Toast.type} content={Toast.content} />}
+   
 
       {showAddCoverPhoto && <AddCoverPhoto backImage={backImage} updateField={updateField} handleNextEditCoverPhoto={handleNextEditCoverPhoto}  handleAddCoverPhoto={handleAddCoverPhoto} />}
 

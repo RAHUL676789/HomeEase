@@ -1,13 +1,16 @@
-import { useEffect,useState } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { socket } from "./socket/socket";
 import { getToken } from "./utils/helper/getToken";
+import { setPartner } from "./redux/partnerSlice";
+import { setUser } from "./redux/userSlice"
+import { setToast } from "./redux/toastSlice";
 
 const SocketHandler = () => {
   const dispatch = useDispatch();
   const { partner } = useSelector((state) => state.partner);
   const { user } = useSelector((state) => state.user);
- 
+
 
   // 🔹 Mount time socket connection setup
   useEffect(() => {
@@ -29,26 +32,43 @@ const SocketHandler = () => {
     // Global booking listeners
     const onNewBooking = (payload) => {
       console.log(" new booking:", payload);
+      dispatch(setPartner(payload.data))
+      dispatch(setToast({ type: "success", content: payload.message || "new booking request" }))
+
     };
 
     const onBookingConfirm = (payload) => {
-      console.log(" booking confirm:", payload);
+      console.log(" booking confirm: payload", payload);
+      dispatch(setPartner(payload.data))
+      dispatch(setToast({ type: "success", content: payload.message || "booking has been confirm" }))
     };
+    const onBookingReject = (payload) => {
+      console.log("this is reject payload", payload);
+      dispatch(setPartner(payload.data))
+      dispatch(setToast({ type: "success", content: payload.message || "booking has been rejected" }))
+    }
 
-    socket.on("new-booking", onNewBooking);
-    socket.on("booking-confirm", onBookingConfirm);
+    const onNewRequest = (payload)=>{
+      console.log("this is new request paylaod",payload);
+
+    }
+    socket.on("partner-new-booking", onNewBooking);
+    socket.on("partner-booking-confirm", onBookingConfirm);
+    socket.on("partner-booking-reject", onBookingReject);
+    socket.on("partner-new-service-request",onNewRequest)
 
     return () => {
       socket.off("connect", onConnect);
       socket.off("connect_error", onConnectError);
       socket.off("disconnect", onDisConnect);
 
-      socket.off("new-booking", onNewBooking);
-      socket.off("booking-confirm", onBookingConfirm);
+      socket.off("partner-new-booking", onNewBooking);
+      socket.off("partner-booking-confirm", onBookingConfirm);
+      socket.off("partner-booking-reject", onBookingReject);
     };
   }, []);
 
- 
+
   useEffect(() => {
     if (partner?._id) {
       socket.emit("partner-join", partner._id);
