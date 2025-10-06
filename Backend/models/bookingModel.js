@@ -25,7 +25,8 @@ const bookingSchema = new mongoose.Schema({
         offerPayment:{type:Number},
         offerDuration:{type:String},
         preferdDay:{type:String},
-        notes:{type:String}
+        notes:{type:String},
+        workingDate:{type:Date}
     }
 
 },{timestamps:true})
