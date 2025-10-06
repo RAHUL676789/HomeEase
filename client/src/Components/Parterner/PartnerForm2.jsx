@@ -2,20 +2,16 @@ import React, { useEffect, useState } from 'react'
 import WebLoader from '../Other/Loader'
 import pinApi from '../../utils/Apis'
 import { useForm } from 'react-hook-form'
-import ToastContainer from '../Other/ToastContainer'
 import Button from '../buttons/Button'
+import { useDispatch } from 'react-redux'
+import { setToast } from '../../redux/toastSlice'
 
 const PartnerForm2 = ({ handlePreviData, prevStep }) => {
-
+  const dispatch = useDispatch();
   const { register, handleSubmit, formState: { errors } } = useForm();
   const [pin, setPin] = useState(null)
   const [Loader, setLoader] = useState(false);
-  const [showToast, setshowToast] = useState({
-    type: "",
-    status: false,
-    content: "",
-    trigger: Date.now()
-  })
+
   const [AddData, setAddData] = useState({
     country: "",
     state: "",
@@ -32,31 +28,34 @@ const PartnerForm2 = ({ handlePreviData, prevStep }) => {
       if (!data || !data.state || !data.country || !data.district) {
         // अगर data incomplete या undefined आया
         setForceManual(true);
-        setshowToast({
+        dispatch(setToast({
           status: true,
           type: "error",
           content: data?.message || "Could not fetch details. Please fill manually.",
           trigger: Date.now()
-        });
+        }))
+
       } else {
         // success
         setAddData({ ...data });
         setForceManual(false);
-        setshowToast({
+        dispatch(setToast({
           status: true,
           type: "success",
           content: "Address details fetched successfully!",
           trigger: Date.now()
-        });
+        }))
+
       }
     } catch (error) {
       setForceManual(true);
-      setshowToast({
+      dispatch(setToast({
         status: true,
         type: "error",
         content: error?.message || "Unable to fetch details. Please fill manually.",
         trigger: Date.now()
-      });
+      }))
+    
     } finally {
       setLoader(false);
     }
@@ -107,13 +106,7 @@ const PartnerForm2 = ({ handlePreviData, prevStep }) => {
         />
         {errors.pincode && <p className='text-red-500 text-xs'>{errors.pincode.message}</p>}
 
-        {showToast.status && (
-          <ToastContainer
-            trigger={showToast.trigger}
-            type={showToast.type}
-            content={showToast.content}
-          />
-        )}
+    
       </div>
 
       {/* Manual + Auto fields */}

@@ -3,16 +3,17 @@ import { NavLink } from "react-router-dom";
 import "remixicon/fonts/remixicon.css";
 import { useDispatch, useSelector } from "react-redux";
 import { getMe } from "../../utils/auth/getMe";
-import {setPartner} from "../../redux/partnerSlice"
-import {setUser} from "../../redux/userSlice"
+import { setPartner } from "../../redux/partnerSlice"
+import { setUser } from "../../redux/userSlice"
+import { socket } from "../../socket/socket";
 
 function Navbar() {
   const [isMobileOpen, setIsMobileOpen] = useState(true);
   const dispatch = useDispatch();
-  
 
- 
-const partner = useSelector((state) => state.partner?.partner);
+
+
+  const partner = useSelector((state) => state.partner?.partner);
   const user = useSelector((state) => state.user?.user);
 
   console.log(partner)
@@ -28,7 +29,7 @@ const partner = useSelector((state) => state.partner?.partner);
     { name: "Home", path: "/", icon: <i className="ri-home-8-fill mr-1"></i> },
     { name: "About", path: "/about", icon: <i className="ri-gitlab-fill mr-1"></i> },
     { name: "Contact", path: "/contact", icon: <i className="ri-mail-line mr-1"></i> },
-    
+
   ];
 
   // ---------------- LOGIN STATES ----------------
@@ -62,8 +63,8 @@ const partner = useSelector((state) => state.partner?.partner);
   const actionItems = user
     ? userActions
     : partner
-    ? partnerActions
-    : guestActions;
+      ? partnerActions
+      : guestActions;
 
   // ---------------- SCROLL HIDE LOGIC ----------------
   useEffect(() => {
@@ -79,6 +80,7 @@ const partner = useSelector((state) => state.partner?.partner);
     window.addEventListener("scroll", handleScrollY);
     return () => window.removeEventListener("scroll", handleScrollY);
   }, [lastScrollY]);
+
 
   // ---------------- RETURN JSX ----------------
   return (

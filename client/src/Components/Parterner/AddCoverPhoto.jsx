@@ -15,7 +15,7 @@ import { useEditableImage } from '../../Hooks/useEditableImage.js';
 import Button from '../buttons/Button.jsx';
 
 
-const AddCoverPhoto = ({ handleAddCoverPhoto,handleSetToast,handleNextEditCoverPhoto ,backImage,updateField}) => {
+const AddCoverPhoto = ({ handleAddCoverPhoto,handleNextEditCoverPhoto ,backImage,updateField}) => {
     const ImageCovers = [cover1, cover2, cover3, cover4, cover5, cover6, cover7];
     const [checkboxBg, setcheckboxBg] = useState("");
     const [loadedImages, setLoadedImages] = useState(Array(ImageCovers.length).fill(false));

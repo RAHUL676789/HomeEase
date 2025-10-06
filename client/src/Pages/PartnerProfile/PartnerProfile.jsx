@@ -53,15 +53,7 @@ const PartnerProfile = () => {
     }
   }, [partner, loading, navigate])
 
-  useEffect(() => {
-    socket.on("new-service-request", (data) => {
-      console.log(data);
-      console.log("this is request")
-    })
-    return () => {
-      socket.off("new-service-request")
-    }
-  }, [partner])
+
 
   // 🔹 Conditional return (safe: no hook inside)
   if (loading) {

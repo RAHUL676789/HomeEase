@@ -7,10 +7,11 @@ import ToastContainer from '../Other/ToastContainer';
 import Loader from '../Other/Loader';
 import loginImage from '../../assets/login.svg' // 🔁 You can replace with any image
 import { useNavigate } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { setPartner } from '../../redux/partnerSlice';
 import { setUser } from '../../redux/userSlice';
 import { socket } from '../../socket/socket';
+import { setToast } from '../../redux/toastSlice';
 
 const Login = () => {
     const { handleSubmit, register, formState: { errors } } = useForm();
@@ -19,37 +20,45 @@ const Login = () => {
     const dispatch = useDispatch();
     const inputRef = useRef(null);
     const navigate = useNavigate();
-    const [showToast, setshowToast] = useState({
-        status: false,
-        trigger: Date.now(),
-        type: "",
-        content: ""
-    });
 
     const handleLogin = async (data) => {
         setisLoading(true);
         try {
             const response = await axios.post('/api/auth/login', data);
             console.log(response.data);
-            setisLoading(false);
-            if(response.data.role == "Partner"){
+
+            if (response.data.role == "Partner") {
                 navigate("/partnerProfile")
                 dispatch(setPartner(response.data.data))
-                socket.emit("partner-join",(response.data.data._id))
+                socket.emit("partner-join", (response.data.data._id))
+                dispatch(setToast({
+                    status: true,
+                    content: "Login successfully",
+                    trigger: Date.now(),
+                    type: "success"
+                }))
 
-            }else if(response?.data?.role == "User"){
+            } else if (response?.data?.role == "User") {
                 navigate("/userProfile")
                 dispatch(setUser(response?.data.data));
-                 socket.emit("user-join",(response.data.data._id))
+                socket.emit("user-join", (response.data.data._id))
+                dispatch(setToast({
+                    status: true,
+                    content: "Login successfully",
+                    trigger: Date.now(),
+                    type: "success"
+                }))
             }
         } catch (error) {
-           
-            setshowToast({
+
+            dispatch(setToast({
                 status: true,
                 content: error.response?.data?.message || "Login Failed",
                 trigger: Date.now(),
                 type: "error"
-            });
+            }))
+
+        } finally {
             setisLoading(false);
         }
     };
@@ -64,10 +73,7 @@ const Login = () => {
 
     return (
         <div className='min-h-screen flex items-center justify-center bg-gradient-to-br from-teal-100 to-white p-4'>
-
-            {showToast.status && <ToastContainer key={showToast.trigger} trigger={showToast.trigger} type={showToast.type} content={showToast.content} />}
             {isLoading && <Loader />}
-
             <div className='flex max-w-5xl w-full bg-white/60 shadow-lg rounded-2xl overflow-hidden backdrop-blur-md'>
 
                 {/* Left Illustration */}

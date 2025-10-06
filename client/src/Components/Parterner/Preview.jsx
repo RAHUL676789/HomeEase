@@ -1,36 +1,18 @@
 import React, { useReducer, useState } from 'react';
 import Loader from '../Other/Loader';
 import Modal from '../Other/Modal';
-import ToastContainer from '../Other/ToastContainer';
 import axios from '../../utils/axios/axiosinstance.js';
 import { useNavigate } from 'react-router-dom';
 import {useDispatch} from "react-redux"
 import { setPartner } from '../../redux/partnerSlice.js';
 import Button from '../buttons/Button.jsx';
+import { setToast } from '../../redux/toastSlice.js';
 
 const Preview = ({ data, onCancel, submit }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [showOtpModal, setshowOtpModal] = useState(false);
    const dispatch = useDispatch();
   const navigate = useNavigate();
-  const [isToast, setIsToast] = useState({
-    status: false,
-    type: '',
-    content: '',
-    trigger: Date.now(),
-  });
-
-
-  const handleShowToast = (type, content) => {
-    setIsToast((prev) => {
-      return {
-        status: true,
-        type,
-        content,
-        trigger: Date.now()
-      }
-    })
-  }
 
   // 📩 Trigger OTP Send API
   const handleSendOtp = async () => {
@@ -41,14 +23,14 @@ const Preview = ({ data, onCancel, submit }) => {
       if (res.success) {
         setshowOtpModal(true);
       } else {
-        handleShowToast("error", res?.data?.message || "Something went wrong")
+        dispatch(setToast({type:"error", content : res?.data?.message || "Something went wrong"}))
       }
 
 
     } catch (e) {
       console.error('Submit error:', e);
 
-      handleShowToast("error", e?.message || "Something went wrong")
+      dispatch(setToast({type:"error",content : e?.message || "Something went wrong"}))
     } finally {
       setIsLoading(false);
     }
@@ -70,7 +52,7 @@ const Preview = ({ data, onCancel, submit }) => {
     catch (error) {
       console.log(error)
       console.error('OTP Error:', error?.response?.data);
-      handleShowToast("error",error?.response?.data?.message || "Something went wrong")
+      dispatch(setToast({type:"error",content : error?.response?.data?.message || "Something went wrong"}))
     
     } finally {
       setIsLoading(false);
@@ -86,15 +68,7 @@ const Preview = ({ data, onCancel, submit }) => {
     <div className='max-w-xl mx-auto px-5 py-6 flex flex-col gap-6 shadow-md shadow-gray-500 bg-white rounded'>
       {isLoading && <Loader />}
       {showOtpModal && <Modal verifyOtp={verifyOtp} cancelOtp={cancelOtp} />}
-      {isToast.status && (
-        <ToastContainer
-          key={isToast.trigger}
-          type={isToast.type}
-          content={isToast.content}
-          trigger={isToast.trigger}
-        />
-      )}
-
+     
       <h1 className='text-green-600 text-xl font-bold border-b pb-2'>
         Before Submitting the Form, Please Review Your Details:
       </h1>

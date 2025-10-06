@@ -1,7 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AddCoverPhoto from './AddCoverPhoto';
-import ToastContainer from '../Other/ToastContainer';
 import EditPartnerImage from './EditPartnerImage';
 import axios from '../../utils/axios/axiosinstance.js';
 
@@ -18,8 +17,9 @@ import Loader from '../Other/Loader.jsx';
 import { uploadFile } from '../../utils/cloudinary/uploadFile.js';
 import DocumentPreview from '../Other/DocumentPreview.jsx';
 import Button from '../buttons/Button.jsx';
+import { setToast } from '../../redux/toastSlice.js';
 
-const PartnerInfo = ({ partner,setPartnerProfileEdit,deletePartner }) => {
+const PartnerInfo = ({ partner, setPartnerProfileEdit, deletePartner }) => {
   const [showAddCoverPhoto, setshowAddCoverPhoto] = useState(false);
   const [showEditImage, setshowEditImage] = useState(false)
   const [ShowcoverPhotoOptions, setShowcoverPhotoOptions] = useState(false)
@@ -49,24 +49,7 @@ const PartnerInfo = ({ partner,setPartnerProfileEdit,deletePartner }) => {
   }
 
 
-  const [Toast, setToast] = useState({
-    type: "",
-    content: "",
-    trigger: Date.now(),
-    status: false
-  })
 
-
-  const handleSetToast = (type, content) => {
-    const newTost = {
-      type,
-      content,
-      status: true,
-      trigger: Date.now()
-    }
-
-    setToast(newTost);
-  }
   const {
     fullName,
     backGroundImage,
@@ -103,8 +86,8 @@ const PartnerInfo = ({ partner,setPartnerProfileEdit,deletePartner }) => {
         setShowcoverPhotoOptions(false);
       }
 
-      if((profileOptionRef.current && !profileOptionRef.current.contains(event.target)) && event.target !== optionIconRef.current){
-        
+      if ((profileOptionRef.current && !profileOptionRef.current.contains(event.target)) && event.target !== optionIconRef.current) {
+
         setProfileOptions(false)
       }
 
@@ -151,7 +134,7 @@ const PartnerInfo = ({ partner,setPartnerProfileEdit,deletePartner }) => {
     setisLoading(true);
 
     if (!backImage?.backGroundImage?.backGroundImage?.url) {
-      handleSetToast("error", "coverPhoto required");
+      dispatch(setToast({type:"error", content : "coverPhoto required"}));
       setisLoading(false);
       return;
     }
@@ -166,10 +149,13 @@ const PartnerInfo = ({ partner,setPartnerProfileEdit,deletePartner }) => {
       handleCloseEdit();
       console.log(response.data.data.backGroundImage)
       resetCover(response?.data?.data?.backGroundImage);
-      handleSetToast("success", response.data.message)
+      dispatch(setToast({
+        type: "success",
+        content: response.data.message
+      }))
 
     } catch (error) {
-      handleSetToast("error", error.message || "someting went wrong");
+      dispatch(setToast({ type: "error", content: error.message || "someting went wrong" }));
 
     } finally {
       setisLoading(false);
@@ -178,14 +164,14 @@ const PartnerInfo = ({ partner,setPartnerProfileEdit,deletePartner }) => {
   }
 
   // profilePicture
-const [profileInp, setprofileInp] = useState(null);
+  const [profileInp, setprofileInp] = useState(null);
   const handleProfileChange = async (e) => {
     try {
       console.log("profile change runc")
       setisLoading(true);
-       setprofileInp(e.target.files[0]);
+      setprofileInp(e.target.files[0]);
       const response = await uploadFile(e.target.files[0]);
-     
+
       const result = await axios.put(`/api/partner/${partner?._id}`, {
         profilePicture: {
           url: response?.url,
@@ -193,18 +179,18 @@ const [profileInp, setprofileInp] = useState(null);
         }
       });
 
-      if(result?.data?.success){
+      if (result?.data?.success) {
         dispatch(setPartner(result?.data?.data));
-        handleSetToast("success",result?.data?.message || "profile update successFully")
-       
+        handleSetToast("success", result?.data?.message || "profile update successFully")
+
       }
 
     } catch (error) {
-   handleSetToast("error",error?.message || "someting went wrong")
-  
+      handleSetToast("error", error?.message || "someting went wrong")
+
     } finally {
       setisLoading(false)
-       setprofileInp("")
+      setprofileInp("")
     }
 
   }
@@ -302,7 +288,7 @@ const [profileInp, setprofileInp] = useState(null);
       {showPdfPreview && <DocumentPreview changePdf={handleChangePhoto} apply={handleDocumetApply} cancel={handleDocumentCancel} url={pdfUrl} />}
       {Toast.status && <ToastContainer trigger={Toast.trigger} key={Toast.trigger} type={Toast.type} content={Toast.content} />}
 
-      {showAddCoverPhoto && <AddCoverPhoto backImage={backImage} updateField={updateField} handleNextEditCoverPhoto={handleNextEditCoverPhoto} handleSetToast={handleSetToast} handleAddCoverPhoto={handleAddCoverPhoto} />}
+      {showAddCoverPhoto && <AddCoverPhoto backImage={backImage} updateField={updateField} handleNextEditCoverPhoto={handleNextEditCoverPhoto}  handleAddCoverPhoto={handleAddCoverPhoto} />}
 
       {showEditImage && <EditPartnerImage handleApply={handleApply} backImage={backImage?.backGroundImage?.backGroundImage} resetCover={resetCover} updateField={updateField} adjustFilterField={adjustFilterField} updateFilter={updateFilter} setshowEditImage={handleCloseEdit} />}
 
@@ -310,7 +296,7 @@ const [profileInp, setprofileInp] = useState(null);
       <div className="relative">
         {/* Background Image or Fallback */}
         <div className="w-full relative h-48 overflow-hidden">
-          {backGroundImage?.url !=="" ? (
+          {backGroundImage?.url !== "" ? (
             <img
 
               style={{
@@ -356,7 +342,7 @@ const [profileInp, setprofileInp] = useState(null);
               </div>
             )}
           </div>
-          <input  onChange={handleProfileChange} type="file" className='hidden' ref={profileRef} />
+          <input onChange={handleProfileChange} type="file" className='hidden' ref={profileRef} />
         </div>
       </div>
 
@@ -364,14 +350,14 @@ const [profileInp, setprofileInp] = useState(null);
       <div className='mt-20 pt-6 px-5 pb-6 sm:flex sm:flex-row flex-col justify-between relative z-0'>
 
         <div className='absolute right-6 -top-12 cursor-pointer  px-2 rounded-full hover:bg-gray-200 transition-all duration-150 py-1 '>
-          <i ref={optionIconRef} onClick={()=>setProfileOptions(true)} className="ri-more-2-line font-bold"></i>
+          <i ref={optionIconRef} onClick={() => setProfileOptions(true)} className="ri-more-2-line font-bold"></i>
 
         </div>
 
         {ProfileOptions && <div ref={profileOptionRef} className='absolute right-16 -top-16 shadow-sm shadow-gray-200 px-2 py-3 rounded-sm'>
           <ul>
-            <li onClick={()=>setPartnerProfileEdit(true)} className='transition-all rounded-sm duration-150 px-3 py-1 hover:shadow-sm font-semibold hover:shadow-gray-300 cursor-pointer'>Edit-Profile</li>
-            <li onClick={()=>deletePartner()} className=' transition-all duration-150 px-3 py-1 hover:shadow-sm hover:shadow-gray-300  rounded-sm font-semibold cursor-pointer'>Delete-Profile</li>
+            <li onClick={() => setPartnerProfileEdit(true)} className='transition-all rounded-sm duration-150 px-3 py-1 hover:shadow-sm font-semibold hover:shadow-gray-300 cursor-pointer'>Edit-Profile</li>
+            <li onClick={() => deletePartner()} className=' transition-all duration-150 px-3 py-1 hover:shadow-sm hover:shadow-gray-300  rounded-sm font-semibold cursor-pointer'>Delete-Profile</li>
           </ul>
 
 
@@ -422,7 +408,7 @@ const [profileInp, setprofileInp] = useState(null);
                   <p className="text-gray-800 font-medium">{doc.name || `Document ${index + 1}`}</p>
                 </div>
                 <div className="flex gap-2">
-                 <Button variant="delete">Delete</Button>
+                  <Button variant="delete">Delete</Button>
                 </div>
               </div>
             ))}

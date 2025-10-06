@@ -9,6 +9,7 @@ import axios from "../../utils/axios/axiosinstance.js"
 import Modal from '../Other/Modal.jsx';
 import { setUser } from '../../redux/userSlice.js';
 import { useDispatch } from 'react-redux';
+import { setToast } from '../../redux/toastSlice.js';
 
 const Signup = () => {
     const navigate = useNavigate();
@@ -20,15 +21,8 @@ const Signup = () => {
     const togglePassword = () => {
         setShowPassword((prev) => !prev)
     }
-
     const [isLoading, setisLoading] = useState(false)
-    const [showToast, setshowToast] = useState({
-        trigger: Date.now(),
-        type: "",
-        content: "",
-        status: false
 
-    })
 
     const { handleSubmit, register, formState: { errors } } = useForm();
     const inputClass = 'bg-white/70 border border-gray-300 py-3 px-3 mt-1 focus:outline-none focus:ring-2 focus:ring-teal-500 rounded-md backdrop-blur';
@@ -42,26 +36,25 @@ const Signup = () => {
             const response = await axios.post("/api/users/sendOtp", data)
             if (response.data.success) {
                 setshowOtpModal(true);
-                setshowToast((prev) => {
-                    return {
-                        type: "success",
-                        content: response.data.message || "singup successFully",
-                        trigger: Date.now(),
-                        status: true
-                    }
-                })
+                dispatch(setToast({
+                    type: "success",
+                    content: response?.data?.message || "signup successFully",
+                    trigger: Date.now(),
+                    status: true
+                }))
+
             };
 
         } catch (error) {
             console.log(error)
-            setshowToast((prev) => {
-                    return {
-                        type: "error",
-                        content: error.data.message || "singup failed",
-                        trigger: Date.now(),
-                        status: true
-                    }
-                })
+            dispatch(setToast({
+                type: "error",
+                content: error.data.message || "singup failed",
+                trigger: Date.now(),
+                status: true
+
+            }))
+
         } finally {
             setisLoading(false);
 
@@ -74,37 +67,36 @@ const Signup = () => {
         console.log(formData)
         try {
             setisLoading(true);
-            const response = await axios.post("/api/users/signup", {...formData,otp});
-           console.log(response)
-            setshowToast((prev) => {
-                return {
-                    type: "success",
-                    content: response.data.message || "singup successFully",
-                    trigger: Date.now(),
-                    status: true
-                }
-            })
-            
+            const response = await axios.post("/api/users/signup", { ...formData, otp });
+            console.log(response)
+
+            dispatch(setToast({
+                type: "success",
+                content: response.data.message || "singup successFully",
+                trigger: Date.now(),
+                status: true
+            }))
+
 
         } catch (error) {
             console.log(error);
-            setshowToast({
+            dispatch(setToast({
                 status: true,
                 content: error.response?.data?.message || "singup Failed",
                 trigger: Date.now(),
                 type: "error"
-            });
-           
-        }finally{
-             setisLoading(false);
+            }))
+
+        } finally {
+            setisLoading(false);
         }
     }
 
     return (
         <div className='min-h-screen   bg-gradient-to-br from-teal-100 to-white p-4'>
             {isLoading && <Loader />}
-            {showToast.status && <ToastContainer key={showToast.trigger} trigger={showToast.trigger} type={showToast.type} content={showToast.content} />}
-            {showOtpModal && <Modal verifyOtp={handleSignup} cancelOtp={()=>setshowOtpModal(false)} />}
+
+            {showOtpModal && <Modal verifyOtp={handleSignup} cancelOtp={() => setshowOtpModal(false)} />}
 
             <div className='max-w-5xl flex  shadow-lg shadow-gray-500 w-full bg-white/60 overflow-hidden   backdrop:blur-md h-screen rounded-2xl'>
                 {/* left illustration */}

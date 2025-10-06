@@ -5,16 +5,28 @@ import { useNavigate } from "react-router-dom";
 import PartnerBookingCard from "../../Components/Parterner/PartnerBookingCard";
 import PartnerViewBooking from "../../Components/Parterner/PartnerViewBooking";
 import { debounce } from "../../utils/helper/debounce.js";
+import NotFound from "../../assets/NotFound.svg"
+import { socket } from "../../socket/socket.js";
+import { setPartner } from "../../redux/partnerSlice.js";
+import ToastContainer from "../../Components/Other/ToastContainer.jsx";
 
 const PartnerBookings = () => {
   const { partner, loading } = useSelector((state) => state.partner);
-  const dispatch = useDispatch();
+
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   // State
   const [viewBookingItem, setViewBookingItem] = useState(null);
   const [filters, setFilters] = useState({ category: [], status: [] });
   const [filteredBookings, setFilteredBookings] = useState(null);
+  const [searchInp, setsearchInp] = useState("");
+  const [toast, settoast] = useState({
+    status: false,
+    type: "",
+    content: "",
+    trigger: ""
+  })
 
   // -------------------- Handlers --------------------
 
@@ -49,11 +61,41 @@ const PartnerBookings = () => {
     setFilteredBookings(result);
   };
 
+  const handleSearch = () => {
+
+    console.log("searchFilter", searchInp)
+    const searchFilter = partner?.bookings?.filter((item, i) => {
+      const mathTitle = item?.service?.title?.toLowerCase().includes(searchInp.toLowerCase())
+      const matchCategory = item?.service?.category?.toLowerCase().includes(searchInp.toLowerCase())
+      const matchStatus = item?.status?.toLowerCase().includes(searchInp.toLowerCase());
+
+      return mathTitle || matchCategory || matchStatus;
+    })
+
+    console.log("searchFilter", searchFilter)
+
+    setFilteredBookings(searchFilter);
+  }
+
+  const handleSetToast = (type, content) => {
+    const newToast = {
+      status: true,
+      type,
+      content,
+      trigger: Date.now()
+    }
+
+    settoast(newToast)
+
+  }
+
   // Debounced version of applyFilters
   const debouncedApplyFilters = useCallback(
     debounce(applyFilters, 500),
     [filters, partner]
   );
+
+  const debounceSearch = useCallback(debounce(handleSearch, 1000), [searchInp])
 
   // -------------------- Effects --------------------
 
@@ -66,6 +108,14 @@ const PartnerBookings = () => {
   useEffect(() => {
     debouncedApplyFilters();
   }, [filters, debouncedApplyFilters]);
+
+  useEffect(() => {
+    debounceSearch();
+  }, [searchInp])
+
+ 
+  
+
 
   // Final bookings list (either filtered or all)
   const bookingsToRender = filteredBookings || partner?.bookings;
@@ -89,6 +139,8 @@ const PartnerBookings = () => {
           handleSetViewItem={setViewBookingItem}
         />
       )}
+
+      {toast.status && <ToastContainer type={toast.type} content={toast.content} trigger={toast.trigger} key={toast.trigger} />}
 
       <div className="flex gap-6 max-w-[100vw] pr-6">
         {/* ---------------- Sidebar Filters ---------------- */}
@@ -152,6 +204,8 @@ const PartnerBookings = () => {
           <header className="w-[90%] mx-auto mt-3 shadow-sm shadow-gray-500 rounded-3xl">
             <input
               type="text"
+              maxLength={15}
+              onChange={(e) => setsearchInp(e.target.value)}
               placeholder="Search here..."
               className="bg-white outline-0 px-5 py-3 w-full rounded-3xl"
             />
@@ -170,6 +224,9 @@ const PartnerBookings = () => {
             {bookingsToRender?.length === 0 && (
               <p className="text-center text-gray-500 col-span-2 mt-6">
                 No bookings match your filters.
+                <img src={NotFound} alt="not found" />
+
+
               </p>
             )}
           </div>

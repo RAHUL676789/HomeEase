@@ -5,6 +5,8 @@ const socket_URL = import.meta.env.VITE_BACKEND_URL
 
 export const socket = io(socket_URL,{
     withCredentials:true,
-    transports:["websocket"]
+    transports:["websocket"],
+    autoConnect:false,
+    reconnectionAttempts: 5,
 })
 

@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { BrowserRouter, Routes, Route } from "react-router-dom"
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { getMe } from './utils/auth/getMe'
 import { setPartner } from './redux/partnerSlice'
 import { setUser } from './redux/userSlice'
@@ -17,9 +17,11 @@ import ServiceListing from "./Components/Service/ServiceListing"
 import ErrorBoundary from './Components/Other/ErrorBoundary'
 import UserProfile from './Components/User/UserProfile'
 import PartnerBookings from './Pages/PartnerProfile/PartnerBookings'
+import ToastContainer from './Components/Other/ToastContainer'
 
 function App() {
   const dispatch = useDispatch()
+  const {toast} = useSelector((state)=>state.toast)
 
   useEffect(() => {
     async function auth() {
@@ -46,6 +48,7 @@ function App() {
     <BrowserRouter>
       <ErrorBoundary>
         <Navbar />
+        {toast && toast.status && <ToastContainer type={toast.type} content={toast.content} trigger={toast.trigger} key={toast.trigger}/>}
         <Routes>
           <Route path="/" element={<HeroSlider />} />
           <Route path="/partner" element={<BecomePartner />} />
