@@ -15,10 +15,10 @@ const MongoStore = require("connect-mongo");
 const { bookMyService } = require("./socket/bookingSocket.js");
 dbConnection();
 io.on("connection",(socket)=>{
-  
+  console.log("socket connectionon")
  
   socket.on("partner-join",(id)=>{
-   
+   console.log("this is partner id",id)
     socket.join(id)
   })
 

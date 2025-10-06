@@ -80,7 +80,7 @@ module.exports.login = async (req, res, next) => {
     // 🍪 Set cookie
     res.cookie("token", token, {
       maxAge: 24 * 60 * 60 * 1000, // 1 day
-      httpOnly: true,
+      httpOnly: false,
       secure: true,
       sameSite: "Strict"
     });
@@ -91,6 +91,4 @@ module.exports.login = async (req, res, next) => {
       data: user,
       role
     });
-
- 
 };
