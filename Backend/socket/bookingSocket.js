@@ -85,8 +85,8 @@ module.exports.bookMyService = (io, socket) => {
             });
 
         } catch (err) {
-            console.error("❌ Error in booking:", err);
-            socket.emit("booking-error", { error: "Booking failed" });
+            console.error("❌ Error in booking:", err?.Error || err?.message);
+            socket.emit("booking-error", { error: err?.message || "Booking failed" });
         }
     });
 
@@ -110,15 +110,15 @@ module.exports.bookMyService = (io, socket) => {
             });
 
         } catch (error) {
-            console.log(error)
-            socket.emit("booking-error", { error: "Booking failed" });
+           console.error("❌ Error in booking:", err?.Error || err?.message);
+            socket.emit("booking-error", { error: err?.message || "Booking failed" });
         }
     })
 
     socket.on("reject-booking", async (data) => {
         try {
             console.log("this data is belong to reject booking", data);
-            const updateBooking = await Booking.findByIdAndUpdate(data?.bookingId, { status: "rejected" }, { new: true });
+            const updateBooking = await Booking.findByIdAndUpdate(data?.bookingId, { status: "rejected" }, { new: true,runValidators:true });
             const updatedPartner = await getUpdatePartner(data?.provider);
             const updatedUser = await getUpdateUser(data?.user);
             io.to(data?.provider).emit("partner-booking-reject", { message: "booking has been reject", data: updatedPartner });
@@ -131,8 +131,8 @@ module.exports.bookMyService = (io, socket) => {
 
 
         } catch (error) {
-            console.log(error)
-            socket.emit("booking-error", { error: "Booking failed" });
+            console.error("❌ Error in booking:", err?.Error || err?.message);
+            socket.emit("booking-error", { error: err?.message || "Booking failed" });
         }
     })
 };

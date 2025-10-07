@@ -10,7 +10,7 @@ const { json } = require("express");
 
 module.exports.getServiceQuery = async (req, res, next) => {
   let  {category,price,rating,location,page} = req.query;
- 
+  console.log("pricse",price)
   let query = {};
   if(category){
     query.category = {$in:category.split(",")}
@@ -32,7 +32,8 @@ module.exports.getServiceQuery = async (req, res, next) => {
 }
 
 if(Object.keys(query).length === 0){
-  return res.status(400).json({message:"query needed",data:null,success:false})
+  const data =  await serviceModel.find({}).skip((page - 1) * 4).populate("gallery").populate("serviceProvider","-password").limit(4);
+  return res.status(200).json({message:"date fetched",data:data,success:true})
 }
 
 console.log(query)
