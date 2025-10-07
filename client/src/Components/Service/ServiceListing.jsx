@@ -55,28 +55,40 @@ const ServiceListing = () => {
   };
 
   // Toggle filter selection
-  const handleFilterQuery = (key, value) => {
-    setQueryObject(prev => {
-      if (key === "price") {
-        const exists = prev.price.find(p => p.min === value.min && p.max === value.max);
-        return {
-          ...prev,
-          price: exists
-            ? prev.price.filter(p => !(p.min === value.min && p.max === value.max))
-            : [...prev.price, value]
-        };
-      }
-      if (key === "rating" || key === "category") {
-        return {
-          ...prev,
-          [key]: prev[key].includes(value)
-            ? prev[key].filter(item => item !== value)
-            : [...prev[key], value]
-        };
-      }
-      return { ...prev, [key]: value };
-    });
-  };
+ const handleFilterQuery = (key, value) => {
+  setQueryObject(prev => {
+    if (key === "price") {
+      // radio -> single value only
+      return {
+        ...prev,
+        price: prev.price.some(p => p.min === value.min && p.max === value.max)
+          ? [] // deselect if clicked again
+          : [value]
+      };
+    }
+
+    if (key === "rating") {
+      // radio -> single value only
+      return {
+        ...prev,
+        rating: prev.rating.includes(value) ? [] : [value]
+      };
+    }
+
+    if (key === "category") {
+      // checkbox -> multi select
+      return {
+        ...prev,
+        category: prev.category.includes(value)
+          ? prev.category.filter(item => item !== value)
+          : [...prev.category, value]
+      };
+    }
+
+    return { ...prev, [key]: value };
+  });
+};
+
 
   // Build query for API call
   const buildQuery = () => {
@@ -124,7 +136,13 @@ const ServiceListing = () => {
 
   const debouncedFetch = useCallback(debounce(fetchServices, 800), [fetchServices]);
   useEffect(() => {
-   
+    if (isQueryEmpty(queryObject)) {
+      // Agar queryObject empty hai → API call skip karo
+      console.log("⚠️ Skipping fetch, empty filters");
+      dispatch(setListing([])); // Optional: default empty listing dikhane ke liye
+      return;
+    }
+
     if (page === 1) {
       debouncedFetch();
     } else {
@@ -200,13 +218,15 @@ const ServiceListing = () => {
                         ? queryObject.price.some(p => p.min === item.min && p.max === item.max)
                         : queryObject[filterKey].includes(item);
                       return (
-                        <button
-                          key={idx}
-                          onClick={() => handleFilterQuery(filterKey, filterKey === "price" ? { min: item.min, max: item.max } : item)}
-                          className={`px-2 py-2 text-xs rounded-full border flex-shrink-0 ${isActive ? "bg-teal-700 text-white" : "bg-white text-gray-700"}`}
-                        >
+                        <label key={idx} className="flex items-center gap-2 text-sm">
+                          <input
+                            type={filterKey === "price" ? "radio" : "checkbox"}
+                          
+                            onChange={() => handleFilterQuery(filterKey, filterKey === "price" ? { min: item.min, max: item.max } : item)}
+                            className="accent-teal-600"
+                          />
                           {item.label ? item.label : item}
-                        </button>
+                        </label>
                       );
                     })}
                     {filterKey === "location" && (
@@ -243,7 +263,7 @@ const ServiceListing = () => {
                       return (
                         <label key={idx} className="flex items-center gap-2 text-sm">
                           <input
-                            type="checkbox"
+                            type={filterKey === "price" ? "radio" : "checkbox"}
                             checked={isChecked}
                             onChange={() => handleFilterQuery(filterKey, filterKey === "price" ? { min: item.min, max: item.max } : item)}
                             className="accent-teal-600"

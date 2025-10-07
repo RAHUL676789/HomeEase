@@ -256,19 +256,19 @@ const PartnerProfile = () => {
 
   // ---------------- Render ---------------- //
   return (
-    <div className="max-w-screen bg-gray-50 py-4 sm:py-12">
+    <div className="max-w-screen bg-gray-50 py-2 md:py-4 sm:py-12 ">
       {isLoading && <Loader />}
      
 
-      <div className="flex flex-col sm:flex-row gap-6 px-4">
+      <div className="flex flex-col sm:flex-row gap-6  md:px-1">
         {/* Left Panel (60%) */}
-        <div className="sm:w-3/5 space-y-6">
+        <div className="sm:w-3/5 space-y-6 ">
           <PartnerInfo
             deletePartner={() => setpartnerDelete(true)}
             partner={partner}
             setPartnerProfileEdit={setPartnerProfileEdit}
           />
-          <div className="w-2xl ml-5 bg-gray-100 rounded-lg shadow-md shadow-gray-500 p-5">
+          <div className="w-full md:w-2xl md:ml-5 bg-gray-100 rounded-lg shadow-md shadow-gray-500 md:px-2 md:py-1 ">
             <div className="flex w-full justify-between">
               <h1 className="text-2xl font-bold">Service Offered</h1>
               <Button

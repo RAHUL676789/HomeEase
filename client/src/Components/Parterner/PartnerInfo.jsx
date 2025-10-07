@@ -282,7 +282,7 @@ const PartnerInfo = ({ partner, setPartnerProfileEdit, deletePartner }) => {
 
   }
   return (
-    <div className='w-2xl sm:max-w-2xl mb-14 rounded-lg bg-white sm:ml-6 shadow-md border border-gray-200 overflow-hidden'>
+    <div className='w-full md:w-2xl mb-14 rounded-lg bg-white sm:ml-6 shadow-md border border-gray-200 overflow-hidden '>
       {/* <PartnerCoverPhoto/> */}
       {isLoading && <Loader />}
       {showPdfPreview && <DocumentPreview changePdf={handleChangePhoto} apply={handleDocumetApply} cancel={handleDocumentCancel} url={pdfUrl} />}
