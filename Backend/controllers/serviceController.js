@@ -10,7 +10,7 @@ const { json } = require("express");
 
 module.exports.getServiceQuery = async (req, res, next) => {
   let  {category,price,rating,location,page} = req.query;
-  console.log("pricse",price)
+  console.log(req.query)
   let query = {};
   if(category){
     query.category = {$in:category.split(",")}
@@ -18,9 +18,12 @@ module.exports.getServiceQuery = async (req, res, next) => {
   
   if(price){
     price = JSON.parse(price);
+    console.log(price)
     query.price = {};
-    if(price.min !== undefined) query.price.$gt = price.min;
-    if(price.max !== undefined)query.price.$lt = price.max;
+    if(price[0].min !== undefined) query.price.$gt = price[0].min;
+    if(price[0].max !== undefined)query.price.$lt = price[0].max;
+    if(price[0].max === null) query.price.$lt = 100000;
+    
   }
   if (rating) {
     rating = Number(rating);
