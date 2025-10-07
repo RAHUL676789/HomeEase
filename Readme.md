@@ -65,6 +65,8 @@ EaseHome/
 │ ├── controllers/
 │ ├── middlewares/
 │ └── ... (server.js, .env)
+  ├── socket/
+│ └── ... (socket)
 │
 ├── .gitignore
 ├── README.md
