@@ -1,76 +1,86 @@
-import React, { useEffect,useRef,useState } from 'react'
-import cleaning from "../../assets/Beauty.svg"
+import React, { useState, useRef, useEffect } from 'react';
+import cleaning from "../../assets/Cleaning.svg";
 import Button from '../buttons/Button';
 
-const PartnerBookingCard = ({booking,setViewBookingItem}) => {
-  const [ViewCardOptions, setViewCardOptions] = useState(false);
-  const optionRef = useRef(null);
- 
-  const iconsName = booking?.user?.fullName[0] + booking?.user?.fullName[1]
- 
-  useEffect(()=>{
-    const handleMouseDown  = (e)=>{
-      console.log(e.currentTarget !== optionRef.current)
-      if((e.currentTarget !== optionRef?.current) && ViewCardOptions){
-        console.log("click")
-          setViewCardOptions(false)
-      }
-    }
+const PartnerBookingCard = ({ booking, setViewBookingItem }) => {
+  const [optionsVisible, setOptionsVisible] = useState(false);
+  const cardRef = useRef(null);
 
-    window.addEventListener("click",handleMouseDown)
-    return ()=>window.removeEventListener("click",handleMouseDown)
-  },[ViewCardOptions])
+  const initials = booking?.user?.fullName
+    ?.split(' ')
+    .map((n) => n[0])
+    .join('')
+    .slice(0, 2) || "NA";
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (cardRef.current && !cardRef.current.contains(e.target)) {
+        setOptionsVisible(false);
+      }
+    };
+    window.addEventListener("click", handleClickOutside);
+    return () => window.removeEventListener("click", handleClickOutside);
+  }, []);
 
   return (
-    <div className='rounded-xl shadow-sm shadow-gray-400 relative max-h-[96vh] '>
-    <header className='w-full flex rounded-t-xl  border py-3 px-1 relative bg-teal-700 text-white'>
-
-      <div className='flex gap-1 justify-center items-center'>
-        <div className='h-10 w-10 border flex justify-center items-center flex-col rounded-full bg-white text-teal-900 font-semibold uppercase'>{iconsName}</div>
-        <div className='flex flex-col leading-3 justify-start text-sm items-start'>
-          <span>Rahul lodhi</span>
-          <span className='font-semibold'>{booking?.user?.email}</span>
+    <div
+      ref={cardRef}
+      className="bg-white border border-gray-200 rounded shadow-sm hover:shadow-lg transition transform hover:-translate-y-1 duration-300 overflow-hidden w-full md:max-w-sm mx-auto"
+    >
+      {/* Service Image */}
+      <div className="relative">
+        <img
+          src={cleaning}
+          alt={booking?.service?.category}
+          className="w-full h-44 object-cover rounded-t-2xl"
+        />
+        <div className="absolute -bottom-6 left-4 h-12 w-12 rounded-full bg-teal-600 text-white flex items-center justify-center font-bold border-2 border-white shadow-md">
+          {initials}
         </div>
+        <span className="absolute top-3 right-3 bg-yellow-400 px-3 py-1 rounded-xl text-xs font-semibold shadow">
+          {booking.status}
+        </span>
+        <i
+          className="ri-more-2-line absolute top-3 right-12 cursor-pointer text-lg text-gray-600 hover:text-gray-800"
+          onClick={(e) => {
+            e.stopPropagation();
+            setOptionsVisible((prev) => !prev);
+          }}
+        ></i>
+
+        {optionsVisible && (
+          <div className="absolute top-10 right-3 w-32 bg-white border rounded-xl shadow-lg z-50">
+            <ul className="flex flex-col">
+              <li
+                onClick={() => setViewBookingItem(booking)}
+                className="px-3 py-2 cursor-pointer hover:bg-gray-100 rounded-t-xl"
+              >
+                View More
+              </li>
+              <li className="px-3 py-2 cursor-pointer hover:bg-gray-100">Accept</li>
+              <li className="px-3 py-2 cursor-pointer hover:bg-gray-100 rounded-b-xl">Reject</li>
+            </ul>
+          </div>
+        )}
       </div>
 
-      <div className='flex justify-center items-center  flex-1 mt-2'>
-        <span className='px-3 rounded-xl bg-yellow-500 font-semibold'>{booking.status}</span>
-      
-      </div>
-        <span className='text-xs font-semibold text-white absolute right-2 top-1'><i className="ri-more-2-line text-lg" ref={optionRef} onClick={(e)=>{
-          e.stopPropagation();
-        setViewCardOptions((prev)=>prev == true ? false : true )
-        }}></i></span>
-
-    </header>
-    <main className='flex flex-col rounded-xl py-3 '>
-      <div className='w-full'>
-        <img src={cleaning} alt="" className='h-48 w-full object-cover '/>
-        <div className=' rounded-b-xl flex-col  px-3 flex flex-wrap'>
-          <p><strong>Category </strong>{booking?.service?.category}</p>
-          <p><strong>Price </strong>{booking?.service?.price}</p>
-          <p><strong>description </strong>{booking?.service?.description}</p>
-      
-        </div>
-      </div>
-      <div className=' flex justify-end px-5'>
-        <Button variant={"next"}>Chat</Button>
-      </div>
-    </main>
-
-    
-     {ViewCardOptions &&  <div className='absolute top-2 rounded-lg bg-gray-50  right-5'>
-       <ul className='flex flex-col '>
-        <li onClick={()=>setViewBookingItem(booking)} className='w-full rounded-lg cursor-pointer px-3 py-1  hover:shadow hover:shadow-gray-500 transition-all duration-150'>view-more</li>
-        <li className='w-full  rounded-lg  cursor-pointer  px-3 py-1  hover:shadow hover:shadow-gray-500 transition-all duration-150'>accept</li>
-        <li className='w-full cursor-pointer  px-3 py-1  hover:shadow hover:shadow-gray-500  rounded-lg  transition-all duration-150'>reject</li>
-       </ul>
+      {/* Content */}
+      <div className="pt-8 px-4 pb-4 flex flex-col gap-2">
+        <p className="text-gray-700 font-semibold text-lg">{booking?.service?.title}</p>
+        <p className="text-gray-500 text-sm line-clamp-3">{booking?.service?.description}</p>
+        <div className="flex justify-between items-center mt-2">
+          <span className="text-teal-600 font-bold text-lg">₹{booking?.service?.price}</span>
+          <button
         
-      </div>}
- 
-      
+          className='border px-2 py-1 border-teal-500  rounded text-xs text-teal-600 cursor-pointer animate-bounce'
+            onClick={() => setViewBookingItem(booking)}
+          >
+           <i className="ri-edit-box-line"></i> View Booking
+          </button>
+        </div>
+      </div>
     </div>
-  )
-}
+  );
+};
 
-export default PartnerBookingCard
+export default PartnerBookingCard;

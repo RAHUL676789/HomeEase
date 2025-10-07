@@ -9,7 +9,7 @@ import { setToast } from "../../redux/toastSlice";
 
 const ViewService = ({ service, handleViewService }) => {
   // Fake data fallback
-  const days = ["sunday","monday","tuesday","wednesday","thursday","friday","saturday"]
+  const days = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"]
   const { user } = useSelector((state) => state.user)
   const dispatch = useDispatch()
   const { handleSubmit, register, formState: { errors } } = useForm();
@@ -33,18 +33,28 @@ const ViewService = ({ service, handleViewService }) => {
 
   const handleBooking = (details) => {
     const workingDay = new Date(details.workingDate).getDay();
-    
-    if(!(details.preferdDay.toLowerCase().includes(days[workingDay]))){
-       dispatch(setToast({type:"warning",content:"day not matching on given date please select a prefer day"}))
+    const selectedDate = new Date(details?.workingDate); // user selected date
+    const now = new Date(); // current date
+
+    // milliseconds difference
+    const diff = selectedDate.getTime() - now.getTime();
+    console.log(diff)
+     
+    if(diff < 0){
+      dispatch(setToast({type:"error",content:"working day should be valid"}))
       return;
     }
-    
+    if (!(details.preferdDay.toLowerCase().includes(days[workingDay]))) {
+      dispatch(setToast({ type: "warning", content: "day not matching on given date please select a prefer day" }))
+      return;
+    }
+
 
 
     socket.emit("partner-new-booking", { service, details, user: user?._id, provider: service?.serviceProvider?._id, })
   }
 
- 
+
 
 
   return (
@@ -152,23 +162,23 @@ const ViewService = ({ service, handleViewService }) => {
 
                   {errors.offerDuration && <p className="text-red-800 font-semibold text-sm">{errors.offerDuration.message}</p>}
 
-                
+
                 </div>
 
-                  <div>
+                <div>
                   <label className="block text-sm font-medium text-gray-700">
-                    Select a date 
+                    Select a date
                   </label>
                   <input
-                  {...register("workingDate",{
-                    required:{value:true,message:"working date is required"}
-                  })}
+                    {...register("workingDate", {
+                      required: { value: true, message: "working date is required" }
+                    })}
                     type="date"
                     placeholder="please select a date"
                     className="w-full mt-1 p-2 border rounded-md focus:ring focus:ring-blue-200"
                   />
 
-                      {errors.workingDate && <p className="text-red-800 font-semibold text-sm">{errors.workingDate.message}</p>}
+                  {errors.workingDate && <p className="text-red-800 font-semibold text-sm">{errors.workingDate.message}</p>}
                 </div>
 
 

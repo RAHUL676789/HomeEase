@@ -48,14 +48,22 @@ const SocketHandler = () => {
       dispatch(setToast({ type: "success", content: payload.message || "booking has been rejected" }))
     }
 
-    const onNewRequest = (payload)=>{
-      console.log("this is new request paylaod",payload);
+    const onNewRequest = (payload) => {
+      console.log("this is new request paylaod", payload);
+      dispatch(setPartner(payload.data))
+      dispatch(setToast({ type: "success", content: payload.message || "booking has been confirm" }))
 
+
+    }
+    const onBookingError = (payload)=>{
+      console.log(payload)
+      dispatch(setToast({type:"error",content:payload?.error || "Something went wrong"}))
     }
     socket.on("partner-new-booking", onNewBooking);
     socket.on("partner-booking-confirm", onBookingConfirm);
     socket.on("partner-booking-reject", onBookingReject);
-    socket.on("partner-new-service-request",onNewRequest)
+    socket.on("partner-new-service-request", onNewRequest)
+    socket.on("booking-error",onBookingError)
 
     return () => {
       socket.off("connect", onConnect);
