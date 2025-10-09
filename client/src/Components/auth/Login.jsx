@@ -32,6 +32,7 @@ const Login = () => {
             if (response.data.role == "Partner") {
                 navigate(from,{replace:true})
                 dispatch(setPartner(response.data.data))
+                dispatch(setUser(null))
                 socket.emit("partner-join", (response.data.data._id))
                 dispatch(setToast({
                     status: true,
@@ -43,6 +44,7 @@ const Login = () => {
             } else if (response?.data?.role == "User") {
                navigate(from,{replace:true})
                 dispatch(setUser(response?.data.data));
+                dispatch(setPartner(null))
                 socket.emit("user-join", (response.data.data._id))
                 dispatch(setToast({
                     status: true,

@@ -1,5 +1,8 @@
-import React from 'react'
-import HomeBack from "../../assets/HomeBack.png"
+import React,{useState,useEffect} from "react";
+import cleaning from "../../assets/cleaning.svg";
+import PartnerServiceModal from "./PartnerServiceModal";
+import { useSelector } from "react-redux";
+
 const stats = [
   { title: "Total Bookings", value: 12, color: "from-teal-400 to-teal-200" },
   { title: "Completed", value: "₹5000", color: "from-green-400 to-green-200" },
@@ -12,53 +15,69 @@ const recentBookings = [
   { id: 3, service: "AC Repair", date: "2025-10-07", status: "Pending" },
 ];
 
+const PartnerHome = () => {
+   const {partner,loading} = useSelector((state)=>state.partner);
 
-const HeroSlider = () => {
+   if(loading){
+    return <div className="h-screen w-screen flex flex-col justify-center items-center ">
+
+        <p>Loading partner data ...</p>
+
+    </div>
+   }
+
   return (
     <div
       className="h-screen w-screen bg-cover bg-center relative font-sans"
-      style={{ backgroundImage: `url(${HomeBack})` }}>
-      <div className="h-full w-full overflow-scroll no-scrollbar bg-gradient-to-tl from-gray-50/20 to-gray-100/30 flex flex-col p-8 gap-8">
-
+      style={{ backgroundImage: `url(${cleaning})` }}
+    >
+        {/* <PartnerServiceModal/> */}
+      {/* Main overlay */}
+      <div className="h-full w-full overflow-scroll no-scrollbar bg-gradient-to-tl from-gray-50/20 to-gray-100/20 flex flex-col p-8 gap-8">
+        
+        {/* Hero & Welcome */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
           <div>
-            <h1 className="text-5xl text-white font-extrabold mb-2 tracking-wide drop-shadow-lg">
-              Welcome, To HomeEase!
+            <h1 className="text-5xl text-teal-900 font-extrabold mb-2 tracking-wide drop-shadow-lg">
+              Welcome, Partner!
             </h1>
-            <p className="text-lg text-gray-50 font-bold opacity-90 drop-shadow-sm">
-              Manage your Orders and Books Services.
+            <p className="text-lg text-teal-500 font-bold opacity-90 drop-shadow-sm">
+              Manage your services and bookings efficiently.
             </p>
           </div>
 
           {/* Quick Action Buttons */}
           <div className="flex gap-2">
             <button className="bg-teal-500 hover:bg-teal-700 text-white font-semibold px-6 py-3 rounded shadow-lg transition transform hover:scale-105">
-              view Services
+              Add Service
             </button>
-
+           
           </div>
         </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {stats.map((stat) => (
             <div
-              key={stat?.title || "Hello deadr"}
-              className={`bg-gradient-to-r ${stat?.color || "blue"} rounded p-6 flex flex-col items-center justify-center shadow-xl hover:scale-105 transition-transform duration-300`}
+              key={stat.title}
+              className={`bg-gradient-to-r ${stat.color} rounded p-6 flex flex-col items-center justify-center shadow-xl hover:scale-105 transition-transform duration-300`}
             >
-              <h2 className="text-3xl font-bold text-white drop-shadow">{stat?.value || 56}+</h2>
-              <p className="text-white/90 text-lg">{stat?.title || "hello from home"}</p>
+              <h2 className="text-3xl font-bold text-white drop-shadow">{stat.value}+</h2>
+              <p className="text-white/90 text-lg">{stat.title}</p>
             </div>
           ))}
         </div>
 
-          <div>
-          <h3 className="text-white text-2xl font-semibold mb-4 drop-shadow">Recent Added Services</h3>
+        {/* Recent Bookings */}
+        <div>
+          <h3 className="text-teal-900 text-2xl font-semibold mb-4 drop-shadow">Recent Bookings</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {recentBookings.map((booking) => (
               <div
                 key={booking.id}
-                className="bg-gradient-to-br from-teal-400 to-pink-50 rounded p-6 shadow-md shadow-gray-600 hover:scale-105 transition-transform z-50 duration-300 flex flex-col gap-3"
+                className="bg-white/85 rounded p-6 shadow-md shadow-gray-600 hover:scale-105 transition-transform duration-300 flex flex-col gap-3"
               >
-                <h4 className="font-bold text-xl text-white drop-shadow">{booking.service}</h4>
+                <h4 className="font-bold text-xl text-teal-900 drop-shadow">{booking.service}</h4>
                 <p className="text-teal-700 font-semibold">{booking.date}</p>
                 <span
                   className={`inline-block px-3 py-1 rounded text-sm font-semibold ${
@@ -77,11 +96,10 @@ const HeroSlider = () => {
             ))}
           </div>
         </div>
+
       </div>
-
-
     </div>
-  )
-}
+  );
+};
 
-export default HeroSlider
+export default PartnerHome;

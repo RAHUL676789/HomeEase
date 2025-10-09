@@ -87,6 +87,7 @@ const PartnerProfile = () => {
       setisLoading(false);
     }
   }
+  
 
   const handleServiceCardOpen = (id) => {
     setServiceCardOpen((prev) => (prev === id ? null : id));

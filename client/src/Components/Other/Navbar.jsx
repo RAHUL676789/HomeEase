@@ -23,20 +23,22 @@ function Navbar() {
   const [shownav, setShownav] = useState(false);
 
   const NavLinkClass =
-    "relative mb-1 after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-teal-600 hover:after:w-full after:transition-all after:duration-300";
+    "relative mb-1 after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0  hover:after:w-full after:transition-all after:duration-300";
 
   const navItems = [
     { name: "Home", path: "/", icon: <i className="ri-home-8-fill mr-1"></i> },
     { name: "About", path: "/about", icon: <i className="ri-gitlab-fill mr-1"></i> },
     { name: "Contact", path: "/contact", icon: <i className="ri-mail-line mr-1"></i> },
 
+
   ];
 
   // ---------------- LOGIN STATES ----------------
   const guestActions = [
     { name: "Become a Partner", path: "/partner", icon: <i className="ri-medal-line text-fuchsia-500"></i> },
-    { name: "Signup", path: "/signup", icon: <i className="ri-logout-circle-line text-green-500 rotate-90"></i> },
+   
     { name: "Login", path: "/login", icon: <i className="ri-login-circle-line text-green-600 rotate-90"></i> },
+     { name: "Signup", path: "/signup", icon: <i className="ri-logout-circle-line text-green-500 rotate-90"></i> },
   ];
 
   const userActions = [
@@ -45,8 +47,9 @@ function Navbar() {
       path: "/userProfile",
       icon: <i className="ri-user-3-fill text-teal-400"></i>,
     },
-    { name: "Logout", path: "/logout", icon: <i className="ri-logout-circle-line text-red-600"></i> },
+
     { name: "My-Orders", path: "/MyOrders", icon: <i className="ri-service-fill mr-1"></i> },
+    { name: "Logout", path: "/logout", icon: <i className="ri-logout-circle-line text-red-600"></i> },
   ];
 
   const partnerActions = [
@@ -55,8 +58,9 @@ function Navbar() {
       path: "/partnerProfile",
       icon: <i className="ri-user-star-fill text-yellow-500"></i>,
     },
-    { name: "Logout", path: "/logout", icon: <i className="ri-logout-circle-line text-red-600"></i> },
+  
     { name: "Booking", path: `/${partner?._id}/Bookings`, icon: <i className="ri-service-fill mr-1"></i> },
+      { name: "Logout", path: "/logout", icon: <i className="ri-logout-circle-line text-red-600"></i> },
   ];
 
   // Select which menu to show
@@ -100,12 +104,18 @@ function Navbar() {
             key={item.name}
             to={item.path}
             className={({ isActive }) =>
-              `${NavLinkClass} ${isActive ? "text-pink-700" : "text-teal-800"}`
+              `${NavLinkClass} ${isActive ? "text-pink-700 after:bg-pink-700" : "text-teal-800 after:bg-teal-600"}`
             }
           >
             <span className="mr-1">{item.icon}</span> {item.name}
           </NavLink>
         ))}
+
+         {user && <NavLink key={"Services"} to={"/services"} onClick={() => setIsMobileOpen(true)}  className={({ isActive }) =>
+            `${NavLinkClass} ${isActive ? "text-pink-700 after:bg-pink-700 " : "text-teal-800 after:bg-teal-800"}`
+          }>
+            <span> <i className="ri-tools-line "></i> </span> Services
+          </NavLink>}
       </div>
 
       {/* Desktop Buttons */}
@@ -115,7 +125,7 @@ function Navbar() {
             to={item.path}
             key={item.name}
             onClick={() => setIsMobileOpen(true)}
-            className="font-light text-sm hover:border border-green-500 px-2 py-2 cursor-pointer flex items-center gap-1"
+            className={({isActive})=>`font-light text-sm  px-2 py-2 cursor-pointer flex items-center gap-1 ${isActive ? "border-2 text-pink-700 font-bold border-teal-600" : ""}`}
           >
             {item.icon} {item.name}
           </NavLink>
@@ -149,12 +159,19 @@ function Navbar() {
               to={item.path}
               onClick={() => setIsMobileOpen(true)}
               className={({ isActive }) =>
-                `${NavLinkClass} ${isActive ? "text-pink-700" : "text-teal-800"}`
+                `${NavLinkClass} ${isActive ? "text-pink-700 after:bg-pink-700" : "text-teal-800 after:bg-teal-800"}`
               }
             >
               <span className="mr-1">{item.icon}</span> {item.name}
             </NavLink>
           ))}
+
+          {user && <NavLink key={"Services"} to={"/services"} onClick={() => setIsMobileOpen(true)}  className={({ isActive }) =>
+            `${NavLinkClass} ${isActive ? "text-pink-700 after:bg-pink-700 " : "text-teal-800 after:bg-teal-800 "}`
+          }>
+            <span> <i className="ri-tools-line "></i> </span> Services
+          </NavLink>}
+
         </div>
 
         <div className="ml-5 items-center flex flex-col gap-2 mt-3">
@@ -163,7 +180,7 @@ function Navbar() {
               to={item.path}
               key={item.name}
               onClick={() => setIsMobileOpen(true)}
-              className="font-light w-fit text-sm hover:border border-green-500 px-2 py-2 cursor-pointer active:translate-y-4 flex items-center gap-1"
+              className={({isActive})=> `font-light w-fit text-sm hover:border border-green-500 px-2 py-2 cursor-pointer active:translate-y-4 flex items-center gap-1 ${isActive ? "border-teal-600" : ""}`}
             >
               {item.icon} {item.name}
             </NavLink>

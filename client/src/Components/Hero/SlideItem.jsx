@@ -31,7 +31,7 @@ function SlideItem({ data, direction }) {
           {data.title}
         </h1>
         <p className="text-gray-700 text-md md:text-lg mb-6">{data.desc}</p>
-        <button onClick={()=>navigate(`/services/${data?.category}`,{
+        <button onClick={()=>navigate(`/services`,{
           state:data?.category
         })} className="bg-teal-700 text-white px-6 py-3 rounded-full hover:bg-teal-800 transition">
           {data.btnText}

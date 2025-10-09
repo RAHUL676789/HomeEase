@@ -18,6 +18,8 @@ import ErrorBoundary from './Components/Other/ErrorBoundary'
 import UserProfile from './Components/User/UserProfile'
 import PartnerBookings from './Pages/PartnerProfile/PartnerBookings'
 import ToastContainer from './Components/Other/ToastContainer'
+import PartnerHome from './Components/Parterner/PartnerHome'
+import Home from './Pages/Home/Home'
 
 function App() {
   const dispatch = useDispatch()
@@ -50,14 +52,14 @@ function App() {
         <Navbar />
         {toast && toast.status && <ToastContainer type={toast.type} content={toast.content} trigger={toast.trigger} key={toast.trigger}/>}
         <Routes>
-          <Route path="/" element={<HeroSlider />} />
+          <Route path="/" element={<Home />} />
           <Route path="/partner" element={<BecomePartner />} />
           <Route path="/userProfile" element={<UserProfile />} />
           <Route path="/partnerProfile" element={<PartnerProfile />} />
           <Route path="/publicPartnerProfile" element={<PartnerPublicProfile />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
-          <Route path="/services/:category" element={<ServiceListing />} />
+          <Route path="/services" element={<ServiceListing />} />
           <Route path="/:id/Bookings" element={<PartnerBookings />} />
         </Routes>
       </ErrorBoundary>
