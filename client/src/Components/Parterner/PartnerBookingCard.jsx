@@ -1,11 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
 import cleaning from "../../assets/Cleaning.svg";
 import Button from '../buttons/Button';
+import PartnerBookingCancel from './PartnerBookingCancel';
 
 const PartnerBookingCard = ({ booking, setViewBookingItem }) => {
   const [optionsVisible, setOptionsVisible] = useState(false);
   const cardRef = useRef(null);
-
+ 
   const initials = booking?.user?.fullName
     ?.split(' ')
     .map((n) => n[0])
@@ -27,6 +28,7 @@ const PartnerBookingCard = ({ booking, setViewBookingItem }) => {
       ref={cardRef}
       className="bg-white border border-gray-200 rounded shadow-sm hover:shadow-lg transition transform hover:-translate-y-1 duration-300 overflow-hidden w-full md:max-w-sm mx-auto"
     >
+    
       {/* Service Image */}
       <div className="relative">
         <img

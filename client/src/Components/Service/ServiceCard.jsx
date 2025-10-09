@@ -1,25 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import cleaning from "../../assets/Cleaning.svg";
-import Beautician from "../../assets/Beauty.svg";
-import CarWash from "../../assets/CarWash.svg";
-import computer from "../../assets/computer.svg";
-import Electrician from "../../assets/Electrician.svg";
 
 const ServiceCard = ({ service, category, handleViewService }) => {
   console.log("category")
-  const img = {
-    plumbing: computer,
-    electrician: Electrician,
-    cleaning: cleaning,
-    beauty: Beautician,
-    repair: CarWash
-  };
+ 
 
-  const [defaultImage, setDefaultImage] = useState(null);
+   const initials = service?.serviceProvider?.fullName
+    ?.split(' ')
+    .map((n) => n[0])
+    .join('')
+    .slice(0, 2) || "NA";
 
-  useEffect(() => {
-    setDefaultImage(img[category] || img[cleaning]);
-  }, [category]);
+ 
+
+
 
   // Calculate average rating
   const averageRating = service?.reviews?.length
@@ -30,17 +24,21 @@ const ServiceCard = ({ service, category, handleViewService }) => {
 
   return (
     <div className="bg-white rounded shadow-md hover:shadow-xl transition-transform transform hover:-translate-y-1 overflow-hidden flex flex-col w-full">
-      
+
       {/* Image */}
-      <div className="relative h-48 md:h-56 w-full overflow-hidden">
+      <div className="relative   h-48 md:h-56 w-full ">
         <img
-          src={service?.gallery?.details?.[0]?.url || defaultImage}
+          src={ cleaning}
           alt={service?.title}
           className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
         />
         <button className="absolute top-3 right-3 w-8 h-8 bg-white rounded-full shadow flex justify-center items-center hover:bg-red-100">
           <i className="ri-heart-line text-red-500 text-lg"></i>
         </button>
+
+        <div className="absolute -bottom-2 left-4 h-12 w-12 rounded-full bg-teal-600 text-white  flex items-center justify-center font-bold border-2 border-white shadow-md">
+          {initials || "NA"}
+        </div>
       </div>
 
       {/* Info */}
@@ -73,13 +71,12 @@ const ServiceCard = ({ service, category, handleViewService }) => {
           <div className="flex gap-2 w-full sm:w-auto">
             <button
               onClick={() => handleViewService(service)}
-              className="flex-1 sm:flex-none px-3 py-1 text-teal-600 border border-teal-600 rounded-lg hover:bg-teal-50 transition text-sm md:text-base"
+              className="flex-1 sm:flex-none px-3 justify-center items-center py-0.5 cursor-pointer text-teal-600 border border-teal-600 rounded text-xs hover:bg-teal-50 transition  md:text-base animate-bounce"
             >
-              <i className="ri-external-link-line mr-1"></i> View
+              <i className="ri-external-link-line mr-1 text-xs"></i>
+              <span className='text-xs'>   View service </span>
             </button>
-            <button className="flex-1 sm:flex-none px-3 py-1 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition text-sm md:text-base">
-              Book Now
-            </button>
+
           </div>
         </div>
       </div>

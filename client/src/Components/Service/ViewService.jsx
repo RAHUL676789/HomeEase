@@ -1,16 +1,22 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef,useState } from "react";
 import Cover1 from "../../assets/cover1.jpg";
 import Button from "../buttons/Button";
 import { socket } from "../../socket/socket";
 import { useDispatch, useSelector } from "react-redux";
 import { useForm } from "react-hook-form";
 import { setToast } from "../../redux/toastSlice";
+import UserNotLogin from "../Other/UserNotLogin";
+import {useNavigate,useLocation} from "react-router-dom"
 
 
 const ViewService = ({ service, handleViewService }) => {
   // Fake data fallback
+  const [notUserModal, setnotUserModal] = useState(false);
+  const navigate = useNavigate();
+  const pageLocation = useLocation();
   const days = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"]
   const { user } = useSelector((state) => state.user)
+  console.log(user)
   const dispatch = useDispatch()
   const { handleSubmit, register, formState: { errors } } = useForm();
   const submitRef = useRef(null);
@@ -32,6 +38,11 @@ const ViewService = ({ service, handleViewService }) => {
   }, []);
 
   const handleBooking = (details) => {
+    if(!user){
+      console.log("user not login")
+      setnotUserModal(true);
+      return;
+    }
     const workingDay = new Date(details.workingDate).getDay();
     const selectedDate = new Date(details?.workingDate); // user selected date
     const now = new Date(); // current date
@@ -54,6 +65,9 @@ const ViewService = ({ service, handleViewService }) => {
     socket.emit("partner-new-booking", { service, details, user: user?._id, provider: service?.serviceProvider?._id, })
   }
 
+  const handleNavigate = (navigatePath)=>{
+    navigate(navigatePath,{state:{from:window.location.pathname}})
+  }
 
 
 
@@ -61,6 +75,7 @@ const ViewService = ({ service, handleViewService }) => {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
       {/* Modal Content */}
       <div className="w-full md:w-[85%] lg:w-[75%] h-screen bg-white rounded shadow-lg flex flex-col">
+        {notUserModal && <UserNotLogin handleNavigate={handleNavigate}/>}
         {/* Header */}
         <header className="flex justify-between items-center px-6 py-4 border-b shadow-sm bg-white sticky top-0 z-10">
           <h1 className="text-2xl font-bold text-gray-800">Service Details</h1>

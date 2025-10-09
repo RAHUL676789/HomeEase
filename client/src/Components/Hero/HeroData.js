@@ -20,7 +20,7 @@ const heroData = [
     desc: "From leaky taps to pipe installations — get skilled plumbers at your doorstep in minutes.",
     img: Plumber,
     btnText: "Book a Plumber",
-    category:"plumber"
+    category:"plumbing"
   },
   {
     id: 3,
@@ -28,7 +28,7 @@ const heroData = [
     desc: "We offer quick and safe electrical fixes, installations, and maintenance from verified professionals.",
     img: Electrician,
     btnText: "Get Electric Help",
-    category:"electrician"
+    category:"electrical"
   },
   {
     id: 4,
@@ -36,7 +36,7 @@ const heroData = [
     desc: "Enjoy professional beautician services from the comfort of your home. Flexible and affordable packages.",
     img: Beautician,
     btnText: "Book Beautician",
-    category:"Beautician"
+    category:"beauty"
   },
   {
     id: 5,
@@ -44,7 +44,7 @@ const heroData = [
     desc: "Beat the heat with timely AC servicing, gas refill, and installation — done by trained experts.",
     img: HardWare,
     btnText: "Fix My AC",
-    category:"maintenance"
+    category:"repair"
     
 
   },
@@ -54,7 +54,7 @@ const heroData = [
     desc: "Book eco-friendly and professional car cleaning — exterior and interior — from your phone.",
     img: CarWash,
     btnText: "Wash My Car",
-    category:"Car-Wash"
+    category:"cleaning"
 
   },
 ];

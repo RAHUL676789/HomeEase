@@ -1,10 +1,23 @@
-import React, { useEffect } from 'react'
+import React, { useEffect ,useState} from 'react'
 import Button from '../buttons/Button';
 import { socket } from '../../socket/socket';
 import PartnerUpcomingTimer from './PartnerUpcomingTimer';
+import PartnerBookingCancel from './PartnerBookingCancel';
 
 const PartnerViewBooking = ({ booking, handleSetViewItem }) => {
     console.log(booking)
+     const [cancelModal, setcancelModal] = useState(false)
+    
+     const handleCancelAndDelete = (booking)=>{
+        console.log("bookign cancel and delete");
+        socket.emit("partner-booking-cancel-delete",{
+            bookingId:booking?._id,
+            provider:booking?.provider,
+            user:booking?.user
+        })
+     }
+
+
 
     useEffect(() => {
         const body = document.querySelector("body");
@@ -30,6 +43,7 @@ const PartnerViewBooking = ({ booking, handleSetViewItem }) => {
 
     return (
         <div className='bg-black/20 fixed inset-0 z-50'>
+              {cancelModal && <PartnerBookingCancel cancelAndDelete={handleCancelAndDelete} close={()=>setcancelModal(false)} booking={booking}/>}
             <div className='mx-auto h-screen w-full md:w-[75%] bg-white overflow-hidden relative rounded-sm flex flex-col'>
 
                 {/* Header */}
@@ -126,7 +140,7 @@ const PartnerViewBooking = ({ booking, handleSetViewItem }) => {
                         </Button>
                     )}
                     {booking.status === "accepted" && (
-                        <Button variant={"cancel"}>
+                        <Button onClick={()=>setcancelModal(true)} variant={"cancel"}>
                             Cancel
                         </Button>
                     )}

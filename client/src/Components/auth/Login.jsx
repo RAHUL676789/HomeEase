@@ -6,7 +6,7 @@ import axios from '../../utils/axios/axiosinstance';
 import ToastContainer from '../Other/ToastContainer';
 import Loader from '../Other/Loader';
 import loginImage from '../../assets/login.svg' // 🔁 You can replace with any image
-import { useNavigate } from 'react-router-dom';
+import { useNavigate,useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { setPartner } from '../../redux/partnerSlice';
 import { setUser } from '../../redux/userSlice';
@@ -20,6 +20,8 @@ const Login = () => {
     const dispatch = useDispatch();
     const inputRef = useRef(null);
     const navigate = useNavigate();
+    const location = useLocation();
+    const from = location?.state?.from || "/"
 
     const handleLogin = async (data) => {
         setisLoading(true);
@@ -28,7 +30,7 @@ const Login = () => {
             console.log(response.data);
 
             if (response.data.role == "Partner") {
-                navigate("/partnerProfile")
+                navigate(from,{replace:true})
                 dispatch(setPartner(response.data.data))
                 socket.emit("partner-join", (response.data.data._id))
                 dispatch(setToast({
@@ -39,7 +41,7 @@ const Login = () => {
                 }))
 
             } else if (response?.data?.role == "User") {
-                navigate("/userProfile")
+               navigate(from,{replace:true})
                 dispatch(setUser(response?.data.data));
                 socket.emit("user-join", (response.data.data._id))
                 dispatch(setToast({

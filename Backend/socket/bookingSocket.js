@@ -94,7 +94,7 @@ module.exports.bookMyService = (io, socket) => {
     socket.on("accept-booking", async (data) => {
         try {
             console.log(data, "this data belong to accepting booking")
-            const updateBooking = await Booking.findByIdAndUpdate(data?.bookingId, { status: "accepted" }, { new: true });
+            const updateBooking = await Booking.findByIdAndUpdate(data?.bookingId, { status: "accepted" }, { new: true, runValidators: true });
 
             const updatedPartner = await getUpdatePartner(data?.provider)
 
@@ -110,7 +110,7 @@ module.exports.bookMyService = (io, socket) => {
             });
 
         } catch (error) {
-           console.error("❌ Error in booking:", err?.Error || err?.message);
+            console.error("❌ Error in booking:", err?.Error || err?.message);
             socket.emit("booking-error", { error: err?.message || "Booking failed" });
         }
     })
@@ -118,10 +118,24 @@ module.exports.bookMyService = (io, socket) => {
     socket.on("reject-booking", async (data) => {
         try {
             console.log("this data is belong to reject booking", data);
-            const updateBooking = await Booking.findByIdAndUpdate(data?.bookingId, { status: "rejected" }, { new: true,runValidators:true });
+            const updateBooking = await Booking.findByIdAndUpdate(data?.bookingId, { status: "rejected" }, { new: true, runValidators: true });
             const updatedPartner = await getUpdatePartner(data?.provider);
             const updatedUser = await getUpdateUser(data?.user);
-            io.to(data?.provider).emit("partner-booking-reject", { message: "booking has been reject", data: updatedPartner });
+            io.to(data?.provider).emit("partner-booking-reject", { message: "booking has been reject", data: updatedPartner }).populate({
+                path: "services",
+                populate: {
+                    path: "gallery"
+                }
+            }).populate({
+                path: "bookings",
+                populate: [
+                    {
+                        path: "user",
+                        select: "-password -bookings"
+                    },
+                    { path: "service", select: "-serviceProvider -gallery -reviews -tags" }
+                ]
+            });
 
             // Sirf user ko confirmation bhejo
             io.to(data?.user).emit("user-booking-reject", {
@@ -133,6 +147,21 @@ module.exports.bookMyService = (io, socket) => {
         } catch (error) {
             console.error("❌ Error in booking:", err?.Error || err?.message);
             socket.emit("booking-error", { error: err?.message || "Booking failed" });
+        }
+    })
+
+    socket.on("partner-booking-cancel-delete", async (data) => {
+        try {
+            console.log("this is bookign cnacel data", data)
+            const updateBooking = await Booking.findByIdAndUpdate(data?.bookingId, { status: "cancelled" }, { new: true, runValidators: true });
+            const updatePartner = await Partner.findByIdAndUpdate(data?.provider, { $pull: { bookings: data?.bookingId } });
+            console.log(updatePartner);
+            io.to(data?.provider).emit("partner-booking-cancel-delete", { updatePartner, message: "booking has been deleted from your bookings" })
+            //   io.to(data?.user).emit("user-booking-cancel-delete",{data:updatePartner,message:`booking has been cancelled by ${updatePartner?.fullName}`})
+
+        } catch (error) {
+            console.error("❌ Error in booking:", error?.Error || error?.message);
+            socket.emit("booking-error", { error: error?.message || "Booking failed" });
         }
     })
 };

@@ -13,6 +13,7 @@ import { setToast } from '../../redux/toastSlice.js';
 
 const ServiceListing = () => {
   const location = useLocation();
+  console.log(location)
   const dispatch = useDispatch();
   const { listing } = useSelector((state) => state.listing);
   const toastShown = useRef(false)
@@ -24,7 +25,7 @@ const ServiceListing = () => {
   const [viewServiceDetail, setViewServiceDetail] = useState(null);
 
   const [queryObject, setQueryObject] = useState({
-    category: [],
+    category: [location?.state],
     price: [],
     rating: [],
     location: null
@@ -53,6 +54,8 @@ const ServiceListing = () => {
   const toggleFilter = (key) => {
     setExpandedFilters(prev => ({ ...prev, [key]: !prev[key] }));
   };
+
+  
 
   // Toggle filter selection
  const handleFilterQuery = (key, value) => {
@@ -88,6 +91,12 @@ const ServiceListing = () => {
     return { ...prev, [key]: value };
   });
 };
+
+useEffect(()=>{
+      if(location.category){
+          handleFilterQuery("category",location?.state)
+      }
+  },[location?.state])
 
 
   // Build query for API call
@@ -137,16 +146,13 @@ const ServiceListing = () => {
   const debouncedFetch = useCallback(debounce(fetchServices, 800), [fetchServices]);
   useEffect(() => {
     if (isQueryEmpty(queryObject)) {
-      // Agar queryObject empty hai → API call skip karo
-      console.log("⚠️ Skipping fetch, empty filters");
-      dispatch(setListing([])); // Optional: default empty listing dikhane ke liye
+       fetchServices() // Optional: default empty listing dikhane ke liye
       return;
     }
 
     if (page === 1) {
+      console.log("fetdebounce")
       debouncedFetch();
-    } else {
-      fetchServices();
     }
   }, [page, queryObject]);
 

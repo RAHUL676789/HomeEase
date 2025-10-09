@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 
 import signupImage from "../../assets/signup.svg"
 import { useForm } from 'react-hook-form';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import Loader from "../Other/Loader.jsx"
 import ToastContainer from "../Other/ToastContainer.jsx"
 import axios from "../../utils/axios/axiosinstance.js"
@@ -13,6 +13,9 @@ import { setToast } from '../../redux/toastSlice.js';
 
 const Signup = () => {
     const navigate = useNavigate();
+    const location = useLocation();
+    const from = location?.state?.from || "/"
+   
     const [showPassword, setShowPassword] = useState(false)
     const [formData, setformData] = useState(null);
     const [showOtpModal, setshowOtpModal] = useState(false)
@@ -42,6 +45,7 @@ const Signup = () => {
                     trigger: Date.now(),
                     status: true
                 }))
+                 navigate(from,{replace:true})
 
             };
 
@@ -76,6 +80,8 @@ const Signup = () => {
                 trigger: Date.now(),
                 status: true
             }))
+
+            navigate(from,{replace:true});
 
 
         } catch (error) {

@@ -59,11 +59,19 @@ const SocketHandler = () => {
       console.log(payload)
       dispatch(setToast({type:"error",content:payload?.error || "Something went wrong"}))
     }
+
+    const onBookingCancel = (payload)=>{
+       console.log("this is new cancel paylaod", payload);
+      dispatch(setPartner(payload.data))
+      dispatch(setToast({ type: "success", content: payload.message || "booking has been confirm" }))
+
+    }
     socket.on("partner-new-booking", onNewBooking);
     socket.on("partner-booking-confirm", onBookingConfirm);
     socket.on("partner-booking-reject", onBookingReject);
     socket.on("partner-new-service-request", onNewRequest)
     socket.on("booking-error",onBookingError)
+    socket.on("partner-booking-cancel-delete",onBookingCancel)
 
     return () => {
       socket.off("connect", onConnect);

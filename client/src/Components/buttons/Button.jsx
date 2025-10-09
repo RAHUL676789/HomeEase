@@ -1,6 +1,6 @@
 const Button = ({ variant, htmlType = "button", onClick, disabled, children }) => {
   const baseStyle =
-    "px-4 py-2 rounded font-medium transition-colors duration-200 focus:outline-none mb-5";
+    "px-4 py-2 rounded font-medium transition-colors duration-200 focus:outline-none ";
 
   const styles = {
     apply: "bg-teal-700 text-white hover:bg-teal-800", 
