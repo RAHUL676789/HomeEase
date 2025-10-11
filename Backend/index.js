@@ -7,7 +7,8 @@ const {dbConnection} = require("./config/config.js");
 const serviceRouter = require("./routes/serviceRoute.js");
 const partnerRouter = require("./routes/partnerRoute.js")
 const authRouter = require("./routes/authRoute.js")
-const userRouter = require("./routes/userRouter.js")
+const userRouter = require("./routes/userRouter.js");
+const homeDashRouter = require("./routes/homeRoute.js")
 const ExpressError = require("./utils/ExpressError.js");
 const cookieParser = require("cookie-parser")
 const session = require("express-session");
@@ -68,7 +69,8 @@ app.use(session(sessionOption))
 app.use("/api/auth",authRouter);
 app.use("/api/services",serviceRouter);
 app.use("/api/partner",partnerRouter);
-app.use("/api/users",userRouter)
+app.use("/api/users",userRouter);
+app.use("/api",homeDashRouter)
 
 app.all("*",(req,res,next)=>{
     next(new ExpressError(404,"page not found"));
