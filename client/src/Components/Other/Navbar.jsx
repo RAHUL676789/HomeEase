@@ -111,8 +111,8 @@ function Navbar() {
           </NavLink>
         ))}
 
-         {user && <NavLink key={"Services"} to={"/services"} onClick={() => setIsMobileOpen(true)}  className={({ isActive }) =>
-            `${NavLinkClass} ${isActive ? "text-pink-700 after:bg-pink-700 " : "text-teal-800 after:bg-teal-800"}`
+         {!partner && <NavLink key={"Services"} to={"/services"} onClick={() => setIsMobileOpen(true)}  className={({ isActive }) =>
+            `${NavLinkClass} ${isActive ? "text-pink-700 after:bg-pink-700 " : "text-teal-800 after:bg-teal-800 "}`
           }>
             <span> <i className="ri-tools-line "></i> </span> Services
           </NavLink>}
@@ -130,6 +130,7 @@ function Navbar() {
             {item.icon} {item.name}
           </NavLink>
         ))}
+        
       </div>
 
       {/* Mobile Menu Button */}
@@ -166,7 +167,7 @@ function Navbar() {
             </NavLink>
           ))}
 
-          {user && <NavLink key={"Services"} to={"/services"} onClick={() => setIsMobileOpen(true)}  className={({ isActive }) =>
+          {!partner && <NavLink key={"Services"} to={"/services"} onClick={() => setIsMobileOpen(true)}  className={({ isActive }) =>
             `${NavLinkClass} ${isActive ? "text-pink-700 after:bg-pink-700 " : "text-teal-800 after:bg-teal-800 "}`
           }>
             <span> <i className="ri-tools-line "></i> </span> Services
