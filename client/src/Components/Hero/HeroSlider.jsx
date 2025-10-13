@@ -2,29 +2,22 @@ import React, { useState, useEffect, useRef } from 'react'
 import HomeBack from "../../assets/HomePage.png"
 import axios from '../../utils/axios/axiosinstance';
 import Loader from "../Other/Loader"
-// const stats = [
-//   { title: "Total Bookings", value: 12, color: "  from-gray-400 to-teal-600" },
-//   { title: "Completed", value: "₹5000", color: "  from-gray-400 to-green-600" },
-//   { title: "Pending Requests", value: 3, color: " from-gray-400 to-yellow-700" },
-// ];
-
-// const recentBookings = [
-//   { id: 1, service: "Home Cleaning", date: "2025-10-09", status: "Pending" },
-//   { id: 2, service: "Plumbing", date: "2025-10-08", status: "Completed" },
-//   { id: 3, service: "AC Repair", date: "2025-10-07", status: "Pending" },
-// ];
-
 
 const HeroSlider = () => {
   const [homeDashData, sethomeDashData] = useState(null);
   const [isLoading, setisLoading] = useState(true)
+  const [animateValues, setanimateValues] = useState({
+    totalBookings: 0,
+    totalPartners: 0,
+    completedBookings: 0
+  });
 
   useEffect(() => {
 
-    const fetHomeDashData = async (params) => {
+    const fetchHomeDashData = async (params) => {
       try {
-       
-        const { data } =await axios.get("/api/dash-home");
+
+        const { data } = await axios.get("/api/dash-home");
         console.log(data)
         sethomeDashData(data?.data)
       } catch (error) {
@@ -34,12 +27,44 @@ const HeroSlider = () => {
       }
 
     }
-    fetHomeDashData();
+    fetchHomeDashData();
   }, [])
 
+  const handleAnimateValue = (target, label, duration = 1000) => {
+    let startTime = null;
+    const startValue = animateValues[label] || 0;
 
-  if(isLoading){
-    return <Loader/>
+    function animate(timeStamp) {
+      if (!startTime) startTime = timeStamp;
+      const progress = Math.min((timeStamp - startTime) / duration, 1);
+
+      const newValue = Math.floor(startValue + (target - startValue) * progress);
+
+      setanimateValues((prev) => ({
+        ...prev,
+        [label]: newValue,  // ✅ Dynamic key update
+      }));
+
+      if (progress < 1) {
+        requestAnimationFrame(animate);
+      }
+    }
+
+    requestAnimationFrame(animate);
+  };
+
+  useEffect(() => {
+    if (homeDashData?.quickActions) {
+      homeDashData.quickActions.forEach(stat => {
+        handleAnimateValue(stat[stat.label], stat.label, 500);
+      });
+    }
+  }, [homeDashData]);
+
+
+
+  if (isLoading) {
+    return <Loader />
   }
 
 
@@ -49,7 +74,7 @@ const HeroSlider = () => {
       style={{ backgroundImage: `url(${HomeBack})` }}>
       <div className="h-full w-full overflow-scroll no-scrollbar bg-white/20 flex flex-col p-8 gap-8">
 
-      
+
 
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
           <div>
@@ -75,32 +100,34 @@ const HeroSlider = () => {
               key={stat?.label}
               className={`bg-gradient-to-r from-gray-400 to-teal-600 rounded p-6 flex flex-col items-center justify-center shadow-xl hover:scale-105 transition-transform duration-300`}
             >
-              <h2 className="text-3xl font-bold text-white drop-shadow">{stat[stat?.label]}+</h2>
+              <h2 className="text-3xl font-bold text-white drop-shadow">{animateValues[stat.label]}+</h2>
               <p className="text-white/90 text-lg">{stat?.label || "hello from home"}</p>
             </div>
           ))}
         </div>
 
         <div>
-          <h3 className="text-teal-600 text-2xl font-semibold mb-4 drop-shadow">Recent Added Services</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <h3 className="text-teal-600 text-2xl font-semibold mb-4 drop-shadow">Recent Bookings</h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 ">
             {homeDashData?.recentBookings.map((booking) => (
               <div
                 key={booking?._id}
-                className="bg-gradient-to-br from-gray-400  to-teal-600  rounded p-6 shadow-md shadow-gray-600 hover:scale-105 transition-transform z-50 duration-300 flex flex-col gap-3"
+                className="bg-gradient-to-br relative bg-gray-200 text-black  rounded  shadow-md shadow-gray-600 hover:scale-105 transition-transform z-50 duration-300 flex flex-col gap-0 px- py-2"
               >
-                <h4 className="font-bold text-xl text-white drop-shadow">category</h4>
-                <p className=" font-semibold text-white">{booking?.createdAt}</p>
+             
+                <p className=" font-semibold absolute px-1 left-2 shadow rounded  ">{new Date(booking?.createdAt).toLocaleDateString()}</p>
+
+                   <h4 className="font-bold text-xl text-center drop-shadow">{booking?.service?.category}</h4>
                 <span
-                  className={`inline-block px-3 py-1 rounded text-sm font-semibold ${booking.status === "Pending"
-                      ? "bg-gradient-to-tl from-yellow-400 to-yellow-500 text-black"
-                      : "bg-gradient-to-tr from-green-500 to-green-600 text-white"
+                  className={`inline-block px-3 absolute right-2 rounded text-sm font-semibold ${booking?.status === "accepted"
+                    ? "bg-gradient-to-tl from-yellow-400 to-teal-500 text-black"
+                    : "bg-gradient-to-tr from-red-500 to-green-600 text-white"
                     }`}
                 >
                   {booking?.status}
                 </span>
                 {/* Inline action button for booking */}
-                <button className="mt-3 bg-teal-500 text-white font-semibold px-4 py-2 rounded shadow hover:bg-teal-700 transition transform hover:scale-105">
+                <button className="mt-3 border border-teal-400 font-semibold px-4 py-2 rounded shadow hover:bg-teal-700 mx-2 ">
                   View Details
                 </button>
               </div>
