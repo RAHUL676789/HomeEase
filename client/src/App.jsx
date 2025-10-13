@@ -7,7 +7,6 @@ import { setUser } from './redux/userSlice'
 
 import './App.css'
 import Navbar from './Components/Other/Navbar'
-import HeroSlider from "./Components/Hero/HeroSlider"
 import BecomePartner from './Pages/BecomePartner'
 import PartnerPublicProfile from './Pages/PublicProfile'
 import Login from './Components/auth/login'

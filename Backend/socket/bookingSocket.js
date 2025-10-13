@@ -36,6 +36,20 @@ module.exports.bookMyService = (io, socket) => {
         try {
             console.log(data?.provider, "thi sis da prov")
             // DB me booking save karo
+            const existingServiceBooking = await User.findById(data?.user).populate("bookings");
+
+            
+
+
+            console.log(existingServiceBooking);
+            return;
+
+            if (existingServiceBooking) {
+                console.log("User already has this service booked!");
+            } else {
+                console.log("No booking exists for this service yet.");
+            }
+
             const newBooking = new Booking({
                 user: data?.user,
                 provider: data?.provider,

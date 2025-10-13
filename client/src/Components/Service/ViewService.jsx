@@ -63,6 +63,7 @@ const ViewService = ({ service, handleViewService }) => {
 
 
     socket.emit("partner-new-booking", { service, details, user: user?._id, provider: service?.serviceProvider?._id, })
+    // handleViewService(null)
   }
 
   const handleNavigate = (navigatePath)=>{
@@ -266,7 +267,7 @@ const ViewService = ({ service, handleViewService }) => {
 
         <div className="flex justify-end px-4 pt-2">
 
-          <Button onClick={() => submitRef.current.click()} variant="apply" children={"Book Now"} />
+      <Button onClick={() => submitRef.current.click()} variant="apply" children={"Book Now"} />
         </div>
       </div>
     </div>

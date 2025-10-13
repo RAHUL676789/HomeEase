@@ -22,10 +22,10 @@ const ServiceListing = () => {
   const [hasMore, setHasMore] = useState(true);
   const rightPaneRef = useRef(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [viewServiceDetail, setViewServiceDetail] = useState(null);
+  const [viewServiceDetail, setViewServiceDetail] = useState(location?.state ? location?.state?.viewListing : null);
 
   const [queryObject, setQueryObject] = useState({
-    category: [location?.state],
+    category: [location?.state?.category],
     price: [],
     rating: [],
     location: null
@@ -55,48 +55,48 @@ const ServiceListing = () => {
     setExpandedFilters(prev => ({ ...prev, [key]: !prev[key] }));
   };
 
-  
+
 
   // Toggle filter selection
- const handleFilterQuery = (key, value) => {
-  setQueryObject(prev => {
-    if (key === "price") {
-      // radio -> single value only
-      return {
-        ...prev,
-        price: prev.price.some(p => p.min === value.min && p.max === value.max)
-          ? [] // deselect if clicked again
-          : [value]
-      };
-    }
-
-    if (key === "rating") {
-      // radio -> single value only
-      return {
-        ...prev,
-        rating: prev.rating.includes(value) ? [] : [value]
-      };
-    }
-
-    if (key === "category") {
-      // checkbox -> multi select
-      return {
-        ...prev,
-        category: prev.category.includes(value)
-          ? prev.category.filter(item => item !== value)
-          : [...prev.category, value]
-      };
-    }
-
-    return { ...prev, [key]: value };
-  });
-};
-
-useEffect(()=>{
-      if(location.category){
-          handleFilterQuery("category",location?.state)
+  const handleFilterQuery = (key, value) => {
+    setQueryObject(prev => {
+      if (key === "price") {
+        // radio -> single value only
+        return {
+          ...prev,
+          price: prev.price.some(p => p.min === value.min && p.max === value.max)
+            ? [] // deselect if clicked again
+            : [value]
+        };
       }
-  },[location?.state])
+
+      if (key === "rating") {
+        // radio -> single value only
+        return {
+          ...prev,
+          rating: prev.rating.includes(value) ? [] : [value]
+        };
+      }
+
+      if (key === "category") {
+        // checkbox -> multi select
+        return {
+          ...prev,
+          category: prev.category.includes(value)
+            ? prev.category.filter(item => item !== value)
+            : [...prev.category, value]
+        };
+      }
+
+      return { ...prev, [key]: value };
+    });
+  };
+
+  useEffect(() => {
+    if (location.category) {
+      handleFilterQuery("category", location?.state)
+    }
+  }, [location?.state])
 
 
   // Build query for API call
@@ -146,7 +146,8 @@ useEffect(()=>{
   const debouncedFetch = useCallback(debounce(fetchServices, 800), [fetchServices]);
   useEffect(() => {
     if (isQueryEmpty(queryObject)) {
-       fetchServices() // Optional: default empty listing dikhane ke liye
+      console.log("calling empyt query data")
+      fetchServices() // Optional: default empty listing dikhane ke liye
       return;
     }
 
@@ -154,7 +155,7 @@ useEffect(()=>{
       console.log("fetdebounce")
       debouncedFetch();
     }
-  }, [page, queryObject]);
+  }, [page, queryObject, location?.state]);
 
   // Geolocation
   const handleCurrentLocation = () => {
@@ -227,7 +228,7 @@ useEffect(()=>{
                         <label key={idx} className="flex items-center gap-2 text-sm">
                           <input
                             type={filterKey === "price" ? "radio" : "checkbox"}
-                          
+
                             onChange={() => handleFilterQuery(filterKey, filterKey === "price" ? { min: item.min, max: item.max } : item)}
                             className="accent-teal-600"
                           />

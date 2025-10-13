@@ -6,7 +6,7 @@ const Partner = require("../../models/partnerSchema");
 
 module.exports.getHomeDash = async (req,res,next) => {
 
-    const recentBookings = await Bookings.find().sort({createdAt:-1}).limit(10).populate("service").populate({
+    const recentBookings = await Bookings.find().sort({createdAt:-1}).limit(3).populate("service").populate({
         path:"user",
         select:"-password -bookings "
     }).populate({

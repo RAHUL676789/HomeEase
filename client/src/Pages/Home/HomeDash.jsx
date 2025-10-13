@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react'
 import HomeBack from "../../assets/HomePage.png"
-import axios from '../../utils/axios/axiosinstance';
-import Loader from "../Other/Loader"
+import axios from '../../utils/axios/axiosinstance.js';
+import Loader from "../../Components/Other/Loader.jsx"
+import { useNavigate } from 'react-router-dom';
 
-const HeroSlider = () => {
+const HomeDash = () => {
   const [homeDashData, sethomeDashData] = useState(null);
   const [isLoading, setisLoading] = useState(true)
   const [animateValues, setanimateValues] = useState({
@@ -11,7 +12,7 @@ const HeroSlider = () => {
     totalPartners: 0,
     completedBookings: 0
   });
-
+ const navigate = useNavigate();
   useEffect(() => {
 
     const fetchHomeDashData = async (params) => {
@@ -88,7 +89,7 @@ const HeroSlider = () => {
 
           {/* Quick Action Buttons */}
           <div className="flex gap-2">
-            <button className="bg-teal-500 hover:bg-teal-700 text-white font-semibold px-6 py-3 rounded shadow-lg transition transform hover:scale-105">
+            <button className="bg-teal-500 text-sm hover:bg-teal-700 text-white font-semibold px-6 py-3 rounded shadow-lg transition transform hover:scale-105">
               view Services
             </button>
 
@@ -112,23 +113,23 @@ const HeroSlider = () => {
             {homeDashData?.recentBookings.map((booking) => (
               <div
                 key={booking?._id}
-                className="bg-gradient-to-br relative bg-gray-200 text-black  rounded  shadow-md shadow-gray-600 hover:scale-105 transition-transform z-50 duration-300 flex flex-col gap-0 px- py-2"
+                className="bg-gradient-to-br relative bg-gray-200/20 text-black  rounded  shadow-md shadow-gray-600 hover:scale-105 transition-transform z-50 duration-300 flex flex-col gap-0 px- py-2"
               >
              
-                <p className=" font-semibold absolute px-1 left-2 shadow rounded  ">{new Date(booking?.createdAt).toLocaleDateString()}</p>
+                <p className="  text-xs absolute px-1 left-2 shadow rounded  ">{new Date(booking?.createdAt).toLocaleDateString()}</p>
 
-                   <h4 className="font-bold text-xl text-center drop-shadow">{booking?.service?.category}</h4>
+                   <h4 className="text-sm text-center drop-shadow">{booking?.service?.category}</h4>
                 <span
-                  className={`inline-block px-3 absolute right-2 rounded text-sm font-semibold ${booking?.status === "accepted"
-                    ? "bg-gradient-to-tl from-yellow-400 to-teal-500 text-black"
-                    : "bg-gradient-to-tr from-red-500 to-green-600 text-white"
+                  className={`inline-block px-3 absolute right-2 rounded text-xs font-semibold ${booking?.status === "accepted"
+                    ? " text-teal-600"
+                    : " text-red-700"
                     }`}
                 >
                   {booking?.status}
                 </span>
                 {/* Inline action button for booking */}
-                <button className="mt-3 border border-teal-400 font-semibold px-4 py-2 rounded shadow hover:bg-teal-700 mx-2 ">
-                  View Details
+                <button onClick={()=>navigate("/services",{state:{category:booking?.service?.category}})} className="mt-3 border text-sm border-teal-400 font-semibold px-4 py-2 rounded shadow hover:bg-teal-700 hover:text-white mx-2 ">
+                  Book Now
                 </button>
               </div>
             ))}
@@ -141,4 +142,4 @@ const HeroSlider = () => {
   )
 }
 
-export default HeroSlider
+export default HomeDash

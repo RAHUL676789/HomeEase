@@ -1,8 +1,8 @@
 import React from 'react'
 import { useSelector } from 'react-redux'
-import SlideItem from '../../Components/Hero/SlideItem';
 import PartnerHome from '../../Components/Parterner/PartnerHome';
-import HeroSlider from '../../Components/Hero/HeroSlider';
+
+import HomeDash from './HomeDash';
 
 const Home = () => {
     const {user} = useSelector((state)=>state.user);
@@ -12,7 +12,7 @@ const Home = () => {
        return <PartnerHome></PartnerHome>
     }
  return (
- <HeroSlider></HeroSlider>
+ <HomeDash></HomeDash>
  )
 }
 
