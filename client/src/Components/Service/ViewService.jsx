@@ -7,6 +7,7 @@ import { useForm } from "react-hook-form";
 import { setToast } from "../../redux/toastSlice";
 import UserNotLogin from "../Other/UserNotLogin";
 import {useNavigate,useLocation} from "react-router-dom"
+import axios from "../../utils/axios/axiosinstance.js"
 
 
 const ViewService = ({ service, handleViewService }) => {
@@ -37,11 +38,11 @@ const ViewService = ({ service, handleViewService }) => {
     return () => (body.style.overflow = "auto");
   }, []);
 
-  const handleBooking = (details) => {
+  const handleBookingValidation = (details) => {
     if(!user){
       console.log("user not login")
       setnotUserModal(true);
-      return;
+      return false;
     }
     const workingDay = new Date(details.workingDate).getDay();
     const selectedDate = new Date(details?.workingDate); // user selected date
@@ -53,23 +54,30 @@ const ViewService = ({ service, handleViewService }) => {
      
     if(diff < 0){
       dispatch(setToast({type:"error",content:"working day should be valid"}))
-      return;
+      return false;
     }
     if (!(details.preferdDay.toLowerCase().includes(days[workingDay]))) {
       dispatch(setToast({ type: "warning", content: "day not matching on given date please select a prefer day" }))
-      return;
+      return false;
     }
-
-
-
-    socket.emit("partner-new-booking", { service, details, user: user?._id, provider: service?.serviceProvider?._id, })
-    // handleViewService(null)
+     
+    return true;
   }
 
   const handleNavigate = (navigatePath)=>{
     navigate(navigatePath,{state:{from:window.location.pathname}})
   }
 
+
+  const handleBooking = async(data)=>{
+     if(!handleBookingValidation(data))return;
+   try {
+       const response = await axios.post("/api/bookings",{service,userId:user?._id,partnerId:service?.serviceProvider?._id,details:data});
+       console.log("this is resposne of new booking",response)
+   } catch (error) {
+      console.log("error happend while making an api to new booking",error)
+   }
+  }
 
 
   return (
