@@ -1,4 +1,4 @@
-import React, { useEffect, useRef,useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Cover1 from "../../assets/cover1.jpg";
 import Button from "../buttons/Button";
 import { socket } from "../../socket/socket";
@@ -6,8 +6,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { useForm } from "react-hook-form";
 import { setToast } from "../../redux/toastSlice";
 import UserNotLogin from "../Other/UserNotLogin";
-import {useNavigate,useLocation} from "react-router-dom"
+import { useNavigate, useLocation } from "react-router-dom"
 import axios from "../../utils/axios/axiosinstance.js"
+import { addnewUserBooking, setUser } from "../../redux/userSlice.js";
 
 
 const ViewService = ({ service, handleViewService }) => {
@@ -39,7 +40,7 @@ const ViewService = ({ service, handleViewService }) => {
   }, []);
 
   const handleBookingValidation = (details) => {
-    if(!user){
+    if (!user) {
       console.log("user not login")
       setnotUserModal(true);
       return false;
@@ -47,36 +48,42 @@ const ViewService = ({ service, handleViewService }) => {
     const workingDay = new Date(details.workingDate).getDay();
     const selectedDate = new Date(details?.workingDate); // user selected date
     const now = new Date(); // current date
+    now.setHours(0, 0, 0, 0);
+    selectedDate.setMinutes(selectedDate.getMinutes() + selectedDate.getTimezoneOffset());
 
-    // milliseconds difference
     const diff = selectedDate.getTime() - now.getTime();
-    console.log(diff)
-     
-    if(diff < 0){
-      dispatch(setToast({type:"error",content:"working day should be valid"}))
+
+
+    if (diff < 0) {
+      dispatch(setToast({ type: "error", content: "working day should be valid" }))
       return false;
     }
     if (!(details.preferdDay.toLowerCase().includes(days[workingDay]))) {
       dispatch(setToast({ type: "warning", content: "day not matching on given date please select a prefer day" }))
       return false;
     }
-     
+
     return true;
   }
 
-  const handleNavigate = (navigatePath)=>{
-    navigate(navigatePath,{state:{from:window.location.pathname}})
+  const handleNavigate = (navigatePath) => {
+    navigate(navigatePath, { state: { from: window.location.pathname } })
   }
 
 
-  const handleBooking = async(data)=>{
-     if(!handleBookingValidation(data))return;
-   try {
-       const response = await axios.post("/api/bookings",{service,userId:user?._id,partnerId:service?.serviceProvider?._id,details:data});
-       console.log("this is resposne of new booking",response)
-   } catch (error) {
-      console.log("error happend while making an api to new booking",error)
-   }
+  const handleBooking = async (formData) => {
+    if (!handleBookingValidation(formData)) return;
+    try {
+      const response = await axios.post("/api/bookings", { service: service?._id, user: user?._id, provider: service?.serviceProvider?._id, details: formData });
+      console.log(response.data)
+      dispatch(addnewUserBooking(response?.data))
+      dispatch(setToast({ type: "success", content: response?.message || "request send successFully" }))
+      handleViewService(null);
+
+    } catch (error) {
+      console.log("error happend while making an api to new booking", error)
+      dispatch(setToast({ type: "error", content: error.message || "sometign went wrong " }))
+    }
   }
 
 
@@ -84,7 +91,7 @@ const ViewService = ({ service, handleViewService }) => {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
       {/* Modal Content */}
       <div className="w-full md:w-[85%] lg:w-[75%] h-screen bg-white rounded shadow-lg flex flex-col">
-        {notUserModal && <UserNotLogin handleNavigate={handleNavigate}/>}
+        {notUserModal && <UserNotLogin handleNavigate={handleNavigate} />}
         {/* Header */}
         <header className="flex justify-between items-center px-6 py-4 border-b shadow-sm bg-white sticky top-0 z-10">
           <h1 className="text-2xl font-bold text-gray-800">Service Details</h1>
@@ -275,7 +282,7 @@ const ViewService = ({ service, handleViewService }) => {
 
         <div className="flex justify-end px-4 pt-2">
 
-      <Button onClick={() => submitRef.current.click()} variant="apply" children={"Book Now"} />
+          <Button onClick={() => submitRef.current.click()} variant="apply" children={"Book Now"} />
         </div>
       </div>
     </div>

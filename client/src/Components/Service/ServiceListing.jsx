@@ -10,13 +10,14 @@ import { setListing } from '../../redux/listingSlice.js';
 import { debounce } from '../../utils/helper/debounce.js';
 import NotFound from "../../assets/NotFound.svg";
 import { setToast } from '../../redux/toastSlice.js';
-
+let toastShown = false;
 const ServiceListing = () => {
   const location = useLocation();
   console.log(location)
   const dispatch = useDispatch();
   const { listing } = useSelector((state) => state.listing);
-  const toastShown = useRef(false)
+  
+
 
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
@@ -130,9 +131,10 @@ const ServiceListing = () => {
       if (page === 1) dispatch(setListing(data?.data));
       else dispatch(setListing([...listing, ...data?.data]));
       setHasMore(data?.data.length >= 4);
-      if (page === 1 && !toastShown.current) {
-        dispatch(setToast({ type: "success", content: data?.message || "Fetched services" }));
-        toastShown.current = true
+      if (page === 1 && !toastShown) {
+        console.log(toastShown.current)
+        dispatch(setToast({ type: "success", content: data?.message ||  "Fetched services" }));
+        toastShown = true
       }
     } catch (error) {
       console.log(error);

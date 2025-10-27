@@ -76,6 +76,10 @@ const PartnerBookings = () => {
       ? filteredBookings
       : partner?.bookings || [];
 
+      if(!filters.category.includes("rejected")){
+        bookingsToRender = bookingsToRender.filter(b=>b.status !== "rejected")
+      }
+
   bookingsToRender = [...bookingsToRender].sort(
     (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
   );
@@ -99,74 +103,74 @@ const PartnerBookings = () => {
 
       <div className="flex flex-col md:flex-row gap-6 max-w-[100vw] pr-6">
         {/* Desktop Sidebar */}
-       {/* Desktop Sidebar */}
-<aside className="w-64 h-screen overflow-y-scroll no-scrollbar bg-white shadow-sm shadow-gray-400 hidden md:block">
-  <header className="bg-gray-100 shadow rounded">
-    <div className="flex items-center gap-2 px-2 py-3">
-      <div className="h-12 w-12 bg-teal-700 text-white font-semibold text-xl flex items-center justify-center rounded-full">
-        {partner?.fullName?.[0] || "?"}
-      </div>
-      <div className="flex flex-col leading-4 text-sm overflow-hidden">
-        <span className="truncate">{partner?.fullName || "Unknown Partner"}</span>
-        <span className="font-semibold truncate">{partner?.email || "no-email"}</span>
-      </div>
-    </div>
-  </header>
+        {/* Desktop Sidebar */}
+        <aside className="w-64 h-screen overflow-y-scroll no-scrollbar bg-white shadow-sm shadow-gray-400 hidden md:block">
+          <header className="bg-gray-100 shadow rounded">
+            <div className="flex items-center gap-2 px-2 py-3">
+              <div className="h-12 w-12 bg-teal-700 text-white font-semibold text-xl flex items-center justify-center rounded-full">
+                {partner?.fullName?.[0] || "?"}
+              </div>
+              <div className="flex flex-col leading-4 text-sm overflow-hidden">
+                <span className="truncate">{partner?.fullName || "Unknown Partner"}</span>
+                <span className="font-semibold truncate">{partner?.email || "no-email"}</span>
+              </div>
+            </div>
+          </header>
 
-  {/* 🔍 Search box for desktop */}
-  <div className="px-3 py-2">
-    <input
-      type="text"
-      maxLength={15}
-      placeholder="Search here..."
-      value={filters.searchInp}
-      onChange={(e) =>
-        setFilters((prev) => ({ ...prev, searchInp: e.target.value }))
-      }
-      className="bg-white border border-gray-300 outline-none px-4 py-2 w-full rounded shadow-sm"
-    />
-  </div>
+          {/* 🔍 Search box for desktop */}
+          <div className="px-3 py-2">
+            <input
+              type="text"
+              maxLength={15}
+              placeholder="Search here..."
+              value={filters.searchInp}
+              onChange={(e) =>
+                setFilters((prev) => ({ ...prev, searchInp: e.target.value }))
+              }
+              className="bg-white border border-gray-300 outline-none px-4 py-2 w-full rounded shadow-sm"
+            />
+          </div>
 
-  <main className="px-2 py-3 space-y-5">
-    {/* Status Filters */}
-    <div>
-      <h3 className="text-lg font-semibold text-teal-700 border-b mb-2">Status</h3>
-      {["accepted", "rejected", "requested", "pending"].map((status) => (
-        <label
-          key={status}
-          className="flex items-center gap-2 m-1 shadow-sm hover:shadow-gray-400 transition-all duration-150 py-2 px-3 rounded cursor-pointer"
-        >
-          <input
-            type="checkbox"
-            value={status}
-            className="accent-teal-400"
-            onChange={(e) => handleFilters("status", e.target.value)}
-          />
-          {status}
-        </label>
-      ))}
-    </div>
+          <main className="px-2 py-3 space-y-5">
+            {/* Status Filters */}
+            <div>
+              <h3 className="text-lg font-semibold text-teal-700 border-b mb-2">Status</h3>
+              {["accepted", "rejected", "requested", "pending"].map((status) => (
+                <label
+                  key={status}
+                  className="flex items-center gap-2 m-1 shadow-sm hover:shadow-gray-400 transition-all duration-150 py-2 px-3 rounded cursor-pointer"
+                >
+                  <input
+                    type="checkbox"
+                    value={status}
+                    className="accent-teal-400"
+                    onChange={(e) => handleFilters("status", e.target.value)}
+                  />
+                  {status}
+                </label>
+              ))}
+            </div>
 
-    {/* Category Filters */}
-    <div>
-      <h3 className="text-lg font-semibold text-teal-700 border-b mb-2">Category</h3>
-      {["Cleaning", "Plumber", "Beauty", "Car-wash"].map((cat) => (
-        <label
-          key={cat}
-          className="flex items-center gap-2 m-1 shadow-sm hover:shadow-gray-400 transition-all duration-150 py-2 px-3 rounded cursor-pointer"
-        >
-          <input
-            type="checkbox"
-            value={cat}
-            className="accent-teal-400"
-            onChange={(e) => handleFilters("category", e.target.value)}
-          />
-          {cat}
-        </label>
-      ))}
-    </div>
-  </main>
-</aside>
+            {/* Category Filters */}
+            <div>
+              <h3 className="text-lg font-semibold text-teal-700 border-b mb-2">Category</h3>
+              {["Cleaning", "Plumber", "Beauty", "Car-wash"].map((cat) => (
+                <label
+                  key={cat}
+                  className="flex items-center gap-2 m-1 shadow-sm hover:shadow-gray-400 transition-all duration-150 py-2 px-3 rounded cursor-pointer"
+                >
+                  <input
+                    type="checkbox"
+                    value={cat}
+                    className="accent-teal-400"
+                    onChange={(e) => handleFilters("category", e.target.value)}
+                  />
+                  {cat}
+                </label>
+              ))}
+            </div>
+          </main>
+        </aside>
 
 
         {/* Mobile Filters */}
@@ -188,11 +192,10 @@ const PartnerBookings = () => {
               <button
                 key={status}
                 onClick={() => handleFilters("status", status)}
-                className={`px-2 py-1 text-xs rounded-full border ${
-                  filters.status.includes(status.toLowerCase())
+                className={`px-2 py-1 text-xs rounded-full border ${filters.status.includes(status.toLowerCase())
                     ? "bg-teal-900 text-white"
                     : "bg-white text-gray-700"
-                } shadow-sm flex-shrink-0`}
+                  } shadow-sm flex-shrink-0`}
               >
                 {status}
               </button>
@@ -201,11 +204,10 @@ const PartnerBookings = () => {
               <button
                 key={cat}
                 onClick={() => handleFilters("category", cat)}
-                className={`px-2 text-xs py-1 rounded-full border ${
-                  filters.category.includes(cat.toLowerCase())
+                className={`px-2 text-xs py-1 rounded-full border ${filters.category.includes(cat.toLowerCase())
                     ? "bg-teal-900 text-white"
                     : "bg-white text-gray-700"
-                } shadow-sm flex-shrink-0`}
+                  } shadow-sm flex-shrink-0`}
               >
                 {cat}
               </button>

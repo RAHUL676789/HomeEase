@@ -14,8 +14,19 @@ const userSlice = createSlice({
     clearUser: (state) => {
       state.user = null;
     },
+    addnewUserBooking:(state,action)=>{
+       if(!state.user || !Array.isArray(state.user.bookings))return;
+         state?.user?.bookings?.push(action.payload)
+    },
+    updateUserBookings:(state,action)=>{
+       if(!state.user || !Array.isArray(state?.user?.bookings))return;
+         const {id,_id} = action.payload;
+         const targetId = id || _id;
+         console.log(targetId)
+        state.user.bookings = state?.user?.bookings?.map(b=>b._id === targetId ? action.payload : b)
+    }
   },
 });
 
-export const { setUser, clearUser } = userSlice.actions;
+export const { setUser, clearUser,addnewUserBooking,updateUserBookings } = userSlice.actions;
 export default userSlice.reducer;

@@ -1,49 +1,93 @@
-import React, { useEffect ,useState} from 'react'
+import React, { useEffect, useState } from 'react'
 import Button from '../buttons/Button';
 import { socket } from '../../socket/socket';
 import PartnerUpcomingTimer from './PartnerUpcomingTimer';
 import PartnerBookingCancel from './PartnerBookingCancel';
+import axios from "../../utils/axios/axiosinstance.js"
+import { setToast } from '../../redux/toastSlice.js';
+import { useDispatch } from 'react-redux';
+import { updatePartnerBooking } from '../../redux/partnerSlice.js';
+import Loader from '../Other/Loader.jsx';
+
 
 const PartnerViewBooking = ({ booking, handleSetViewItem }) => {
     console.log(booking)
-     const [cancelModal, setcancelModal] = useState(false)
-    
-     const handleCancelAndDelete = (booking)=>{
-        console.log("bookign cancel and delete");
-        socket.emit("partner-booking-cancel-delete",{
-            bookingId:booking?._id,
-            provider:booking?.provider,
-            user:booking?.user
-        })
-     }
-
-
-
+    const [cancelModal, setcancelModal] = useState(false)
+    const [isLoading, setisLoading] = useState(false)
+    const dispatch = useDispatch();
     useEffect(() => {
         const body = document.querySelector("body");
         body.style.overflow = "hidden"
         return () => body.style.overflow = "auto"
     }, [])
 
-    const handleAcceptBooking = (bookingId) => {
-        socket.emit("accept-booking", {
-            bookingId,
+    const acceptedDateIsValidOrnot = (bookingDate) => {
+        console.log("running")
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const bookDate = new Date(bookingDate);
+        bookDate.setMinutes(bookDate.getMinutes() + bookDate.getTimezoneOffset());
+        const diff = bookDate.getTime() - today.getTime();
+        console.log(diff);
+        if (diff < 0) {
+            dispatch(setToast({ type: "warning", content: "you can't accept the meeting on today date" }))
+        }
+
+        return false;
+
+    }
+
+    const handleCancelAndDelete = (booking) => {
+
+        console.log("bookign cancel and delete");
+        socket.emit("partner-booking-cancel-delete", {
+            bookingId: booking?._id,
             provider: booking?.provider,
-            user: booking?.user?._id
+            user: booking?.user
         })
     }
 
-    const handleRejectBooking = (bookingId) => {
-        socket.emit("reject-booking", {
-            bookingId,
-            provider: booking?.provider,
-            user: booking?.user?._id
-        })
+
+
+
+
+
+    const handleAcceptBooking = async (booking) => {
+
+        if (!acceptedDateIsValidOrnot(booking.createdAt)) return;
+        try {
+            setisLoading(true)
+            const response = await axios.put(`/api/bookings/${booking?._id}`, { status: "accepted" });
+            console.log(response?.data)
+            dispatch(updatePartnerBooking(response?.data))
+            dispatch(setToast({ type: "success", content: response?.message || "booking accepted" }))
+        } catch (error) {
+            console.log(error, "this is error while accepeting the booking")
+            dispatch(setToast({ type: "error", content: error.message || "someting went wrong while accepting the booking" }))
+        } finally {
+            setisLoading(false)
+        }
+    }
+
+    const handleRejectBooking = async(bookingId) => {
+        try {
+            setisLoading(true)
+            const response = await axios.put(`/api/bookings/${booking?._id}`, { status: "rejected" });
+            console.log(response?.data)
+            dispatch(updatePartnerBooking(response?.data))
+            dispatch(setToast({ type: "success", content: response?.message || "booking accepted" }))
+        } catch (error) {
+            console.log(error, "this is error while rejecting the booking")
+            dispatch(setToast({ type: "error", content: error.message || "someting went wrong while rejecting the booking" }))
+        } finally {
+            setisLoading(false)
+        }
     }
 
     return (
         <div className='bg-black/20 fixed inset-0 z-50'>
-              {cancelModal && <PartnerBookingCancel cancelAndDelete={handleCancelAndDelete} close={()=>setcancelModal(false)} booking={booking}/>}
+            {isLoading && <Loader />}
+            {cancelModal && <PartnerBookingCancel cancelAndDelete={handleCancelAndDelete} close={() => setcancelModal(false)} booking={booking} />}
             <div className='mx-auto h-screen w-full md:w-[75%] bg-white overflow-hidden relative rounded-sm flex flex-col'>
 
                 {/* Header */}
@@ -61,76 +105,83 @@ const PartnerViewBooking = ({ booking, handleSetViewItem }) => {
                 </header>
 
                 {/* Main Content */}
-                <main className="flex-1 overflow-y-auto pb-20">
-                    <div className='flex flex-col'>
-                        <div className='flex-1 flex items-center gap-1 py-3 px-2'>
-                            <div className='uppercase h-12 w-12 border flex justify-center items-center flex-col rounded-full bg-teal-900 text-white font-semibold'>
+                <main className="flex-1 overflow-y-auto pb-20 bg-white">
+                    <div className="flex flex-col">
+
+                        {/* User Header Section */}
+                        <div className="flex items-center gap-3 py-4 px-3 border-b border-gray-200">
+                            <div className="uppercase h-12 w-12 flex justify-center items-center rounded-full bg-teal-700 text-white text-lg font-semibold">
                                 {(booking?.user?.fullName?.[0] + booking?.user?.fullName?.[1]) || "NA"}
                             </div>
-                            <div className='flex flex-col leading-3 text-sm'>
-                                <span>{booking?.user?.fullName || "unknonwn"}</span>
-                                <span className='font-medium'>{booking?.user?.email || "unknown@gmail.com"}</span>
+
+                            <div className="flex flex-col text-sm">
+                                <span className="font-semibold text-gray-800">
+                                    {booking?.user?.fullName || "Unknown"}
+                                </span>
+                                <span className="text-gray-500">
+                                    {booking?.user?.email || "unknown@gmail.com"}
+                                </span>
                             </div>
+
                             <div
-                                style={{
-                                    backgroundColor:
-                                        booking?.status === "pending"
-                                            ? "yellow"
-                                            : booking?.status === "accept"
-                                                ? "green"
-                                                : "red"
-                                }}
-                                className='ml-auto px-3 py-0.5 rounded-2xl font-semibold'
+                                className={`ml-auto px-3 py-1 rounded-2xl text-xs font-semibold capitalize
+                            ${booking?.status === "pending" ? "bg-yellow-400 text-black" :
+                                        booking?.status === "accept" ? "bg-green-500 text-white" :
+                                            "bg-red-500 text-white"}`}
                             >
                                 {booking?.status || "NA"}
                             </div>
-                            <span className='text-xs text-gray-400'>
-                                {new Date(booking?.workingDate || booking?.service?.createdAt).toDateString()}
-                            </span>
                         </div>
 
-                        <div className='px-3 min-h-[60vh] flex-col flex flex-wrap'>
-                            <div>
-                                <p><strong>title </strong>{booking?.service?.title || "NA"}</p>
-                                <p><strong>description </strong>{booking?.service?.description || "NA"}</p>
+                        {/* Service Info */}
+                        <div className="px-4 py-3 space-y-4 text-sm text-gray-700">
+
+                            <div className="grid grid-cols-2 gap-y-1">
+                                <p><strong className="text-teal-700">Title: </strong>{booking?.service?.title || "NA"}</p>
+                                <p><strong className="text-teal-700">Description: </strong>{booking?.service?.description || "NA"}</p>
                             </div>
-                            <div>
-                                <p><strong>Category </strong>{booking?.service?.category || "NA"}</p>
-                                <p><strong>price </strong> &#8377;{booking?.service?.price || "NA"}</p>
+
+                            <div className="grid grid-cols-2 gap-y-1">
+                                <p><strong className="text-teal-700">Category: </strong>{booking?.service?.category || "NA"}</p>
+                                <p><strong className="text-teal-700">Price: </strong>₹{booking?.service?.price || "NA"}</p>
                             </div>
-                            <div>
-                                <p><strong>duration </strong>{booking?.service?.duration || "NA"}</p>
-                                <p><strong>discount </strong> {booking?.service?.discount || "0"} %Off</p>
+
+                            <div className="grid grid-cols-2 gap-y-1">
+                                <p><strong className="text-teal-700">Duration: </strong>{booking?.service?.duration || "NA"}</p>
+                                <p><strong className="text-teal-700">Discount: </strong>{booking?.service?.discount || "0"}% Off</p>
                             </div>
-                            <div>
-                                <p><strong>AvailableDays </strong>{booking?.service?.availableDays?.join(" ") || "NA"}</p>
-                                <p><strong>price </strong> &#8377;{booking?.service?.price || "NA"}</p>
+
+                            <div className="grid grid-cols-2 gap-y-1">
+                                <p><strong className="text-teal-700">Available Days: </strong>{booking?.service?.availableDays?.join(", ") || "NA"}</p>
+                                <p><strong className="text-teal-700">Created On: </strong>{new Date(booking?.createdAt).toDateString()}</p>
                             </div>
                         </div>
 
-                        <div className='flex-1'>
+                        {/* Additional Details */}
+                        <div className="px-4 py-4 border-t border-gray-200">
                             {booking?.details ? (
-                                <div className='px-3 mt-3'>
-                                    <h3 className='text-lg text-gray-400 font-medium'>Additional Details</h3>
-                                    <p><strong>OfferPayment </strong> <span className='font-bold'>&#8377;</span>{booking?.details?.offerPayment || "NA"} </p>
-                                    <p><strong>Prefer-Day </strong>{booking?.details?.preferdDay || "NA"}</p>
-                                    <p><strong>OfferDuration </strong>{booking?.details?.offerDuration || "NA"}</p>
-                                    <p><strong>Message </strong>{booking?.details?.notes || "NA"}</p>
-                                    <p><strong>workingDate </strong>{new Date(booking?.details?.workingDate).toLocaleDateString() || "NA"}</p>
-                                </div>
+                                <>
+                                    <h3 className="text-lg text-teal-700 font-semibold mb-2">Additional Details</h3>
+                                    <div className="space-y-1 text-gray-700 text-sm">
+                                        <p><strong className="text-teal-700">Offer Payment: </strong>₹{booking?.details?.offerPayment || "NA"}</p>
+                                        <p><strong className="text-teal-700">Preferred Day: </strong>{booking?.details?.preferdDay || "NA"}</p>
+                                        <p><strong className="text-teal-700">Offer Duration: </strong>{booking?.details?.offerDuration || "NA"}</p>
+                                        <p><strong className="text-teal-700">Message: </strong>{booking?.details?.notes || "NA"}</p>
+                                        <p><strong className="text-teal-700">Working Date: </strong>{new Date(booking?.details?.workingDate).toLocaleDateString() || "NA"}</p>
+                                    </div>
+                                </>
                             ) : (
-                                <div className='px-3 mt-3'>
-                                    <h3 className='text-lg font-semibold text-gray-400 mb-3'>No Additional Details Available</h3>
-                                </div>
+                                <h3 className="text-lg font-semibold text-gray-400">No Additional Details Available</h3>
                             )}
                         </div>
+
                     </div>
                 </main>
 
                 {/* Footer Fixed Buttons */}
                 <div className='w-full bg-white border pt-2 pb-0 border-gray-300 px-3 flex gap-2 items-center justify-center sticky bottom-0'>
                     {booking.status !== "accepted" && (
-                        <Button onClick={() => handleAcceptBooking(booking._id)} variant={"apply"}>
+                        <Button onClick={() => handleAcceptBooking(booking)} variant={"apply"}>
                             Accept
                         </Button>
                     )}
@@ -140,7 +191,7 @@ const PartnerViewBooking = ({ booking, handleSetViewItem }) => {
                         </Button>
                     )}
                     {booking.status === "accepted" && (
-                        <Button onClick={()=>setcancelModal(true)} variant={"cancel"}>
+                        <Button onClick={() => setcancelModal(true)} variant={"cancel"}>
                             Cancel
                         </Button>
                     )}

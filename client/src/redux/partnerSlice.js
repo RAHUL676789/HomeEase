@@ -4,7 +4,7 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
      partner: null,
-     loading:true
+     loading: true
 }
 
 const partnerSlice = createSlice({
@@ -21,9 +21,9 @@ const partnerSlice = createSlice({
                state.loading = false
           },
           addService: (state, action) => {
-               console.log(action.payload)
+
                state.partner?.services?.push(action.payload);
-                 state.loading = false
+               state.loading = false
           },
           updateService: (state, action) => {
                if (!state.partner || !Array.isArray(state.partner.services)) return;
@@ -34,38 +34,51 @@ const partnerSlice = createSlice({
                state.partner.services = state.partner.services.map(service =>
                     service._id === targetId ? action.payload : service
                );
-                 state.loading = false
+               state.loading = false
 
           },
           updateServiceGallery: (state, action) => {
                console.log("updateServiceGallery")
                if (!state.partner || !Array.isArray(state.partner.services)) return;
-                   console.log("inside updation")
+               console.log("inside updation")
                const { service, deletedId } = action.payload;
-               
+
                state.partner.services = state.partner.services.map(s => {
                     if (s._id.toString() === service._id.toString()) {
-                        return service;
-                    }else{
-                            return s;
+                         return service;
+                    } else {
+                         return s;
                     }
-                 
+
                });
-                 state.loading = false
+               state.loading = false
 
           },
-        
-          deleteService : (state,action) =>{
-                const {service} = action.payload;
-                if(state.partner.services && Array.isArray(state.partner.services)){
-                    state.partner.services = state.partner.services.filter((s,i)=> s._id.toString() !== service._id.toString())
-                }
-                 state.loading = false
 
+          deleteService: (state, action) => {
+               const { service } = action.payload;
+               if (state.partner.services && Array.isArray(state.partner.services)) {
+                    state.partner.services = state.partner.services.filter((s, i) => s._id.toString() !== service._id.toString())
+               }
+               state.loading = false
+
+          },
+          addNewPartnerBooking: (state, action) => {
+               state?.partner?.bookings.push(action.payload)
+               state.loading = false
+          },
+          updatePartnerBooking: (state, action) => {
+               if (!state.partner || !Array.isArray(state.partner.bookings)) return;
+
+               const { id, _id } = action.payload;
+               const targetId = id || _id;
+               state.partner.bookings = state.partner.bookings.map((b, i) => b._id === targetId ? action.payload : b)
+
+               state.loading = false;
           }
      }
 })
 
 
-export const { setPartner, clearPartner, addService, updateService,updateServiceGallery,deleteService } = partnerSlice.actions;
+export const { setPartner, clearPartner, addService, updateService, updateServiceGallery, deleteService, addNewPartnerBooking, updatePartnerBooking } = partnerSlice.actions;
 export default partnerSlice.reducer;
