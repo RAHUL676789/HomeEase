@@ -9,6 +9,7 @@ const partnerRouter = require("./routes/partnerRoute.js")
 const authRouter = require("./routes/authRoute.js")
 const userRouter = require("./routes/userRouter.js");
 const homeDashRouter = require("./routes/homeRoute.js")
+const bookingRouter = require("./routes/bookingRoute.js")
 const ExpressError = require("./utils/ExpressError.js");
 const cookieParser = require("cookie-parser")
 const session = require("express-session");
@@ -71,6 +72,7 @@ app.use("/api/services",serviceRouter);
 app.use("/api/partner",partnerRouter);
 app.use("/api/users",userRouter);
 app.use("/api",homeDashRouter)
+app.use("/api/bookings",bookingRouter)
 
 app.all("*",(req,res,next)=>{
     next(new ExpressError(404,"page not found"));

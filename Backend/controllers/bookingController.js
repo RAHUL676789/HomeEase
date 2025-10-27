@@ -1,82 +1,76 @@
-const {socket,io} = require("../server.js")
+const Booking = require("../models/bookingModel.js")
+const User = require("../models/userModel.js")
+const Partner = require("../models/partnerSchema.js")
+const { socket, io } = require("../server.js")
 
 
 
 
+// const isExistingBookingWithPending = (bookings, user, provider, service) => {
+//     return bookings.some(b =>
+//         b.user.toString() === user.toString() &&
+//         b.provider.toString() === provider.toString() &&
+//         b.service.toString() === service.toString() &&
+//         b.status === "pending"
+//     );
+// };
 
 
-module.exports.bookCreateNewBooking = (req,res,next)=>{
-    
-      socket.on("partner-new-booking", async (data) => {
-            console.log("this partner new  bokign data", data)
-            try {
-                console.log(data?.provider, "thi sis da prov")
-                // DB me booking save karo
-                const existingServiceBooking = await User.findById(data?.user).populate("bookings");
-    
-                
-    
-    
-                console.log(existingServiceBooking);
-                return;
-    
-                if (existingServiceBooking) {
-                    console.log("User already has this service booked!");
-                } else {
-                    console.log("No booking exists for this service yet.");
-                }
-    
-                const newBooking = new Booking({
-                    user: data?.user,
-                    provider: data?.provider,
-                    service: data?.service,
-                    details: data?.details,
-                });
-    
-                const savedBooking = await newBooking.save();
-    
-                console.log("savedBooking", savedBooking)
-    
-                // Partner aur User me booking id push karo
-                const updatedPartner = await Partner.findByIdAndUpdate(
-                    data?.provider,
-                    { $push: { bookings: savedBooking._id } },
-                    { new: true }
-                ).populate({
-                    path: "services",
-                    populate: {
-                        path: "gallery"
-                    }
-                }).populate({
-                    path: "bookings",
-                    populate: [
-                        {
-                            path: "user",
-                            select: "-password -bookings"
-                        },
-                        { path: "service", select: "-serviceProvider -gallery -reviews -tags" }
-                    ]
-                })
-    
-                const updatedUser = await User.findByIdAndUpdate(
-                    data?.user,
-                    { $push: { bookings: savedBooking._id } },
-                    { new: true }
-                ).populate({ path: "bookings", populate: [{ path: "provider", select: "-password -services -backGroundImage " }, { path: "service", select: "-gallery -serviceProvider" }] });
-    
-    
-                // Sirf provider ko request bhejo
-                io.to(data?.provider).emit("partner-new-service-request", { message: "new service request", data: updatedPartner });
-    
-                // Sirf user ko confirmation bhejo
-                io.to(data?.user).emit("user-service-request-send", {
-                    message: "Request has been sent",
-                    data: updatedUser
-                });
-    
-            } catch (err) {
-                console.error("❌ Error in booking:", err?.Error || err?.message);
-                socket.emit("booking-error", { error: err?.message || "Booking failed" });
-            }
+
+module.exports.newBooking = async (req, res, next) => {
+    const { user, provider, details, service } = req.body;
+
+    // Create Booking
+    const existingBooking = await Booking.findOne({
+        user,
+        provider,
+        service,
+        status: "pending"
+    });
+
+    if (existingBooking) {
+        return res.status(409).json({
+            message: "Booking already exists with pending status",
+            success: false
         });
+    }
+
+    const newBooking = await Booking.create({ user, provider, details, service });
+
+    //  Update User & Partner simultaneously
+    const [updatedUser, updatedPartner] = await Promise.all([
+        User.findByIdAndUpdate(
+            user,
+            { $push: { bookings: newBooking._id } },
+            { new: true }
+        ),
+        Partner.findByIdAndUpdate(
+            provider,
+            { $push: { bookings: newBooking._id } },
+            { new: true }
+        )
+    ]);
+
+    //  Emit update to partner dashboard
+    io.to(provider).emit("partner-new-booking", newBooking);
+
+    //  Final Response
+    return res.status(201).json({
+        message: "Booking created successfully",
+        data: newBooking,
+        success: true,
+    });
+};
+
+
+module.exports.updateBooking = async (req, res, next) => {
+    const { id } = req.params;
+    const updatedBooking = await Booking.findByIdAndUpdate(id, req.body, { new: true, runValidators: true });
+    if (!updatedBooking) {
+        return res.status(404).json({ message: "booking not found", success: false })
+    }
+    
+    io.to(updatedBooking?.user).emit("booking-accepted",updatedBooking);
+    
+    return res.status(200).json({ message: "success", data:updatedBooking,success:true})
 }

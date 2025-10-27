@@ -7,6 +7,7 @@ const { body, validationResult } = require("express-validator");
 const adminModel = require("./models/adminSchema");
 const userModel = require("./models/userModel");
 const partnerModel = require("./models/partnerSchema");
+const Booking = require("./models/bookingModel")
 
 module.exports.validateSignup = [
   body("fullName").notEmpty().withMessage("fullName is required"),
@@ -28,15 +29,15 @@ module.exports.validateSignup = [
 ];
 
 
-module.exports.validateUsersignup =[
-  body("fullName").notEmpty().withMessage("fullName is required").isLength({min:3}).withMessage("fullName should be at least 3 character"),
+module.exports.validateUsersignup = [
+  body("fullName").notEmpty().withMessage("fullName is required").isLength({ min: 3 }).withMessage("fullName should be at least 3 character"),
   body("email").isEmail().withMessage("email should be valid"),
-  body("password").isLength({min:6}).withMessage("password should be at least 6 character"),
-   
-  (req,res,next)=>{
+  body("password").isLength({ min: 6 }).withMessage("password should be at least 6 character"),
+
+  (req, res, next) => {
     const errors = validationResult(req);
-    if(!errors.isEmpty()){
-       return res.status(400).json({ message: "validation failed", errors: errors.array() })
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ message: "validation failed", errors: errors.array() })
     }
     next()
   }
@@ -70,9 +71,42 @@ module.exports.validateLoginPartner = [
 
 
 
+module.exports.validateBooking = [
+  body("user")
+    .trim()
+    .notEmpty().withMessage("user is required")
+    .isMongoId().withMessage("Invalid user ID format"),
+
+  body("provider")
+    .trim()
+    .notEmpty().withMessage("partner is required")
+  .isMongoId().withMessage("Invalid partner ID format"),
+  body("service")
+    .trim()
+    .notEmpty().withMessage("service is required")
+  .isMongoId().withMessage("Invalid Service ID format"),
+
+  (req, res, next) => {
+   
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        message: "Validation failed",
+        success: false,
+        errors: errors.array(),
+      });
+    }
+    next();
+  }
+
+
+
+]
+
+
 module.exports.isLoggedIn = (req, res, next) => {
   console.log(req.session)
-  console.log("req.session.user",req.session.user)
+  console.log("req.session.user", req.session.user)
 
   if (!req.session || !req.session.user) {
     return res.status(401).json({ message: "Unauthorized user", success: false });
@@ -89,7 +123,7 @@ module.exports.isOwner = (req, res, next) => {
 
 
 module.exports.isEmailExist = async (req, res, next) => {
-  const { email }= req.body;
+  const { email } = req.body;
 
 
   if (!email) {
@@ -100,11 +134,11 @@ module.exports.isEmailExist = async (req, res, next) => {
     adminModel.findOne({ email }),
     partnerModel.findOne({ email }),
     userModel.findOne({ email })
-  ]).catch(()=>null)
+  ]).catch(() => null)
 
 
-  if(existAny){
-    return res.status(409).json({message:"email is already exist",success:false})
+  if (existAny) {
+    return res.status(409).json({ message: "email is already exist", success: false })
   }
   next();
 
@@ -113,7 +147,7 @@ module.exports.isEmailExist = async (req, res, next) => {
 
 
 module.exports.isPhoneExist = async (req, res, next) => {
-  const { phone }= req.body;
+  const { phone } = req.body;
 
 
   if (!phone) {
@@ -124,13 +158,38 @@ module.exports.isPhoneExist = async (req, res, next) => {
     adminModel.findOne({ phone }),
     partnerModel.findOne({ phone }),
     userModel.findOne({ phone })
-  ]).catch(()=>null)
+  ]).catch(() => null)
 
 
-  if(existAny){
-    return res.status(409).json({message:"phone is already exist",success:false})
+  if (existAny) {
+    return res.status(409).json({ message: "phone is already exist", success: false })
   }
   next();
 
 }
 
+
+module.exports.isValidPartner = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const booking = await Booking.findById(id).populate("provider");
+
+    if (!booking) {
+      return res.status(404).json({ message: "Booking not found" });
+    }
+
+    const providerId = booking?.provider?._id?.toString();
+    const loggedInUserId = req?.session?.user?._id?.toString();
+
+    if (providerId === loggedInUserId) {
+      return next();
+    }
+
+    return res.status(401).json({ message: "Unauthorized user" });
+
+  } catch (error) {
+    console.log("Error in isValidPartner middleware:", error);
+    next(error);
+  }
+};
