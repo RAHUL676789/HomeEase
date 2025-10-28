@@ -6,6 +6,7 @@ import PartnerBookingCancel from './PartnerBookingCancel';
 const PartnerBookingCard = ({ booking, setViewBookingItem }) => {
   const [optionsVisible, setOptionsVisible] = useState(false);
   const cardRef = useRef(null);
+  console.log(booking)
  
   const initials = booking?.user?.fullName
     ?.split(' ')

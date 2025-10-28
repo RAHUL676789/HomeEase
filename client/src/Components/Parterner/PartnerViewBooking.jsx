@@ -6,8 +6,9 @@ import PartnerBookingCancel from './PartnerBookingCancel';
 import axios from "../../utils/axios/axiosinstance.js"
 import { setToast } from '../../redux/toastSlice.js';
 import { useDispatch } from 'react-redux';
-import { updatePartnerBooking } from '../../redux/partnerSlice.js';
+import { updatePartnerBooking, deletePartnerBooking } from '../../redux/partnerSlice.js';
 import Loader from '../Other/Loader.jsx';
+
 
 
 const PartnerViewBooking = ({ booking, handleSetViewItem }) => {
@@ -31,58 +32,58 @@ const PartnerViewBooking = ({ booking, handleSetViewItem }) => {
         console.log(diff);
         if (diff < 0) {
             dispatch(setToast({ type: "warning", content: "you can't accept the meeting on today date" }))
+            return true;
         }
 
         return false;
 
     }
 
-    const handleCancelAndDelete = (booking) => {
+    const handleCancelAndDelete = async (bookingId) => {
 
-        console.log("bookign cancel and delete");
-        socket.emit("partner-booking-cancel-delete", {
-            bookingId: booking?._id,
-            provider: booking?.provider,
-            user: booking?.user
-        })
+        try {
+            setisLoading(true)
+            const response = await axios.delete(`/api/bookings/${bookingId}`);
+            console.log(response);
+            dispatch(deletePartnerBooking(response?.data?.data));
+            dispatch(setToast({ type: "success", content: response?.data?.message || "delete from db" }))
+            handleSetViewItem(null)
+
+
+        } catch (error) {
+            console.log(error, "this error comes from while deleting the booking")
+            dispatch(setToast({ type: "error", content: error.message || "someting went wrong" }))
+        } finally {
+            setisLoading(false)
+        }
+
+
     }
 
 
 
-
-
-
-    const handleAcceptBooking = async (booking) => {
-
-        if (!acceptedDateIsValidOrnot(booking.createdAt)) return;
+    const updateBooking = async (booking, updates) => {
+         if(updates.status === "accepted"){
+            if (acceptedDateIsValidOrnot(booking.createdAt)) {
+                return;
+            };
+         }
         try {
             setisLoading(true)
-            const response = await axios.put(`/api/bookings/${booking?._id}`, { status: "accepted" });
+            const response = await axios.put(`/api/bookings/${booking?._id}`,updates);
             console.log(response?.data)
-            dispatch(updatePartnerBooking(response?.data))
-            dispatch(setToast({ type: "success", content: response?.message || "booking accepted" }))
+            dispatch(updatePartnerBooking(response?.data?.data))
+            dispatch(setToast({ type: "success", content: response?.data?.message || "booking accepted" }))
+            handleSetViewItem(null)
         } catch (error) {
             console.log(error, "this is error while accepeting the booking")
-            dispatch(setToast({ type: "error", content: error.message || "someting went wrong while accepting the booking" }))
+            dispatch(setToast({ type: "error", content: error?.message || "someting went wrong while accepting the booking" }))
         } finally {
             setisLoading(false)
         }
+
     }
 
-    const handleRejectBooking = async(bookingId) => {
-        try {
-            setisLoading(true)
-            const response = await axios.put(`/api/bookings/${booking?._id}`, { status: "rejected" });
-            console.log(response?.data)
-            dispatch(updatePartnerBooking(response?.data))
-            dispatch(setToast({ type: "success", content: response?.message || "booking accepted" }))
-        } catch (error) {
-            console.log(error, "this is error while rejecting the booking")
-            dispatch(setToast({ type: "error", content: error.message || "someting went wrong while rejecting the booking" }))
-        } finally {
-            setisLoading(false)
-        }
-    }
 
     return (
         <div className='bg-black/20 fixed inset-0 z-50'>
@@ -180,19 +181,24 @@ const PartnerViewBooking = ({ booking, handleSetViewItem }) => {
 
                 {/* Footer Fixed Buttons */}
                 <div className='w-full bg-white border pt-2 pb-0 border-gray-300 px-3 flex gap-2 items-center justify-center sticky bottom-0'>
-                    {booking.status !== "accepted" && (
-                        <Button onClick={() => handleAcceptBooking(booking)} variant={"apply"}>
+                    {booking.status === "pending" && booking.status !== "rejected" && (
+                        <Button  onClick={() => updateBooking(booking,{status:"accepted"})} variant={"apply"}>
                             Accept
                         </Button>
                     )}
-                    {booking.status !== "accepted" && (
-                        <Button variant={"delete"} onClick={() => handleRejectBooking(booking._id)}>
+                    {booking.status !== "accepted" && booking.status !== "rejected" && (
+                        <Button variant={"delete"} onClick={() => updateBooking(booking,{status:"rejected"})}>
                             Reject
                         </Button>
                     )}
                     {booking.status === "accepted" && (
                         <Button onClick={() => setcancelModal(true)} variant={"cancel"}>
                             Cancel
+                        </Button>
+                    )}
+                    {booking.status === "rejected" && (
+                        <Button onClick={() => setcancelModal(true)} variant={"delete"}>
+                            Delete
                         </Button>
                     )}
 

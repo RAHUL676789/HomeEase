@@ -6,8 +6,7 @@ import PartnerBookingCard from "../../Components/Parterner/PartnerBookingCard";
 import PartnerViewBooking from "../../Components/Parterner/PartnerViewBooking";
 import { debounce } from "../../utils/helper/debounce.js";
 import NotFound from "../../assets/NotFound.svg";
-import { setPartner } from "../../redux/partnerSlice.js";
-import ToastContainer from "../../Components/Other/ToastContainer.jsx";
+
 
 const PartnerBookings = () => {
   const { partner, loading } = useSelector((state) => state.partner);
@@ -76,14 +75,19 @@ const PartnerBookings = () => {
       ? filteredBookings
       : partner?.bookings || [];
 
-      if(!filters.category.includes("rejected")){
+      if(!filters.status.includes("rejected")){
+        console.log("rejcting filtering")
+         console.log(bookingsToRender)
         bookingsToRender = bookingsToRender.filter(b=>b.status !== "rejected")
+        console.log(bookingsToRender)
       }
 
   bookingsToRender = [...bookingsToRender].sort(
     (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
   );
 
+
+  console.log(filters,"this is filters")
   if (loading) {
     return (
       <div className="h-screen w-screen flex justify-center items-center">

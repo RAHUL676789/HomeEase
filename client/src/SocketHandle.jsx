@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { socket } from "./socket/socket";
 import { getToken } from "./utils/helper/getToken";
-import { setPartner, updatePartnerBooking } from "./redux/partnerSlice";
+import { addNewPartnerBooking, setPartner, updatePartnerBooking } from "./redux/partnerSlice";
 import { setUser } from "./redux/userSlice"
 import { setToast } from "./redux/toastSlice";
 
@@ -34,7 +34,7 @@ const SocketHandler = () => {
 
       console.log(payload,"this is paylod")
       console.log(payload.data)
-      dispatch(updatePartnerBooking(payload || payload.data))
+      dispatch(addNewPartnerBooking(payload || payload.data))
       dispatch(setToast({ type: "success", content: payload.message || "new booking request" }))
 
     };

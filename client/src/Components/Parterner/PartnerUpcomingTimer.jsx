@@ -46,16 +46,18 @@ const PartnerUpcomingTimer = ({ workingDate }) => {
   }, [counterTime]);
 
   return (
-    <div className="py-2 px-3 bg-red-500 text-white rounded animate-pulse">
+    <div className="py-1 px-3 bg-zinc-900 text-white rounded ">
       <div className="flex uppercase gap-3">
         <h2 className="lowercase font-semibold text-sm">upcoming in :</h2>
-        <p className="font-semibold text-sm flex gap-1 items-center">
+        { counterDate.days > 0 && <p className="font-semibold text-sm flex gap-1 items-center">
           <span className="text-xs lowercase">days</span> {counterDate.days}
-        </p>
-        <p className="font-semibold text-sm flex gap-1 items-center">
+        </p>}
+        { counterDate.days > 0 && <p className="font-semibold text-sm flex gap-1 items-center">
           <span className="text-xs lowercase">hours</span> {counterDate.hours}
-        </p>
-       
+        </p>}
+
+         { counterDate.days <= 0 && <p className="lowercase">Today is Working Day</p>
+}
        
       </div>
     </div>

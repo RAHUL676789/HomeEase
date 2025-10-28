@@ -10,7 +10,7 @@ const PartnerBookingCancel = ({booking, cancelAndDelete,close}) => {
             <h2 className='font-semibold text-lg'>Do you really want to cancel the booking ?</h2>
             <div className='w-full  py-2 flex justify-between items-center '>
            
-                <Button onClick={()=>cancelAndDelete(booking)} variant={"delete"} children={"cancel and delete"}/>
+                <Button onClick={()=>cancelAndDelete(booking._id || booking.id)} variant={"delete"} children={" delete"}/>
                 <Button onClick={close} variant={"next"} children={"close"}/>
             </div>
         </div>
