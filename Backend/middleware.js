@@ -173,7 +173,9 @@ module.exports.isValidPartner = async (req, res, next) => {
   try {
     const { id } = req.params;
 
+
     const booking = await Booking.findById(id).populate("provider");
+ 
 
     if (!booking) {
       return res.status(404).json({ message: "Booking not found" });

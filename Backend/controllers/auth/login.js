@@ -39,7 +39,8 @@ module.exports.login = async (req, res, next) => {
           }
         })
         .populate({
-          path: "bookings", // bookings ke required fields
+          path: "bookings", 
+          match:{isDeleteByPartner:false},// bookings ke required fields
           populate: [
             { path: "user", select: "fullName email" },      
             { path: "service", select: "title description price category" } // Partner ko service ka relevant info

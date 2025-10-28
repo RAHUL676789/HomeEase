@@ -92,6 +92,7 @@ module.exports.getPartneDtail = async (req, res, next) => {
     }
   }).populate({
     path:"bookings",
+    match:{isDeletedByPartner:false},
     populate:{
       path:"user",
       select:"-password"

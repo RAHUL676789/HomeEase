@@ -27,7 +27,9 @@ const bookingSchema = new mongoose.Schema({
         preferdDay:{type:String},
         notes:{type:String},
         workingDate:{type:Date}
-    }
+    },
+    isDeleteByPartner:{type:Boolean,default:false},
+    isDeleteByUser:{type:Boolean,default:false}
 
 },{timestamps:true})
 

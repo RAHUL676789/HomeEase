@@ -28,10 +28,11 @@ module.exports.getMe = async (req, res) => {
             }
         }).populate({
             path:"bookings",
+            match:{isDeleteByPartner:false},
             populate:[
                 {path:"user",
                 select:"-password -bookings"},
-                {path:"service",select:"-serviceProvider -gallery -reviews -tags"}
+                {path:"service",select: "title description price category"}
     ]
         }),
         adminModel.findById(userId),

@@ -5,18 +5,6 @@ const { socket, io } = require("../server.js")
 
 
 
-
-// const isExistingBookingWithPending = (bookings, user, provider, service) => {
-//     return bookings.some(b =>
-//         b.user.toString() === user.toString() &&
-//         b.provider.toString() === provider.toString() &&
-//         b.service.toString() === service.toString() &&
-//         b.status === "pending"
-//     );
-// };
-
-
-
 module.exports.newBooking = async (req, res, next) => {
     const { user, provider, details, service } = req.body;
 
@@ -36,6 +24,14 @@ module.exports.newBooking = async (req, res, next) => {
     }
 
     const newBooking = await Booking.create({ user, provider, details, service });
+
+    // Ab populate karo
+    await newBooking.populate("user", "fullName email");
+    await newBooking.populate("provider", "-bookings -password -backGroundImage -services");
+    await newBooking.populate("service","-gallery -reviews -description ")
+
+
+   console.log("this is new booking connection btw user and partner",newBooking,"thankyou boooking new booking")
 
     //  Update User & Partner simultaneously
     const [updatedUser, updatedPartner] = await Promise.all([
@@ -65,12 +61,32 @@ module.exports.newBooking = async (req, res, next) => {
 
 module.exports.updateBooking = async (req, res, next) => {
     const { id } = req.params;
-    const updatedBooking = await Booking.findByIdAndUpdate(id, req.body, { new: true, runValidators: true });
+    console.log(req.body)
+    const updatedBooking = await Booking.findByIdAndUpdate(id, req.body, { new: true, runValidators: true }).populate("user", "fullName email").populate("provider", "-bookings -password -backGroundImage -services").populate("service","-gallery -reviews -description ");
     if (!updatedBooking) {
         return res.status(404).json({ message: "booking not found", success: false })
     }
-    
-    io.to(updatedBooking?.user).emit("booking-accepted",updatedBooking);
-    
-    return res.status(200).json({ message: "success", data:updatedBooking,success:true})
+
+    io.to(updatedBooking?.user).emit("booking-updated", updatedBooking);
+
+    return res.status(200).json({ message: "success updated", data: updatedBooking, success: true })
+}
+
+
+module.exports.deleteBookingByPartner = async (req, res, next) => {
+    const { id } = req.params;
+    const isBookingExist = await Booking.findById(id);
+    console.log(isBookingExist)
+    const partnerId = req.session?.user?._id;
+    if (!isBookingExist) {
+        const updatePartnerBooking = await Partner.findByIdAndUpdate(partnerId, { $pull: { bookings: id } });
+        return res.status(200).json({ message: "booking already deleted from DB", data: { _id: id } })
+    }
+
+    isBookingExist.isDeleteByPartner = true;
+    const savedBooking = await isBookingExist.save();
+    console.log(savedBooking, "this saveddeletemosgdh")
+    return res.status(200).json({ message: "booking deleted", success: true, data: savedBooking })
+
+
 }
