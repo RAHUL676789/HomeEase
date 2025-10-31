@@ -1,70 +1,75 @@
 import React from "react";
-import { useEffect } from "react";
-import { useSelector } from "react-redux";
-import { socket } from "../../socket/socket";
+import {useSelector} from "react-redux"
+const UserProfile3 = () => {
+  // const user = {
+  //   name: "Amit Verma",
+  //   email: "amitv@example.com",
+  //   phone: "+91 9001234567",
+  //   totalBookings: 12,
+  //   bookings: [
+  //     { id: 1, service: "Plumbing", date: "2025-10-28", status: "Completed" },
+  //     { id: 2, service: "Home Painting", date: "2025-10-22", status: "Completed" },
+  //     { id: 3, service: "Laundry", date: "2025-10-18", status: "Pending" },
+  //   ],
+  // };
+const {user} = useSelector((state)=>state.user)
+  
 
-const UserProfile = () => {
-    const {user} = useSelector((state)=>state.user)
-    console.log(user)
-
-    useEffect(()=>{
-      socket.on("service-request-send",(data)=>{
-        console.log(data)
-      })
-    },[])
   return (
-    <div className="min-h-screen bg-gray-100 p-6">
-      {/* Header */}
-      <div className="bg-white rounded shadow p-6 flex justify-between items-center mb-6">
-        <div>
-          <h2 className="text-2xl font-semibold text-gray-800">{user?.fullName}</h2>
-          <p className="text-gray-600">{user?.email}</p>
-          <p className="text-gray-600">{user?.phone}</p>
+    <div className="max-w-4xl h-[90vh] max-h-[90vh] mx-auto mt-5 p-6 sm:p-8 bg-white rounded  shadow-md shadow-gray-500">
+      {/* Responsive grid */}
+      <div className="grid h-full grid-cols-1 md:grid-cols-3 gap-8 ">
+        {/* Left section - Profile Info */}
+        <div className="flex  flex-col items-center border-b md:border-b-0 md:border-r md:pr-6 pb-6 md:pb-0 h-[100%] ">
+        <div className="h-12 w-12 border rounded-full flex justify-center items-center flex-col bg-gray-100">
+           <i className="ri-user-3-line text-2xl "></i>
         </div>
-        <button className="px-4 py-2 bg-teal-500 text-white rounded hover:bg-teal-600">
-         <i className="ri-arrow-down-s-line"></i>
-        </button>
-      </div>
+          <h2 className="text-xl sm:text-2xl font-semibold mt-3 text-gray-800 text-center">
+            {user?.fullName}
+          </h2>
+          <p className=" text-sm text-gray-400 sm:text-base text-center break-all">
+            {user?.email}
+          </p>
+          <p className="text-green-500 text-sm sm:text-base">joined :{new Date(user?.createdAt).toLocaleDateString().toString().split("/").join("-")};
+</p>
+          <p className="mt-4 bg-green-100 text-green-700 font-medium py-2 px-4 rounded-lg text-sm sm:text-base">
+            Total Bookings: {user?.bookings?.length}
+          </p>
+        </div>
 
-      {/* Bookings */}
-      <div className="bg-white rounded shadow p-6">
-        <h3 className="text-xl font-semibold mb-4">My Bookings</h3>
-        {user?.bookings?.length > 0 ? (
-          <div className="space-y-3">
-            {user.bookings.map((b, i) => (
+        {/* Right section - Recent Bookings */}
+        <div className="col-span-2">
+          <h3 className="text-lg sm:text-xl font-semibold mb-3 border-b pb-2 text-gray-800">
+            Recent Bookings
+          </h3>
+
+          {/* Responsive Booking Grid */}
+          {/* <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {user.bookings.map((b) => (
               <div
-                key={i}
-                className="flex justify-between items-center p-3 border rounded hover:shadow-md transition"
+                key={b.id}
+                className="border p-4 rounded-xl bg-gray-50 hover:shadow-md transition-all duration-200"
               >
-                <div>
-                  <p className="font-medium">{b.serviceName}</p>
-                  <p className="text-sm text-gray-500">
-                    Provider: {b.providerName}
-                  </p>
-                  <p className="text-sm text-gray-500">{b.date}</p>
-                </div>
+                <p className="font-medium text-gray-800 text-base sm:text-lg">
+                  {b.service}
+                </p>
+                <p className="text-sm text-gray-500 mt-1">{b.date}</p>
                 <span
-                  className={`px-3 py-1 text-sm rounded ${
-                    b.status === "Pending"
-                      ? "bg-yellow-100 text-yellow-700"
-                      : b.status === "Accepted"
+                  className={`text-xs sm:text-sm px-2 py-1 mt-2 inline-block rounded-full ${
+                    b.status === "Completed"
                       ? "bg-green-100 text-green-700"
-                      : b.status === "Completed"
-                      ? "bg-blue-100 text-blue-700"
-                      : "bg-red-100 text-red-700"
+                      : "bg-yellow-100 text-yellow-700"
                   }`}
                 >
                   {b.status}
                 </span>
               </div>
             ))}
-          </div>
-        ) : (
-          <p className="text-gray-500">No bookings yet.</p>
-        )}
+          </div> */}
+        </div>
       </div>
     </div>
   );
 };
 
-export default UserProfile;
+export default UserProfile3;
