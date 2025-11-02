@@ -10,12 +10,15 @@ const authRouter = require("./routes/authRoute.js")
 const userRouter = require("./routes/userRouter.js");
 const homeDashRouter = require("./routes/homeRoute.js")
 const bookingRouter = require("./routes/bookingRoute.js")
+const UserSettingRouter = require("./routes/node-cron/nodeCron.js")
 const ExpressError = require("./utils/ExpressError.js");
 const cookieParser = require("cookie-parser")
 const session = require("express-session");
 const MongoStore = require("connect-mongo");
 const { bookMyService } = require("./socket/bookingSocket.js");
+
 dbConnection();
+require("./controllers/node-cron/auto/autoNodeCron.js")
 io.on("connection",(socket)=>{
   console.log("socket connectionon")
  
@@ -71,6 +74,7 @@ app.use("/api/auth",authRouter);
 app.use("/api/services",serviceRouter);
 app.use("/api/partner",partnerRouter);
 app.use("/api/users",userRouter);
+app.use("/api/users/settings",UserSettingRouter)
 app.use("/api",homeDashRouter)
 app.use("/api/bookings",bookingRouter)
 

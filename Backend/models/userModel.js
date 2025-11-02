@@ -14,7 +14,10 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true
   },
- bookings:[{type:mongoose.Schema.Types.ObjectId,ref:"Booking"}]
+ bookings:[{type:mongoose.Schema.Types.ObjectId,ref:"Booking"}],
+ settings:{
+  isAutoDeleteBookings:{type:String,default:false}
+ }
 },{timestamps:true});    
 
 module.exports = mongoose.model("User", userSchema);    
