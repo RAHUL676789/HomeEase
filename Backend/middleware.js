@@ -80,14 +80,14 @@ module.exports.validateBooking = [
   body("provider")
     .trim()
     .notEmpty().withMessage("partner is required")
-  .isMongoId().withMessage("Invalid partner ID format"),
+    .isMongoId().withMessage("Invalid partner ID format"),
   body("service")
     .trim()
     .notEmpty().withMessage("service is required")
-  .isMongoId().withMessage("Invalid Service ID format"),
+    .isMongoId().withMessage("Invalid Service ID format"),
 
   (req, res, next) => {
-   
+
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({
@@ -170,12 +170,12 @@ module.exports.isPhoneExist = async (req, res, next) => {
 
 
 module.exports.isValidPartner = async (req, res, next) => {
-  try {
+
     const { id } = req.params;
 
 
     const booking = await Booking.findById(id).populate("provider");
- 
+
 
     if (!booking) {
       return res.status(404).json({ message: "Booking not found" });
@@ -190,8 +190,27 @@ module.exports.isValidPartner = async (req, res, next) => {
 
     return res.status(401).json({ message: "Unauthorized user" });
 
-  } catch (error) {
-    console.log("Error in isValidPartner middleware:", error);
-    next(error);
-  }
+  
+    
+   
 };
+
+
+module.exports.isValidSessionUser = async (req, res, next) => {
+  const { id } = req.params;
+
+  const [user, partner, admin] = await Promise.allSettled([userModel.findById(id), partnerModel.findById(id), adminModel.findById(id)]);
+
+  const foundUser = user?.status === "fulfilled" && user.value ? user.value : partner.status === "fulfilled" && partner.value ? partner.value : admin.status === "fulfilled" && admin.value ? admin.value : null;
+
+  if (!foundUser) {
+    return res.status(403).json({ message: "invalid session user or session expired please try again later", success: false })
+  }
+
+  if (req?.session?.user?._id?.toString() !== foundUser?._id?.toString()) {
+    return res.status(401).json({ message: "Unauthorized user", success: false });
+  }
+
+
+  next()
+}

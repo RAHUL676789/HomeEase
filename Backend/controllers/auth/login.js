@@ -12,25 +12,24 @@ module.exports.login = async (req, res, next) => {
 
   
     // 🔍 Check in User model
-    user = await userModel.findOne({ email }).select("fullName email password");
+    user = await userModel.findOne({ email }).populate({path:"bookings",populate:[{path:"provider",select:"-password -services -backGroundImage"},{path:"service",select:"-gallery -serviceProvider"}]});
     if (user) role = "User";
 
     // 🔍 Check in Admin model
     if (!user) {
-      user = await adminModel.findOne({ email })
-        .select("fullName email password") // admin ke basic fields
+      user = await adminModel.findOne({ email }) 
         .populate({
           path: "bookings",
           populate: [
-            { path: "user" },      // Admin ke liye full user info
-            { path: "provider" },  // Admin ke liye full provider info
-            { path: "service" },   // Admin ke liye full service info
+            { path: "user" },      
+            { path: "provider" },  
+            { path: "service" },   
           ]
         });
       if (user) role = "Admin";
     }
 
-    // 🔍 Check in Partner model
+   
     if (!user) {
       user = await partnerModel.findOne({ email }).populate({
           path: "services",// sirf required service info
