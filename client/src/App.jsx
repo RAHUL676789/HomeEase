@@ -14,11 +14,11 @@ import Signup from './Components/auth/Signup'
 import PartnerProfile from './Pages/PartnerProfile/PartnerProfile'
 import ServiceListing from "./Components/Service/ServiceListing"
 import ErrorBoundary from './Components/Other/ErrorBoundary'
-import UserProfile from './Components/User/UserProfile'
 import PartnerBookings from './Pages/PartnerProfile/PartnerBookings'
 import ToastContainer from './Components/Other/ToastContainer'
 import PartnerHome from './Components/Parterner/PartnerHome'
 import Home from './Pages/Home/Home'
+import UserProfile from './Pages/User/UserProfile'
 
 function App() {
   const dispatch = useDispatch()

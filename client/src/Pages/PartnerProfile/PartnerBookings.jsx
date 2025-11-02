@@ -27,7 +27,7 @@ const PartnerBookings = () => {
   };
 
   const handleSearch = (item) => {
-    if (filters?.searchInp === "") return true; // 🔑 always return true if no search
+    if (filters?.searchInp === "") return true; 
     const search = filters.searchInp.toLowerCase();
     return (
       item?.service?.title?.toLowerCase().includes(search) ||
@@ -75,19 +75,18 @@ const PartnerBookings = () => {
       ? filteredBookings
       : partner?.bookings || [];
 
-      if(!filters.status.includes("rejected")){
-        console.log("rejcting filtering")
-         console.log(bookingsToRender)
-        bookingsToRender = bookingsToRender.filter(b=>b.status !== "rejected")
-        console.log(bookingsToRender)
-      }
+  if (!filters.status.includes("rejected")) {
+  
+    bookingsToRender = bookingsToRender.filter(b => b.status !== "rejected")
+   
+  }
 
   bookingsToRender = [...bookingsToRender].sort(
     (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
   );
 
 
-  console.log(filters,"this is filters")
+  console.log(filters, "this is filters")
   if (loading) {
     return (
       <div className="h-screen w-screen flex justify-center items-center">
@@ -197,8 +196,8 @@ const PartnerBookings = () => {
                 key={status}
                 onClick={() => handleFilters("status", status)}
                 className={`px-2 py-1 text-xs rounded-full border ${filters.status.includes(status.toLowerCase())
-                    ? "bg-teal-900 text-white"
-                    : "bg-white text-gray-700"
+                  ? "bg-teal-900 text-white"
+                  : "bg-white text-gray-700"
                   } shadow-sm flex-shrink-0`}
               >
                 {status}
@@ -209,8 +208,8 @@ const PartnerBookings = () => {
                 key={cat}
                 onClick={() => handleFilters("category", cat)}
                 className={`px-2 text-xs py-1 rounded-full border ${filters.category.includes(cat.toLowerCase())
-                    ? "bg-teal-900 text-white"
-                    : "bg-white text-gray-700"
+                  ? "bg-teal-900 text-white"
+                  : "bg-white text-gray-700"
                   } shadow-sm flex-shrink-0`}
               >
                 {cat}
