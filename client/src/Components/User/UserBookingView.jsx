@@ -61,11 +61,19 @@ const UserBookingView = ({ booking, handleViewBooking }) => {
             <div className="mx-auto h-[100vh] w-full md:w-[85%] bg-white overflow-auto p-6 relative rounded flex flex-col shadow-2xl border border-gray-200 animate-fadeIn ">
                 <i onClick={() => handleViewBooking(null)} className="ri-close-line absolute right-7 top-0 hover:text-red-500 cursor-pointer"></i>
                 {/* Header */}
-                <div className="flex justify-between items-center py-4  flex-wrap gap-3">
+                <div className="flex  justify-between items-center py-4  flex-wrap gap-3">
+
+                    <p className="text-sm text-teal-500 mt-1">
+                        Booking workingDate on:{" "}
+                        {new Date(booking?.details?.workingDate).toLocaleDateString()}
+                    </p>
                     <h1 className="text-2xl font-semibold text-gray-800">
                         {booking?.service?.title}
                     </h1>
                     {getStatusColor(booking?.status)}
+
+
+
                 </div>
 
                 <p className="text-sm text-gray-500 mt-1">
@@ -80,11 +88,11 @@ const UserBookingView = ({ booking, handleViewBooking }) => {
                         <i className="ri-time-line text-teal-600"></i>
                         Booking Timeline
                     </h2>
-                    <div className={`relative border-l-2  ml-4 ${booking?.status === "accepted" || booking?.status === "completed" ? "border-green-600":"border-orange-600"}`}>
+                    <div className={`relative   ml-4 `}>
                         {/* Created */}
-                        <div className="mb-12 ml-6 relative">
+                        <div className={`px-6 ml-6 h-24 border-l-2 relative ${booking?.status === "accepted" || booking?.status === "completed" ? "border-green-600" : "border-orange-600"}`}>
 
-                            <div className="absolute -left-9  w-6 h-6 flex items-center justify-center rounded-full bg-white border-2 border-blue-500 ">
+                            <div className="absolute -left-3  w-6 h-6 flex items-center justify-center rounded-full bg-white border-2 border-blue-500 ">
                                 <i className="ri-checkbox-circle-line text-blue-500"></i>
                             </div>
 
@@ -98,44 +106,45 @@ const UserBookingView = ({ booking, handleViewBooking }) => {
                         </div>
 
                         {/* Provider Responded */}
-                        {booking.status !== "pending" && (
-                            <div className="mb-12 ml-6 relative">
-                                <div className={`absolute -left-9 w-6 h-6 flex items-center justify-center rounded-full bg-white border-2 ${booking?.status === "accepted" ? "border-green-500" :"border-orange-600"}`}>
-                                    <i className={`ri-user-follow-line ${booking?.status === "accepted" ? "text-green-500" :"text-orange-600 "} `}></i>
-                                </div>
-                                <div>
-                                    <h3 className="font-medium text-gray-800">
-                                        Provider Responded
-                                    </h3>
-                                    <p className={`text-sm ${booking?.status !== "accepted" ? "text-orange-600" :"text-green-500"} `}>
-                                        Status: {booking.status}
-                                    </p></div>
+
+                        <div className={` ml-6 h-24 px-6  border-l-2  relative ${booking?.status === "completed" ? "border-green-600" : "border-gray-400"}` }>
+                            <div className={`absolute 
+                                    -left-3  w-6 h-6 flex items-center justify-center rounded-full border-2 ${booking?.status === "accepted" ? "border-green-600" : "border-orange-600"} bg-white`}>
+                                <i className={`ri-user-follow-line ${booking?.status === "accepted" ? "text-green-600" : "text-orange-600 "} `}></i>
                             </div>
-                        )}
+                            <div>
+                                <h3 className="font-medium text-gray-800">
+                                    Provider Responded
+                                </h3>
+                                <p className={`text-sm ${booking?.status !== "accepted" ? "text-orange-600" : "text-green-600"} `}>
+                                    Status: {booking.status}
+                                </p></div>
+                        </div>
 
-                        {booking?.status === "completed" &&
-                            <div className="mb-12 ml-6 relative">
-                                <div className="absolute -left-9 bottom-0 w-6 h-6 flex items-center justify-center rounded-full bg-white border-2 border-green-500">
-                                    <i className="ri-check-double-fill text-emerald-500"></i>
-                                </div>
 
-                                <div>
-                                    <h3 className="font-medium text-gray-800">
-                                        Booking  Completed
-                                    </h3>
-                                    <p className="text-sm text-teal-500">
-                                        Status: Completed
-                                    </p></div>
 
+                        <div className={`mb-6 px-6 ml-6 border-l-2 relative ${booking?.status === "completed" ? "border-green-600" : "border-gray-400"} `}>
+                            <div className={`absolute -left-3 bottom-0 w-6 h-6 flex items-center justify-center rounded-full bg-white border-2  ${booking?.status === "completed" ? "border-green-600" : "border-gray-400"}`}>
+                                <i className={`ri-check-double-fill  ${booking?.status === "completed" ? "border-green-600" : "border-gray-400 opacity-30"}`}></i>
                             </div>
-                        }
+
+                            <div>
+                                <h3 className={`${booking?.status === "completed" ? "text-teal-600" : "border-gray-400 opacity-40"} text-gray-800 font-medium`}>
+                                    Booking  Completed
+                                </h3>
+                                <p className={`text-sm  ${booking?.status === "completed" ? "text-teal-600" : "border-gray-400 opacity-40"}`}>
+                                    Status: Completed
+                                </p></div>
+
+                        </div>
+
                     </div>
                 </div>
 
                 {/* Main Info Grid */}
                 <div className="grid sm:grid-cols-2 gap-6">
                     {/* Service Details */}
-                    <div className="p-5 border rounded-xl shadow-sm bg-gray-50">
+                    <div className="p-5  rounded  shadow-sm hover:shadow-md hover:shadow-gray-400 bg-gray-50">
                         <h2 className="text-lg font-semibold text-gray-700 mb-3 flex items-center gap-2">
                             <i className="ri-hand-heart-line text-teal-600"></i>
                             Service Details
@@ -163,7 +172,7 @@ const UserBookingView = ({ booking, handleViewBooking }) => {
                     </div>
 
                     {/* Provider Details */}
-                    <div className="p-5 border rounded-xl shadow-sm bg-gray-50">
+                    <div className="p-5 transition-all duration-200 hover:shadow-md hover:shadow-gray-400  rounded shadow-sm bg-gray-50">
                         <h2 className="text-lg font-semibold text-gray-700 mb-3 flex items-center gap-2">
                             <i className="ri-user-3-line text-teal-600"></i>
                             Provider Details
@@ -186,7 +195,7 @@ const UserBookingView = ({ booking, handleViewBooking }) => {
                         </div>
                     </div>
 
-                    <div className="p-5 border rounded-xl shadow-sm bg-gray-50">
+                    <div className="p-5 transition-all duration-200  rounded shadow-sm hover:shadow-md hover:shadow-gray-400 bg-gray-100">
                         <h2 className="text-lg font-semibold text-gray-700 mb-3 flex items-center gap-2">
                             <i className="ri-drop-line text-teal-600"></i>
                             Booking Details
