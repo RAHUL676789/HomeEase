@@ -1,6 +1,6 @@
 import React from "react";
 
-const UserBookingView = ({ booking, handleViewBooking }) => {
+const UserBookingView = ({ booking, handleViewBooking,handleUserBookingUpdate }) => {
     //   const booking = {
     //     _id: "bk12345",
     //     status: "accepted", // try: "pending", "rejected", "completed", "cancelled", "expired"
@@ -90,50 +90,50 @@ const UserBookingView = ({ booking, handleViewBooking }) => {
                     </h2>
                     <div className={`relative   ml-4 `}>
                         {/* Created */}
-                        <div className={`px-6 ml-6 h-24 border-l-2 relative ${booking?.status === "accepted" || booking?.status === "completed" ? "border-green-600" : "border-orange-600"}`}>
+                        <div className={`px-6 ml-6 h-24 border-l-2 relative ${booking?.status === "cancelled"  ? "border-orange-500 " : "border-green-600"}`}>
 
-                            <div className="absolute -left-3  w-6 h-6 flex items-center justify-center rounded-full bg-white border-2 border-blue-500 ">
-                                <i className="ri-checkbox-circle-line text-blue-500"></i>
+                            <div className={`absolute -left-3  w-6 h-6 flex items-center justify-center rounded-full bg-white border-2 ${booking?.status === "cancelled"  ? "border-orange-500" :"border-green-600"}`}>
+                                <i className={`ri-checkbox-circle-line ${ booking?.status === "cancelled" ? "text-orange-500 " :"text-green-600"}`}></i>
                             </div>
 
                             <div>
                                 <h3 className="font-medium text-gray-800">Booking Created</h3>
 
-                                <p className="text-sm text-blue-500">
-                                    {new Date(booking.createdAt).toLocaleDateString()}
+                                <p className={`text-sm ${booking?.status === "cancelled" ? "text-orange-500" :"text-green-600"} `}>
+                                    {new Date(booking.createdAt).toLocaleDateString().split("/").join("-")}
                                 </p>
                             </div>
                         </div>
 
                         {/* Provider Responded */}
 
-                        <div className={` ml-6 h-24 px-6  border-l-2  relative ${booking?.status === "completed" ? "border-green-600" : "border-gray-400"}` }>
+                        <div className={` ml-6 h-24 px-6  border-l-2  relative ${booking?.status === "pending" ? "border-gray-400 opacity-70" : booking?.status === "cancelled" ? "border-orange-500" : "border-green-600"}` }>
                             <div className={`absolute 
-                                    -left-3  w-6 h-6 flex items-center justify-center rounded-full border-2 ${booking?.status === "accepted" ? "border-green-600" : "border-orange-600"} bg-white`}>
-                                <i className={`ri-user-follow-line ${booking?.status === "accepted" ? "text-green-600" : "text-orange-600 "} `}></i>
+                                    -left-3  w-6 h-6 flex items-center justify-center rounded-full border-2 ${booking?.status === "pending" ? "border-gray-400 " : booking.status === "cancelled" ? "border-orange-500" : "border-green-600"} bg-white`}>
+                                <i className={`ri-user-follow-line ${booking?.status === "pending" ? "text-gray-400" : booking?.status == "cancelled" ? "text-orange-500" : booking?.status === "accepted" && "text-green-600"} `}></i>
                             </div>
                             <div>
                                 <h3 className="font-medium text-gray-800">
                                     Provider Responded
                                 </h3>
-                                <p className={`text-sm ${booking?.status !== "accepted" ? "text-orange-600" : "text-green-600"} `}>
-                                    Status: {booking.status}
+                                <p className={`text-sm ${booking?.status === "pending" ? "text-gray-400" : booking?.status === "cancelled" ? "text-orange-500 " : "text-green-600"} `}>
+                                    Status: {booking?.status}
                                 </p></div>
                         </div>
 
 
 
-                        <div className={`mb-6 px-6 ml-6 border-l-2 relative ${booking?.status === "completed" ? "border-green-600" : "border-gray-400"} `}>
-                            <div className={`absolute -left-3 bottom-0 w-6 h-6 flex items-center justify-center rounded-full bg-white border-2  ${booking?.status === "completed" ? "border-green-600" : "border-gray-400"}`}>
-                                <i className={`ri-check-double-fill  ${booking?.status === "completed" ? "border-green-600" : "border-gray-400 opacity-30"}`}></i>
+                        <div className={`mb-6 px-6 ml-6 border-l-2 relative ${booking?.status === "pending"  ? "border-gray-400" : booking?.status === "cancelled"  ? "border-orange-500 " :booking?.status === "completed" ?  "border-green-600" : ""} `}>
+                            <div className={`absolute -left-3 bottom-0 w-6 h-6 flex items-center justify-center rounded-full bg-white border-2  ${booking?.status === "completed" ? "border-green-600" : booking?.status === "cancelled" ? "border-orange-500" : "border-gray-400"}`}>
+                                <i className={`ri-check-double-fill  ${booking?.status === "pending"  ? "text-gray-400 " : booking?.status === "cancelled" ?"text-orange-500 " : booking?.status === "completed" ? "text-green-600" :"text-gray-400"}`}></i>
                             </div>
 
                             <div>
-                                <h3 className={`${booking?.status === "completed" ? "text-teal-600" : "border-gray-400 opacity-40"} text-gray-800 font-medium`}>
+                                <h3 className={`text-gray-800 font-medium`}>
                                     Booking  Completed
                                 </h3>
-                                <p className={`text-sm  ${booking?.status === "completed" ? "text-teal-600" : "border-gray-400 opacity-40"}`}>
-                                    Status: Completed
+                                <p className={`text-sm  ${booking?.status === "pending" ? "text-gray-400" : booking?.status === "cancelled" ? "text-orange-500 " : "text-green-600 "}`}>
+                                    Destination: {booking?.status}
                                 </p></div>
 
                         </div>

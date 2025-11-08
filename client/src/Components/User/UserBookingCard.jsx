@@ -1,6 +1,6 @@
 import React from "react";
 
-const UserBookingCard = ({ booking,handleViewBooking }) => {
+const UserBookingCard = ({ booking, handleViewBooking, handleUserBookingUpdate }) => {
   // 🌈 Enhanced status styling
   const getStatusStyle = (status) => {
     switch (status) {
@@ -42,9 +42,9 @@ const UserBookingCard = ({ booking,handleViewBooking }) => {
   const { icon, color } = getStatusStyle(booking?.status || "");
 
   return (
-    <div className="max-w-5xl mx-auto p-6">
+    <div className="max-w-5xl mx-auto p-6 relative">
       <div
-      onClick={()=>handleViewBooking(booking)}
+        onClick={() => handleViewBooking(booking)}
         key={booking?._id}
         className="p-5 bg-white shadow-md hover:shadow-xl rounded border border-gray-100 transition-all duration-300"
       >
@@ -83,19 +83,24 @@ const UserBookingCard = ({ booking,handleViewBooking }) => {
         {/* Action Buttons */}
         <div className="mt-5 flex justify-end">
           {booking?.status === "pending" && (
-            <button className="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-white text-sm rounded-lg transition-all">
+            <button onClick={(e) => handleUserBookingUpdate(e, booking._id, { status: "cancelled" })} className="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-white text-sm rounded-lg transition-all">
               Cancel Booking
             </button>
           )}
           {booking?.status === "accepted" && (
-            <button className="px-4 py-2 bg-green-500 hover:bg-green-600 text-white text-sm rounded-lg transition-all">
+            <button onClick={(e) => handleUserBookingUpdate(e, booking._id, { status: "completed" })} className="px-4 py-2 bg-green-500 hover:bg-green-600 text-white text-sm rounded-lg transition-all">
               Mark as Completed
             </button>
           )}
           {booking?.status === "completed" && (
+
             <button className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm rounded-lg transition-all">
               Book Again
             </button>
+
+
+
+
           )}
           {booking?.status === "rejected" && (
             <button className="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white text-sm rounded-lg transition-all">
@@ -114,6 +119,15 @@ const UserBookingCard = ({ booking,handleViewBooking }) => {
           )}
         </div>
       </div>
+
+      {booking?.status === "completed" && <button
+        className="flex items-center gap-1.5 text-xs font-medium text-gray-700 
+                 hover:text-yellow-600 border absolute bottom-12 left-10 border-gray-300 rounded-md px-2.5 py-1 
+                 transition-all duration-200 hover:border-yellow-500 hover:bg-yellow-50"
+      >
+        <i className="ri-star-smile-line text-yellow-500 text-sm"></i>
+        Add Review
+      </button>}
     </div>
   );
 };

@@ -6,6 +6,7 @@ const { io } = require("../../../server.js")
 module.exports.autoDeleteExpiredBooking = async (req, res, next) => {
     const { id } = req.params;
     const { isAutoDeleted } = req.body;
+    const latestUser = await User.findByIdAndUpdate(id, { $set: { "settings.isAutoDeleteBookings": isAutoDeleted } }, { new: true });
 
     const task = cron.schedule(
         "0 0 * * *",
@@ -21,11 +22,8 @@ module.exports.autoDeleteExpiredBooking = async (req, res, next) => {
                 { $set: { isDeleteByUser: true } }
             );
 
-
             await User.findByIdAndUpdate(id, { $pull: { bookings: { $in: expiredIds } } });
-            const latestUser = await User.findByIdAndUpdate(id, { settings: { $set: { isAutoDeleteBookings: true } } });
-            req.session.user = latestUser;
-            console.log(`Auto-deleted ${expiredIds.length} expired bookings for user ${id}`);
+            
         },
         { scheduled: false }
     );
@@ -35,10 +33,10 @@ module.exports.autoDeleteExpiredBooking = async (req, res, next) => {
         task.start();
     } else {
         task.stop();
-       const latestUser =  await User.findByIdAndUpdate(id, { settings: { $set: { isAutoDeleteBookings: false } } });
-       req.session.user = latestUser;
     }
 
-    return res.status(200).json({ message: "Auto-delete setting updated successfully" });
+    req.session.user = latestUser;
+
+    return res.status(200).json({ message: "Auto-delete setting updated successfully", user: latestUser });
 
 };

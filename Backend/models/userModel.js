@@ -16,7 +16,7 @@ const userSchema = new mongoose.Schema({
   },
  bookings:[{type:mongoose.Schema.Types.ObjectId,ref:"Booking"}],
  settings:{
-  isAutoDeleteBookings:{type:String,default:false}
+  isAutoDeleteBookings:{type:Boolean,default:false}
  }
 },{timestamps:true});    
 

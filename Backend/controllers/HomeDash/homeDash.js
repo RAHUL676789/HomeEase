@@ -15,7 +15,7 @@ module.exports.getHomeDash = async (req,res,next) => {
     });
     const totalPartners = await Partner.countDocuments();
     const totalBookings = await Bookings.countDocuments();
-    const completedBookings = await Bookings.countDocuments({status:"accepted"});
+    const completedBookings = await Bookings.countDocuments({status:"completed"});
     return res.status(200).json({message:"fetched successFully",data:{
         recentBookings,
         quickActions:[

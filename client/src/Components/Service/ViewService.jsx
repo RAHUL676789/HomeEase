@@ -146,7 +146,7 @@ const ViewService = ({ service, handleViewService }) => {
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Payment You Offer (₹)</label>
                   <input
-                    {...register("payment", {
+                    {...register("offerPayment", {
                       required: "Payment is required",
                       min: { value: 50, message: "Minimum offer ₹50" },
                     })}
@@ -154,7 +154,7 @@ const ViewService = ({ service, handleViewService }) => {
                     placeholder="Enter amount"
                     className="w-full mt-1 p-2 border rounded-md focus:ring focus:ring-blue-200"
                   />
-                  {errors.payment && <p className="text-red-700 text-sm">{errors.payment.message}</p>}
+                  {errors.offerPayment && <p className="text-red-700 text-sm">{errors.offerPayment.message}</p>}
                 </div>
 
                 {/* Preferred Day */}

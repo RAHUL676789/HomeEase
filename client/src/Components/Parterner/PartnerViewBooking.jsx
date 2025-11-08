@@ -16,6 +16,7 @@ const PartnerViewBooking = ({ booking, handleSetViewItem }) => {
   const [cancelModal, setcancelModal] = useState(false);
   const [isLoading, setisLoading] = useState(false);
   const dispatch = useDispatch();
+  console.log(booking)
 
   useEffect(() => {
     const body = document.querySelector("body");

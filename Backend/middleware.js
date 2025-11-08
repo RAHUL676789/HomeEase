@@ -171,35 +171,39 @@ module.exports.isPhoneExist = async (req, res, next) => {
 
 module.exports.isValidPartner = async (req, res, next) => {
 
-    const { id } = req.params;
+  const { id } = req.params;
 
 
-    const booking = await Booking.findById(id).populate("provider");
+  const booking = await Booking.findById(id).populate("provider");
 
 
-    if (!booking) {
-      return res.status(404).json({ message: "Booking not found" });
-    }
+  if (!booking) {
+    return res.status(404).json({ message: "Booking not found" });
+  }
 
-    const providerId = booking?.provider?._id?.toString();
-    const loggedInUserId = req?.session?.user?._id?.toString();
+  const providerId = booking?.provider?._id?.toString();
+  const loggedInUserId = req?.session?.user?._id?.toString();
 
-    if (providerId === loggedInUserId) {
-      return next();
-    }
+  if (providerId === loggedInUserId) {
+    return next();
+  }
 
-    return res.status(401).json({ message: "Unauthorized user" });
+  return res.status(401).json({ message: "Unauthorized user" });
 
-  
-    
-   
+
+
+
 };
 
 
 module.exports.isValidSessionUser = async (req, res, next) => {
-  const { id } = req.params;
 
-  const [user, partner, admin] = await Promise.allSettled([userModel.findById(id), partnerModel.findById(id), adminModel.findById(id)]);
+  if (!req.session.user) return res.status(401).json({ message: "Unauthorized user", success: false });
+  const { _id } = req.session.user;
+  console.log(_id);
+  
+
+  const [user, partner, admin] = await Promise.allSettled([userModel.findById(_id), partnerModel.findById(_id), adminModel.findById(_id)]);
 
   const foundUser = user?.status === "fulfilled" && user.value ? user.value : partner.status === "fulfilled" && partner.value ? partner.value : admin.status === "fulfilled" && admin.value ? admin.value : null;
 
@@ -213,4 +217,24 @@ module.exports.isValidSessionUser = async (req, res, next) => {
 
 
   next()
+}
+
+
+
+module.exports.verifyUser = async (req, res, next) => {
+  const { id } = req.params;
+  console.log(id)
+  if (!req.session.user) {
+    return res.status(401).json({ message: "Unauthorized user", success: false })
+  }
+  const {_id} = req.session.user;
+  const currentBooking = await Booking.findById(id);
+  console.log("this is current booking",currentBooking)
+  console.log(currentBooking.user.toString() === _id.toString())
+  if (currentBooking.user.toString() !== _id.toString() ) {
+    return res.status(401).json({ message: "Unauthorized user", success: false })
+  }
+
+  next();
+
 }

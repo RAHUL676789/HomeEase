@@ -28,10 +28,10 @@ module.exports.newBooking = async (req, res, next) => {
     // Ab populate karo
     await newBooking.populate("user", "fullName email");
     await newBooking.populate("provider", "-bookings -password -backGroundImage -services");
-    await newBooking.populate("service","-gallery -reviews -description ")
+    await newBooking.populate("service", "-gallery -reviews -description ")
 
 
-   console.log("this is new booking connection btw user and partner",newBooking,"thankyou boooking new booking")
+    console.log("this is new booking connection btw user and partner", newBooking, "thankyou boooking new booking")
 
     //  Update User & Partner simultaneously
     const [updatedUser, updatedPartner] = await Promise.all([
@@ -62,7 +62,7 @@ module.exports.newBooking = async (req, res, next) => {
 module.exports.updateBooking = async (req, res, next) => {
     const { id } = req.params;
     console.log(req.body)
-    const updatedBooking = await Booking.findByIdAndUpdate(id, req.body, { new: true, runValidators: true }).populate("user", "fullName email").populate("provider", "-bookings -password -backGroundImage -services").populate("service","-gallery -reviews -description ");
+    const updatedBooking = await Booking.findByIdAndUpdate(id, req.body, { new: true, runValidators: true }).populate("user", "fullName email").populate("provider", "-bookings -password -backGroundImage -services").populate("service", "-gallery -reviews -description ");
     if (!updatedBooking) {
         return res.status(404).json({ message: "booking not found", success: false })
     }
@@ -89,4 +89,17 @@ module.exports.deleteBookingByPartner = async (req, res, next) => {
     return res.status(200).json({ message: "booking deleted", success: true, data: savedBooking })
 
 
+}
+
+
+
+module.exports.updateUserBooking = async (req, res, next) => {
+    const { id } = req.params;
+    const updatedBooking = await Booking.findByIdAndUpdate(id, req.body, { new: true, runValidators: true }).populate("user", "fullName email").populate("provider", "-bookings -password -backGroundImage -services").populate("service", "-gallery -reviews -description ");
+    if (!updatedBooking) {
+        return res.status(404).json({ message: "booking not found", success: false })
+    }
+    io.to(updatedBooking?.provider).emit("booking-updated", updatedBooking);
+
+    return res.status(200).json({ message: "success updated", data: updatedBooking, success: true })
 }

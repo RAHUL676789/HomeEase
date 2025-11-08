@@ -2,28 +2,38 @@ import React, { useEffect, useState, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "../../utils/axios/axiosinstance";
 import { setToast } from "../../redux/toastSlice";
+import { setUser, updateUserBookings } from "../../redux/userSlice"
 import { Link } from "react-router-dom";
 import { debounce } from "../../utils/helper/debounce";
 import UserBookingView from "../../Components/User/UserBookingView";
 import UserBookingCard from "../../Components/User/UserBookingCard";
+import BookingWithRating from "../../Components/Other/CompleteBookingReview";
 
 
 
 
 const UserProfile = () => {
   const { user } = useSelector((state) => state.user);
-  const [userViewBooking, setuserViewBooking] = useState(null) 
-  const [isAutoDeleted, setisAutoDeleted] = useState(user?.settings?.isAutoDeleteBookings || false);
+  console.log("thi is porifle user", user)
+  const [userViewBooking, setuserViewBooking] = useState(null)
+  const [isAutoDeleted, setisAutoDeleted] = useState(user?.settings?.isAutoDeleteBookings);
   const [isUpdation, setisUpdation] = useState(false)
   const dispatch = useDispatch();
   const [filteredBookings, setfilteredBookings] = useState([])
+  const [bookings, setbookings] = useState(user?.bookings || []);
+  const [isCompleted, setisCompleted] = useState(false)
+
+  useEffect(()=>{
+    setbookings(user?.bookings || [])
+  },[user])
+
   const [filters, setfilters] = useState({
     pending: false,
     accepted: false,
     rejected: false,
     cancelled: false,
     completed: false,
-    expired:false
+    expired: false
   });
 
   const handleUpdateFilters = (filter) => {
@@ -41,23 +51,30 @@ const UserProfile = () => {
     }
   }, [isAutoDeleted])
 
-  const applyfilter = ()=>{
- 
-    let result  = user?.bookings || [];
-    result = result.filter((res,i)=> filters[res.status]);
+  useEffect(() => {
+    if (user?.settings?.isAutoDeleteBookings !== undefined) {
+      setisAutoDeleted(user?.settings?.isAutoDeleteBookings)
+    }
+  }, [user])
+
+  const applyfilter = () => {
+
+    let result = user?.bookings || [];
+    result = result.filter((res, i) => filters[res.status]);
     setfilteredBookings(result);
-   
+
   }
 
-  const debouncedApplyFilters = useCallback(debounce(applyfilter,500),[filters,user])
-  useEffect(()=>{
+  const debouncedApplyFilters = useCallback(debounce(applyfilter, 500), [filters, user])
+  useEffect(() => {
     debouncedApplyFilters()
-  },[filters,debouncedApplyFilters])
+  }, [filters, debouncedApplyFilters])
 
   const handleAutoDeleteBooking = async (isAutoDeleted) => {
     try {
       const response = await axios.put(`/api/users/settings/${user?._id}`, { isAutoDeleted });
-    
+      console.log(response?.data);
+      dispatch(setUser(response?.data?.user))
       dispatch(setToast({ type: "success", content: response?.data?.message || "setting updated" }))
 
     } catch (error) {
@@ -66,20 +83,43 @@ const UserProfile = () => {
     }
   }
 
-  const handleViewBooking = (data)=>{
+  const handleViewBooking = (data) => {
     setuserViewBooking(data);
   }
 
- const isFilter = Object.keys(filters).some(b=>filters[b])
 
-  const bookingsToRender = isFilter  ? filteredBookings : user?.bookings;
+  const handleUserBookingUpdate = async(e,id,updates)=>{
+    e.stopPropagation()
+    try {
+        const response = await axios.put(`/api/bookings/user/update/${id}`,updates);
+         dispatch(updateUserBookings(response?.data?.data))
+         dispatch(setToast({type:"success",content:response?.data?.message || "booking updated successfully"}))
+         if(response?.data?.data?.status === "completed"){
+          setisCompleted(response?.data?.data);
+         }
+
+       
+    } catch (error) {
+      console.log(error,"this is error comes from handleCompleting");
+        dispatch(setToast({type:"error",content:error?.message || "someting went wrong"}))
+    }
+  }
+
+  const isFilter = Object.keys(filters).some(b => filters[b])
+
+  let bookingsToRender = isFilter ? filteredBookings : bookings;
  
+  bookingsToRender = [...bookingsToRender]?.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
   const buttonClass =
     "border px-3 rounded-full text-xs sm:text-sm py-1 capitalize transition-all duration-300";
+  if (!user) {
+    return <div>Loading....</div>
+  }
   return (
     <div className="max-w-6xl mx-auto h-[90vh] overflow-scroll no-scrollbar bg-white rounded-xl shadow-md shadow-gray-400 p-5 sm:p-8">
       {/* Header Section */}
-      {userViewBooking && <UserBookingView booking={userViewBooking} handleViewBooking={handleViewBooking}/>}
+     {isCompleted && <BookingWithRating booking={isCompleted}/>}
+      {userViewBooking && <UserBookingView  booking={userViewBooking} handleViewBooking={handleViewBooking} handleUserBookingUpdate={handleUserBookingUpdate} />}
       <div className="flex flex-wrap justify-between items-center gap-4 pb-4 border-b">
         <div className="flex items-center gap-3">
           <p className="text-gray-700 font-medium text-sm sm:text-base">
@@ -106,7 +146,7 @@ const UserProfile = () => {
         <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3">
           <p className="text-gray-600 text-sm sm:text-base font-medium">Filters:</p>
           <div className="flex flex-wrap gap-2 sm:gap-3">
-            {["pending", "accepted", "rejected", "cancelled", "completed","expired"].map((btn, i) => (
+            {["pending", "accepted", "rejected", "cancelled", "completed", "expired"].map((btn, i) => (
               <button
                 key={i}
                 onClick={() => handleUpdateFilters(btn)}
@@ -123,9 +163,9 @@ const UserProfile = () => {
       </div>
 
       {/* Main Content */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 py-6">
-        {/* Left Profile Section */}
-        <div className="flex flex-col items-center border-b md:border-b-0 md:border-r md:pr-6 pb-6 md:pb-0">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 py-6 ">
+     
+        <div className="flex flex-col items-center border-b md:border-b-0 md:border-r md:pr-6 pb-6 md:pb-0 maxh-[60vh]">
           <div className="h-20 w-20 border-2 border-teal-400 rounded-full flex justify-center items-center bg-gray-50 shadow-sm">
             <i className="ri-user-3-line text-4xl text-teal-500"></i>
           </div>
@@ -143,7 +183,7 @@ const UserProfile = () => {
         </div>
 
         {/* Right Section - Recent Bookings */}
-        <div className="col-span-2">
+        <div className="col-span-2  overflow-y-scroll max-h-[90vh] ">
           <h3 className="text-lg sm:text-xl font-semibold mb-4 border-b pb-2 text-gray-800">
             Recent Bookings
           </h3>
@@ -151,7 +191,7 @@ const UserProfile = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2  ">
             {bookingsToRender?.length ? (
               bookingsToRender?.map((b, i) => (
-             <UserBookingCard booking={b} handleViewBooking={handleViewBooking}/>
+                <UserBookingCard handleUserBookingUpdate={handleUserBookingUpdate} booking={b} handleViewBooking={handleViewBooking} />
               ))
             ) : (
               <p className="text-gray-500 text-center col-span-full py-10">
