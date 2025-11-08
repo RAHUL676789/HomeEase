@@ -70,6 +70,29 @@ module.exports.validateLoginPartner = [
 ];
 
 
+module.exports.validateReview = [
+  body("rating")
+  .notEmpty().withMessage("Rating is required")
+  .isFloat({ min: 1, max: 5 }).withMessage("Rating must be between 1 and 5"),
+
+  body("comment")
+  .trim(),
+  
+
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        message: "Validation failed",
+        success: false,
+        errors: errors.array()
+      });
+    }
+    next();
+  }
+]
+
+
 
 module.exports.validateBooking = [
   body("user")

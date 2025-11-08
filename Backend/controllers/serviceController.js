@@ -4,6 +4,7 @@ const Partner = require("../models/partnerSchema.js");
 const gallerSchema = require("../models/gallerSchema.js");
 const cloudinary = require("../Helper/cloudinary.js");
 const { json } = require("express");
+const reviewSchema = require("../models/reviewSchema.js");
 
 
 
@@ -35,7 +36,7 @@ module.exports.getServiceQuery = async (req, res, next) => {
 }
 
 if(Object.keys(query).length === 0){
-  const data =  await serviceModel.find({}).skip((page - 1) * 4).populate("gallery").populate("serviceProvider","-password").limit(4);
+  const data =  await serviceModel.find({}).skip((page - 1) * 4).populate("gallery").populate("serviceProvider","-password").populate({path:"reviews",populate:{path:"user",select:"fullName email "}}).limit(4);
   return res.status(200).json({message:"date fetched",data:data,success:true})
 }
 
@@ -263,7 +264,26 @@ module.exports.deleteServiceGalleryImage = async (req, res, next) => {
   }
 };
 
+module.exports.addReview = async(req,res,next)=>{
+  const {id} = req.params;
+  const {rating,comment} = req.body;
+  console.log(req.body);
+  const service = await serviceModel.findById(id);
+  if(!service){
+    return res.status(404).json({message:"Service not found",success:false});
+  }
+  const newReview = await reviewSchema.create({
+    rating,
+    comment,
+    user:req.session.user
+  })
 
+  console.log(newReview)
+  service.reviews.push(newReview);
+  const savedService = await service.save();
+  console.log(savedService)
+  return res.status(200).json({message:"review added",success:true,review:newReview});
+}
 
 
 
