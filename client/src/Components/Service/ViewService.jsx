@@ -26,7 +26,7 @@ const ViewService = ({ service, handleViewService }) => {
     price = 499,
     location = "Jabalpur, India",
     gallery,
-    review = [],
+    reviews = [],
   } = service || {};
 
   useEffect(() => {
@@ -82,6 +82,8 @@ const ViewService = ({ service, handleViewService }) => {
       dispatch(setToast({ type: "error", content: error.message || "Something went wrong" }));
     }
   };
+
+console.log(service.reviews)
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
@@ -237,20 +239,31 @@ const ViewService = ({ service, handleViewService }) => {
           {/* Reviews */}
           <div className="max-h-96 overflow-y-auto no-scrollbar">
             <h2 className="text-xl font-semibold mb-3">Customer Reviews</h2>
-            {review?.length > 0 ? (
+            {reviews?.length > 0 ? (
               <div className="space-y-4">
-                {review.map((item, i) => (
-                  <div key={i} className="bg-gray-50 p-4 rounded shadow flex items-start gap-3">
+                {reviews?.map((item, i) => (
+                  <div key={i} className="bg-gray-50 max-w-sm p-4 rounded shadow flex items-start gap-3">
                     <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center font-bold text-blue-700">
                       {item?.user?.fullName?.[0] || "U"}
                     </div>
                     <div>
                       <p className="font-semibold text-gray-800">{item?.user?.fullName || "Unknown"}</p>
-                      <p className="text-sm text-gray-600">{item.comment}</p>
+                      <p className="text-sm text-gray-600">{item?.comment}</p>
                       <p className="text-yellow-500 text-sm">
-                        {"⭐".repeat(item.rating)}{" "}
-                        <span className="text-gray-400">({item.rating}/5)</span>
+                          {
+                          Array.from({length:5}).fill("_").map((it,ind)=>{
+
+                           if(ind < item?.rating){
+                             return <i className="ri-star-fill"></i>
+                           }else{
+                            return <i className="ri-star-line text-gray-500"></i>
+                           }
+})
+                         }
+                        <span className="text-gray-400">({item?.rating}/5)</span>
                       </p>
+
+                     
                     </div>
                   </div>
                 ))}

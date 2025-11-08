@@ -4,6 +4,7 @@ import userReducer from "./userSlice.js"
 import coverReducer from './coverSlice.js'
 import listingReducer from './listingSlice.js';
 import toastReducer from "./toastSlice.js"
+import loaderReducer from "./loaderSlice.js"
 
 
 
@@ -15,6 +16,7 @@ export const store = configureStore({
         backImage : coverReducer,
         listing:listingReducer,
         toast:toastReducer,
+        loader:loaderReducer
        
     }
 })

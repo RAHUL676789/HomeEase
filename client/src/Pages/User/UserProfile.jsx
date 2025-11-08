@@ -23,9 +23,9 @@ const UserProfile = () => {
   const [bookings, setbookings] = useState(user?.bookings || []);
   const [isCompleted, setisCompleted] = useState(false)
 
-  useEffect(()=>{
+  useEffect(() => {
     setbookings(user?.bookings || [])
-  },[user])
+  }, [user])
 
   const [filters, setfilters] = useState({
     pending: false,
@@ -88,27 +88,61 @@ const UserProfile = () => {
   }
 
 
-  const handleUserBookingUpdate = async(e,id,updates)=>{
-    e.stopPropagation()
-    try {
-        const response = await axios.put(`/api/bookings/user/update/${id}`,updates);
-         dispatch(updateUserBookings(response?.data?.data))
-         dispatch(setToast({type:"success",content:response?.data?.message || "booking updated successfully"}))
-         if(response?.data?.data?.status === "completed"){
-          setisCompleted(response?.data?.data);
-         }
+  const handleUserBookingDelete = async(e,booking)=>{
+               
+               e.stopPropagation();
+               if(!booking)return;
+               
+               try { 
+                  const response = await axios.delete(`/api/bookings/${booking._id}`)
+               } catch (error) {
+                  console.log("this error comes from while deleteign the booking from user",booking);
+                  dispatch(setToast({type:"error",content:error.message || "someting went wrong"}))
+               }
+  }
 
-       
+  const handleIsServicingDay = (workingDate) => {
+    console.log(workingDate)
+    const now = new Date();
+    const workdate = new Date(workingDate);
+    now.setHours(0, 0, 0, 0);
+    workdate.setMinutes(workdate.getMinutes() + workdate.getTimezoneOffset());
+    const diff = workdate.getTime() - now.getTime();
+    if (diff < 0) {
+      dispatch(setToast({ type: "error", content: "today is not working date" }))
+      return false;
+    }
+
+    return true;
+  }
+
+  const handleUserBookingUpdate = async (e, booking, updates) => {
+    console.log(booking)
+    e.stopPropagation()
+    if (!booking) return;
+    if (updates.status === "completed" && !handleIsServicingDay(booking.details.workingDate) ) {
+     return ;
+    }
+
+    try {
+      const response = await axios.put(`/api/bookings/user/update/${booking._id}`, updates);
+      dispatch(updateUserBookings(response?.data?.data))
+      dispatch(setToast({ type: "success", content: response?.data?.message || "booking updated successfully" }))
+      if (response?.data?.data?.status === "completed") {
+        setisCompleted(response?.data?.data);
+      }
+
+
     } catch (error) {
-      console.log(error,"this is error comes from handleCompleting");
-        dispatch(setToast({type:"error",content:error?.message || "someting went wrong"}))
+      console.log(error, "this is error comes from handleCompleting");
+      dispatch(setToast({ type: "error", content: error?.message || "someting went wrong" }))
     }
   }
 
   const isFilter = Object.keys(filters).some(b => filters[b])
 
   let bookingsToRender = isFilter ? filteredBookings : bookings;
- 
+
   bookingsToRender = [...bookingsToRender]?.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
   const buttonClass =
     "border px-3 rounded-full text-xs sm:text-sm py-1 capitalize transition-all duration-300";
@@ -118,8 +152,8 @@ const UserProfile = () => {
   return (
     <div className="max-w-6xl mx-auto h-[90vh] overflow-scroll no-scrollbar bg-white rounded-xl shadow-md shadow-gray-400 p-5 sm:p-8">
       {/* Header Section */}
-     {isCompleted && <BookingWithRating booking={isCompleted}/>}
-      {userViewBooking && <UserBookingView  booking={userViewBooking} handleViewBooking={handleViewBooking} handleUserBookingUpdate={handleUserBookingUpdate} />}
+      {isCompleted && <BookingWithRating booking={isCompleted} setisCompleted={setisCompleted} />}
+      {userViewBooking && <UserBookingView booking={userViewBooking} handleViewBooking={handleViewBooking} handleUserBookingUpdate={handleUserBookingUpdate} />}
       <div className="flex flex-wrap justify-between items-center gap-4 pb-4 border-b">
         <div className="flex items-center gap-3">
           <p className="text-gray-700 font-medium text-sm sm:text-base">
@@ -164,7 +198,7 @@ const UserProfile = () => {
 
       {/* Main Content */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8 py-6 ">
-     
+
         <div className="flex flex-col items-center border-b md:border-b-0 md:border-r md:pr-6 pb-6 md:pb-0 maxh-[60vh]">
           <div className="h-20 w-20 border-2 border-teal-400 rounded-full flex justify-center items-center bg-gray-50 shadow-sm">
             <i className="ri-user-3-line text-4xl text-teal-500"></i>
@@ -191,7 +225,7 @@ const UserProfile = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2  ">
             {bookingsToRender?.length ? (
               bookingsToRender?.map((b, i) => (
-                <UserBookingCard handleUserBookingUpdate={handleUserBookingUpdate} booking={b} handleViewBooking={handleViewBooking} />
+                <UserBookingCard handleUserBookingUpdate={handleUserBookingUpdate} booking={b} handleUserBookingDelete={handleUserBookingDelete} handleViewBooking={handleViewBooking} setisCompleted={setisCompleted} />
               ))
             ) : (
               <p className="text-gray-500 text-center col-span-full py-10">

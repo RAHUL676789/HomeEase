@@ -19,10 +19,12 @@ import ToastContainer from './Components/Other/ToastContainer'
 import PartnerHome from './Components/Parterner/PartnerHome'
 import Home from './Pages/Home/Home'
 import UserProfile from './Pages/User/UserProfile'
+import Loader from './Components/Other/Loader'
 
 function App() {
   const dispatch = useDispatch()
   const {toast} = useSelector((state)=>state.toast)
+  const {isLoading} = useSelector((state)=>state.loader);
 
   useEffect(() => {
     async function auth() {
@@ -48,6 +50,7 @@ function App() {
   return (
     <BrowserRouter>
       <ErrorBoundary>
+        {isLoading && <Loader/>}
         <Navbar />
         {toast && toast.status && <ToastContainer type={toast.type} content={toast.content} trigger={toast.trigger} key={toast.trigger}/>}
         <Routes>

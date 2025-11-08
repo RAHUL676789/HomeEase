@@ -1,7 +1,7 @@
 import React from "react";
 
-const UserBookingCard = ({ booking, handleViewBooking, handleUserBookingUpdate }) => {
-  // 🌈 Enhanced status styling
+const UserBookingCard = ({ booking, handleViewBooking, handleUserBookingUpdate,setisCompleted ,handleUserBookingDelete}) => {
+
   const getStatusStyle = (status) => {
     switch (status) {
       case "pending":
@@ -42,12 +42,14 @@ const UserBookingCard = ({ booking, handleViewBooking, handleUserBookingUpdate }
   const { icon, color } = getStatusStyle(booking?.status || "");
 
   return (
-    <div className="max-w-5xl mx-auto p-6 relative">
+    <div className=" mx-auto p-6 max-w-5xl relative">
+     
       <div
         onClick={() => handleViewBooking(booking)}
         key={booking?._id}
-        className="p-5 bg-white shadow-md hover:shadow-xl rounded border border-gray-100 transition-all duration-300"
+        className="p-5 bg-white shadow-md hover:shadow-xl rounded border border-gray-100 transition-all duration-300 relative "
       >
+         <i onClick={(e) => handleUserBookingDelete(e, booking)} className="ri-delete-bin-line absolute right-2 top-1 text-red-600"></i>
         {/* Header */}
         <div className="flex justify-between items-start mb-4">
           <div>
@@ -88,7 +90,7 @@ const UserBookingCard = ({ booking, handleViewBooking, handleUserBookingUpdate }
             </button>
           )}
           {booking?.status === "accepted" && (
-            <button onClick={(e) => handleUserBookingUpdate(e, booking._id, { status: "completed" })} className="px-4 py-2 bg-green-500 hover:bg-green-600 text-white text-sm rounded-lg transition-all">
+            <button onClick={(e) => handleUserBookingUpdate(e, booking, { status: "completed" })} className="px-4 py-2 bg-green-500 hover:bg-green-600 text-white text-sm rounded-lg transition-all">
               Mark as Completed
             </button>
           )}
@@ -120,7 +122,7 @@ const UserBookingCard = ({ booking, handleViewBooking, handleUserBookingUpdate }
         </div>
       </div>
 
-      {booking?.status === "completed" && <button
+      {booking?.status === "completed" && <button onClick={()=>setisCompleted(booking)}
         className="flex items-center gap-1.5 text-xs font-medium text-gray-700 
                  hover:text-yellow-600 border absolute bottom-12 left-10 border-gray-300 rounded-md px-2.5 py-1 
                  transition-all duration-200 hover:border-yellow-500 hover:bg-yellow-50"

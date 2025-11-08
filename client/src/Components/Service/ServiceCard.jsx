@@ -17,7 +17,7 @@ const ServiceCard = ({ service, category, handleViewService }) => {
 
   // Calculate average rating
   const averageRating = service?.reviews?.length
-    ? service.reviews.reduce((acc, cur) => acc + cur.rating, 0) / service.reviews.length
+    ? service.reviews.reduce((acc, cur) => acc + cur?.rating, 0) / service?.reviews.length
     : 0;
 
   const roundedRating = Math.round(averageRating);
