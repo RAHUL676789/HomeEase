@@ -28,8 +28,11 @@ module.exports.sendOtp = async(req,res,next)=>{
 
 module.exports.userSignup = async (req, res, next) => {
     const { fullName, email, password, otp } = req.body;
-    console.log(password)
-    const otpVerify = await verifyOtp(email, otp);
+   const isUserExist = await userModel.findOne({email});
+   if(isUserExist){
+    return res.status(403).json({message:"User already register with this email",success :false})
+   }
+       const otpVerify = await verifyOtp(email, otp);
     if (!otpVerify) {
         return res.status(400).json({ message: "otp validation failed", success: false })
     }
