@@ -1,8 +1,9 @@
 import { useEffect, useState, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+
 import AddCoverPhoto from './AddCoverPhoto';
 import EditPartnerImage from './EditPartnerImage';
-import axios from '../../utils/axios/axiosinstance.js';
+import { useAsyncWrap } from "../../utils/helper/asyncWrap.js"
+
 
 import { setPartner } from '../../redux/partnerSlice.js';
 import {
@@ -13,17 +14,19 @@ import {
   adjustFilterField
 } from '../../redux/coverSlice.js'
 import { useDispatch, useSelector } from 'react-redux';
-import Loader from '../Other/Loader.jsx';
+
 import { uploadFile } from '../../utils/cloudinary/uploadFile.js';
 import DocumentPreview from '../Other/DocumentPreview.jsx';
 import Button from '../buttons/Button.jsx';
 import { setToast } from '../../redux/toastSlice.js';
+import { updatePartnerApi } from '../../api/PartnerApi/partnerApi.js';
 
 const PartnerInfo = ({ partner, setPartnerProfileEdit, deletePartner }) => {
   const [showAddCoverPhoto, setshowAddCoverPhoto] = useState(false);
   const [showEditImage, setshowEditImage] = useState(false)
   const [ShowcoverPhotoOptions, setShowcoverPhotoOptions] = useState(false)
-  const [isLoading, setisLoading] = useState(false)
+  const asyncWrap = useAsyncWrap();
+
   const dispatch = useDispatch();
   const backImage = useSelector((state) => state.backImage);
   const optionRef = useRef();
@@ -131,68 +134,36 @@ const PartnerInfo = ({ partner, setPartnerProfileEdit, deletePartner }) => {
   }
 
   const handleApply = async () => {
-    setisLoading(true);
-
     if (!backImage?.backGroundImage?.backGroundImage?.url) {
-      dispatch(setToast({type:"error", content : "coverPhoto required"}));
-      setisLoading(false);
+      dispatch(setToast({ type: "error", content: "coverPhoto required" }));
       return;
     }
-
-    try {
-      // console.log("id", partner?.partner?._id)
-      const response = await axios.put(`/api/partner/${partner?._id}`, backImage.backGroundImage);
-      console.log(response);
-      dispatch(setPartner(response.data.data))
-      setshowEditImage((prev) => !prev);
-
-      handleCloseEdit();
-      console.log(response.data.data.backGroundImage)
-      resetCover(response?.data?.data?.backGroundImage);
-      dispatch(setToast({
-        type: "success",
-        content: response.data.message
-      }))
-
-    } catch (error) {
-      dispatch(setToast({ type: "error", content: error.message || "someting went wrong" }));
-
-    } finally {
-      setisLoading(false);
-    }
+    const { data } = await asyncWrap(() => updatePartnerApi(partner?._id, backImage.backGroundImage));
+    console.log(data);
+    dispatch(setPartner(data.data.data))
+    setshowEditImage((prev) => !prev);
+    handleCloseEdit();
+    resetCover(response?.data?.data?.backGroundImage);
 
   }
 
   // profilePicture
-  const [profileInp, setprofileInp] = useState(null);
+
   const handleProfileChange = async (e) => {
-    try {
-      console.log("profile change runc")
-      setisLoading(true);
-      setprofileInp(e.target.files[0]);
-      const response = await uploadFile(e.target.files[0]);
+    const response  = await asyncWrap(()=>uploadFile(e.target.files[0]));
 
-      const result = await axios.put(`/api/partner/${partner?._id}`, {
-        profilePicture: {
-          url: response?.url,
-          pid: response?.pId
-        }
-      });
-
-      if (result?.data?.success) {
-        dispatch(setPartner(result?.data?.data));
-        handleSetToast("success", result?.data?.message || "profile update successFully")
-
-      }
-
-    } catch (error) {
-      handleSetToast("error", error?.message || "someting went wrong")
-
-    } finally {
-      setisLoading(false)
-      setprofileInp("")
+    if (!response.success) {
+      dispatch(setToast({ type: "error", content: response.errorMsg || "someting went wrong" }))
+      return;
     }
 
+    const { data } = await asyncWrap(() => updatePartnerApi(partner?._id, {
+      profilePicture: {
+        url: data?.url,
+        pid: data?.pId
+      }
+    }))
+    dispatch(setPartner(data?.data?.data));
   }
   const { state = "State", district = "District", country = "Country" } = address;
   const documentInpRef = useRef();
@@ -247,32 +218,24 @@ const PartnerInfo = ({ partner, setPartnerProfileEdit, deletePartner }) => {
 
   }
 
-  const handleDocumetApply = async () => {
 
-    try {
-      setisLoading(true);
-      const response = await uploadFile(documentFile);
-      console.log(response);
-      const result = await axios.put(`/api/partner/${partner?._id}`, {
+  // will remove this part later
+  const handleDocumetApply = async () => {
+      const response = await asyncWrap(()=>uploadFile(documentFile));
+    if(!response.success){
+      dispatch(setToast({type:"error",content:errorMsg || "someting went wrong"}))
+    }
+      const {data} = await asyncWrap(()=>updatePartnerApi(partner?._id,{
         documents: {
           url: response?.url,
           pid: response?.pId
         }
-      });
-
-      console.log(result);
-      if (result.data.success) {
-        handleSetToast("success", result?.data?.message || "updated successFully")
+      }));
+      console.log(data);
+      if (data?.data?.success) {
         dispatch(setPartner(result?.data?.data))
       }
-
-    } catch (error) {
-      handleSetToast("error", error?.message || "someting went wrong")
-
-    } finally {
-      setisLoading(false);
-      setshowPdfPreview(false)
-    }
+     setshowPdfPreview(false)
 
   }
 
@@ -284,11 +247,11 @@ const PartnerInfo = ({ partner, setPartnerProfileEdit, deletePartner }) => {
   return (
     <div className='w-full md:w-2xl mb-14 rounded-lg bg-white sm:ml-6 shadow-md border border-gray-200 overflow-hidden '>
       {/* <PartnerCoverPhoto/> */}
-      {isLoading && <Loader />}
-      {showPdfPreview && <DocumentPreview changePdf={handleChangePhoto} apply={handleDocumetApply} cancel={handleDocumentCancel} url={pdfUrl} />}
-   
 
-      {showAddCoverPhoto && <AddCoverPhoto backImage={backImage} updateField={updateField} handleNextEditCoverPhoto={handleNextEditCoverPhoto}  handleAddCoverPhoto={handleAddCoverPhoto} />}
+      {showPdfPreview && <DocumentPreview changePdf={handleChangePhoto} apply={handleDocumetApply} cancel={handleDocumentCancel} url={pdfUrl} />}
+
+
+      {showAddCoverPhoto && <AddCoverPhoto backImage={backImage} updateField={updateField} handleNextEditCoverPhoto={handleNextEditCoverPhoto} handleAddCoverPhoto={handleAddCoverPhoto} />}
 
       {showEditImage && <EditPartnerImage handleApply={handleApply} backImage={backImage?.backGroundImage?.backGroundImage} resetCover={resetCover} updateField={updateField} adjustFilterField={adjustFilterField} updateFilter={updateFilter} setshowEditImage={handleCloseEdit} />}
 

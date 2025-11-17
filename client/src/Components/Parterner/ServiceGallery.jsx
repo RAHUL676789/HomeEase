@@ -1,8 +1,4 @@
 import React, { useEffect, useState } from 'react'
-
-import img1 from "../../assets/cover1.jpg"
-import img2 from "../../assets/cover2.jpg"
-import img3 from "../../assets/cover3.jpg"
 import Button from '../buttons/Button'
 const ServiceGallery = ({ preview,handleRemoveFile,handleCloseGallery,handleGalleryApply }) => {
   const [currentIdx, setcurrentIdx] = useState(0)

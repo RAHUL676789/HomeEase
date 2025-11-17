@@ -1,71 +1,52 @@
 // src/components/Auth/Login.jsx
 
 import React, { useRef, useState } from 'react';
-import { set, useForm } from 'react-hook-form';
-import axios from '../../utils/axios/axiosinstance';
-import ToastContainer from '../Other/ToastContainer';
-import Loader from '../Other/Loader';
+import { useForm } from 'react-hook-form';
 import loginImage from '../../assets/login.svg' // 🔁 You can replace with any image
-import { useNavigate,useLocation } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
 import { setPartner } from '../../redux/partnerSlice';
 import { setUser } from '../../redux/userSlice';
 import { socket } from '../../socket/socket';
-import { setToast } from '../../redux/toastSlice';
+import useAsyncWrap from '../../utils/helper/asyncWrap';
+import { loginApi } from '../../api/authApi/login';
 
 const Login = () => {
     const { handleSubmit, register, formState: { errors } } = useForm();
     const [showPassword, setShowPassword] = useState(false);
-    const [isLoading, setisLoading] = useState(false);
+    const  asyncWrap = useAsyncWrap();
     const dispatch = useDispatch();
     const inputRef = useRef(null);
     const navigate = useNavigate();
     const location = useLocation();
     const from = location?.state?.from || "/"
 
-    const handleLogin = async (data) => {
-        setisLoading(true);
-        try {
-            const response = await axios.post('/api/auth/login', data);
-            console.log(response.data);
+    const handleLogin = async (formData) => {
+        const { data, error } = await asyncWrap(() => loginApi(formData));
 
-            if (response.data.role == "Partner") {
-                navigate(from,{replace:true})
-                dispatch(setPartner(response.data.data))
-                dispatch(setUser(null))
-                socket.emit("partner-join", (response.data.data._id))
-                dispatch(setToast({
-                    status: true,
-                    content: "Login successfully",
-                    trigger: Date.now(),
-                    type: "success"
-                }))
-
-            } else if (response?.data?.role == "User") {
-               navigate(from,{replace:true})
-                dispatch(setUser(response?.data.data));
-                dispatch(setPartner(null))
-                socket.emit("user-join", (response.data.data._id))
-                dispatch(setToast({
-                    status: true,
-                    content: "Login successfully",
-                    trigger: Date.now(),
-                    type: "success"
-                }))
-            }
-        } catch (error) {
-
-            dispatch(setToast({
-                status: true,
-                content: error.response?.data?.message || "Login Failed",
-                trigger: Date.now(),
-                type: "error"
-            }))
-
-        } finally {
-            setisLoading(false);
+        if (error) {
+            console.log("Login failed:", error);
+            return;
         }
+
+        const userData = data?.data?.data;
+        const role = data?.data?.role;
+
+        if (!role || !userData) return;
+
+        if (role === "Partner") {
+            dispatch(setPartner(userData));
+            dispatch(setUser(null));
+            socket.emit("partner-join", userData._id);
+        } else if (role === "User") {
+            dispatch(setUser(userData));
+            dispatch(setPartner(null));
+            socket.emit("user-join", userData._id);
+        }
+
+        navigate(from, { replace: true });
     };
+
 
     const togglePassword = (e) => {
         e.stopPropagation();
@@ -77,7 +58,6 @@ const Login = () => {
 
     return (
         <div className='min-h-screen flex items-center justify-center bg-gradient-to-br from-teal-100 to-white p-4'>
-            {isLoading && <Loader />}
             <div className='flex max-w-5xl w-full bg-white/60 shadow-lg rounded-2xl overflow-hidden backdrop-blur-md'>
 
                 {/* Left Illustration */}

@@ -1,21 +1,18 @@
 import React, { useState } from 'react'
-
 import signupImage from "../../assets/signup.svg"
 import { useForm } from 'react-hook-form';
 import { useLocation, useNavigate } from 'react-router-dom';
-import Loader from "../Other/Loader.jsx"
-import ToastContainer from "../Other/ToastContainer.jsx"
-import axios from "../../utils/axios/axiosinstance.js"
 import Modal from '../Other/Modal.jsx';
-import { setUser } from '../../redux/userSlice.js';
 import { useDispatch } from 'react-redux';
-import { setToast } from '../../redux/toastSlice.js';
+import useAsyncWrap from '../../utils/helper/asyncWrap.js';
+import { userSingInApi, userSingInOtpApi } from '../../api/authApi/authOtp.js';
+import { setUser } from '../../redux/userSlice.js';
 
 const Signup = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const from = location?.state?.from || "/"
-   
+    const asyncWrap = useAsyncWrap()
     const [showPassword, setShowPassword] = useState(false)
     const [formData, setformData] = useState(null);
     const [showOtpModal, setshowOtpModal] = useState(false)
@@ -24,83 +21,32 @@ const Signup = () => {
     const togglePassword = () => {
         setShowPassword((prev) => !prev)
     }
-    const [isLoading, setisLoading] = useState(false)
-
 
     const { handleSubmit, register, formState: { errors } } = useForm();
-    const inputClass = 'bg-white/70 border border-gray-300 py-3 px-3 mt-1 focus:outline-none focus:ring-2 focus:ring-teal-500 rounded-md backdrop-blur';
-    const labelClass = 'font-medium text-gray-800 text-sm';
 
-    const sendOtp = async (data) => {
 
-        setformData(data);
-        try {
-            setisLoading(true);
-            const response = await axios.post("/api/users/sendOtp", data)
-            if (response.data.success) {
-                setshowOtpModal(true);
-                dispatch(setToast({
-                    type: "success",
-                    content: response?.data?.message || "signup successFully",
-                    trigger: Date.now(),
-                    status: true
-                }))
-                 navigate(from,{replace:true})
-
-            };
-
-        } catch (error) {
-            console.log(error)
-            dispatch(setToast({
-                type: "error",
-                content: error.data.message || "singup failed",
-                trigger: Date.now(),
-                status: true
-
-            }))
-
-        } finally {
-            setisLoading(false);
-
-        }
-
+    const sendOtp = async (formData) => {
+        setformData(formData);
+        const { data } = await asyncWrap(() => userSingInOtpApi(formData))
+        console.log(data)
+        if (data.data.success) {
+            setshowOtpModal(true);
+        };
     }
 
     const handleSignup = async (otp) => {
-        console.log(otp)
-        console.log(formData)
-        try {
-            setisLoading(true);
-            const response = await axios.post("/api/users/signup", { ...formData, otp });
-            console.log(response)
 
-            dispatch(setToast({
-                type: "success",
-                content: response.data.message || "singup successFully",
-                trigger: Date.now(),
-                status: true
-            }))
-
-            navigate(from,{replace:true});
-
-
-        } catch (error) {
-            console.log(error);
-            dispatch(setToast({
-                status: true,
-                content: error.response?.data?.message || "singup Failed",
-                trigger: Date.now(),
-                type: "error"
-            }))
-
-        } finally {
-            setisLoading(false);
-        }
+        const { data } = await asyncWrap(() => userSingInApi({ ...formData, otp }));
+        console.log("thi sis user sing in data", data)
+        dispatch(setUser(data?.data?.data))
+        navigate(from, { replace: true });
     }
 
+    const inputClass = 'bg-white/70 border border-gray-300 py-3 px-3 mt-1 focus:outline-none focus:ring-2 focus:ring-teal-500 rounded-md backdrop-blur';
+    const labelClass = 'font-medium text-gray-800 text-sm';
     return (
         <div className='min-h-screen   bg-gradient-to-br from-teal-100 to-white p-4'>
-            {isLoading && <Loader />}
+
 
             {showOtpModal && <Modal verifyOtp={handleSignup} cancelOtp={() => setshowOtpModal(false)} />}
 

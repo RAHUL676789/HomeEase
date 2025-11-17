@@ -11,11 +11,14 @@ import {
   deletePartnerBooking,
 } from "../../redux/partnerSlice.js";
 import Loader from "../Other/Loader.jsx";
+import useAsyncWrap from "../../utils/helper/asyncWrap.js";
+import { deleteBookingApi, updateBookingApi } from "../../api/BookingApi/bookingApi.js";
 
 const PartnerViewBooking = ({ booking, handleSetViewItem }) => {
   const [cancelModal, setcancelModal] = useState(false);
   const [isLoading, setisLoading] = useState(false);
   const dispatch = useDispatch();
+  const asyncWrap = useAsyncWrap();
   console.log(booking)
 
   useEffect(() => {
@@ -42,56 +45,20 @@ const PartnerViewBooking = ({ booking, handleSetViewItem }) => {
     return false;
   };
 
+
   const handleCancelAndDelete = async (bookingId) => {
-    try {
-      setisLoading(true);
-      const response = await axios.delete(`/api/bookings/${bookingId}`);
+      const response =await asyncWrap(()=>deleteBookingApi(bookingId)); 
       dispatch(deletePartnerBooking(response?.data?.data));
-      dispatch(
-        setToast({
-          type: "success",
-          content: response?.data?.message || "Booking deleted successfully",
-        })
-      );
-      handleSetViewItem(null);
-    } catch (error) {
-      dispatch(
-        setToast({
-          type: "error",
-          content: error.message || "Something went wrong while deleting",
-        })
-      );
-    } finally {
-      setisLoading(false);
-    }
+      handleSetViewItem(null); 
   };
 
   const updateBooking = async (booking, updates) => {
     if (updates.status === "accepted") {
       if (acceptedDateIsValidOrnot(booking.createdAt)) return;
     }
-    try {
-      setisLoading(true);
-      const response = await axios.put(`/api/bookings/${booking?._id}`, updates);
-      dispatch(updatePartnerBooking(response?.data?.data));
-      dispatch(
-        setToast({
-          type: "success",
-          content: response?.data?.message || "Booking updated",
-        })
-      );
+      const {data} = await asyncWrap(()=>updateBookingApi(booking?._id,updates));
+      dispatch(updatePartnerBooking(data?.data?.data));
       handleSetViewItem(null);
-    } catch (error) {
-      dispatch(
-        setToast({
-          type: "error",
-          content:
-            error?.message || "Something went wrong while updating booking",
-        })
-      );
-    } finally {
-      setisLoading(false);
-    }
   };
 
   const getStatusBadge = (status) => {

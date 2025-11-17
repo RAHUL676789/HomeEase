@@ -1,23 +1,22 @@
 import React, { useEffect, useState } from 'react'
-import WebLoader from '../Other/Loader'
 import pinApi from '../../utils/Apis'
 import { useForm } from 'react-hook-form'
 import Button from '../buttons/Button'
 import { useDispatch } from 'react-redux'
-import { setToast } from '../../redux/toastSlice'
+
 
 const PartnerForm2 = ({ handlePreviData, prevStep }) => {
   const dispatch = useDispatch();
   const { register, handleSubmit, formState: { errors } } = useForm();
   const [pin, setPin] = useState(null)
-  const [Loader, setLoader] = useState(false);
+ 
 
   const [AddData, setAddData] = useState({
     country: "",
     state: "",
     district: ""
   })
-  const [forceManual, setForceManual] = useState(false); // नया flag
+  const [forceManual, setForceManual] = useState(false);
 
   const handlePin = async () => {
     if (!pin) return;

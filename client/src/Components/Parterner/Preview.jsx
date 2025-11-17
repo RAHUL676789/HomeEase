@@ -1,72 +1,47 @@
 import React, { useReducer, useState } from 'react';
-import Loader from '../Other/Loader';
 import Modal from '../Other/Modal';
-import axios from '../../utils/axios/axiosinstance.js';
 import { useNavigate } from 'react-router-dom';
 import {useDispatch} from "react-redux"
 import { setPartner } from '../../redux/partnerSlice.js';
 import Button from '../buttons/Button.jsx';
-import { setToast } from '../../redux/toastSlice.js';
+import {useAsyncWrap} from "../../utils/helper/asyncWrap.js"
+import { verifyPartnerApi } from '../../api/PartnerApi/partnerApi.js';
 
 const Preview = ({ data, onCancel, submit }) => {
-  const [isLoading, setIsLoading] = useState(false);
+
   const [showOtpModal, setshowOtpModal] = useState(false);
    const dispatch = useDispatch();
+  const asyncWrap = useAsyncWrap();
   const navigate = useNavigate();
 
-  // 📩 Trigger OTP Send API
   const handleSendOtp = async () => {
-    try {
-      setIsLoading(true);
-      const res = await submit();
-      console.log(res);
-      if (res.success) {
+ 
+      const {data} = await asyncWrap(submit);
+      console.log(data);
+      if (data?.success) {
         setshowOtpModal(true);
-      } else {
-        dispatch(setToast({type:"error", content : res?.data?.message || "Something went wrong"}))
       }
-
-
-    } catch (e) {
-      console.error('Submit error:', e);
-
-      dispatch(setToast({type:"error",content : e?.message || "Something went wrong"}))
-    } finally {
-      setIsLoading(false);
-    }
   };
 
-  // ✅ OTP Verification Handler
+ 
   const verifyOtp = async (otp) => {
-    try {
-      setIsLoading(true);
-      const response = await axios.post('/api/partner/signup', { ...data, otp });
-      dispatch(setToast({type:"success",content : response?.data?.message || "signup successful"}))
-      console.log(response.data);
-      dispatch(setPartner(response.data.data))
+      const {data} = await asyncWrap(()=>verifyPartnerApi({...data,otp}));
+      console.log(data?.data);
+      dispatch(setPartner(data?.data?.data))
      
-      if (response.data.success) {
+      if (data?.data?.success) {
         navigate("/partnerProfile");
        }
-    } 
-    catch (error) {
-      console.log(error)
-      console.error('OTP Error:', error?.response?.data);
-      dispatch(setToast({type:"error",content : error?.response?.data?.message || "Something went wrong"}))
-    
-    } finally {
-      setIsLoading(false);
-    }
   };
 
-  // ❌ Close Modal
+ 
   const cancelOtp = () => {
     onCancel();
   };
 
   return (
     <div className='max-w-xl mx-auto px-5 py-6 flex flex-col gap-6 shadow-md shadow-gray-500 bg-white rounded'>
-      {isLoading && <Loader />}
+ 
       {showOtpModal && <Modal verifyOtp={verifyOtp} cancelOtp={cancelOtp} />}
      
       <h1 className='text-green-600 text-xl font-bold border-b pb-2'>
