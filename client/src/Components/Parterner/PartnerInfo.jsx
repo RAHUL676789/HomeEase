@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from 'react';
 
 import AddCoverPhoto from './AddCoverPhoto';
 import EditPartnerImage from './EditPartnerImage';
-import { useAsyncWrap } from "../../utils/helper/asyncWrap.js"
+import useAsyncWrap  from "../../utils/helper/asyncWrap.js"
 
 
 import { setPartner } from '../../redux/partnerSlice.js';

@@ -2,13 +2,14 @@ import React, { useEffect, useState, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "../../utils/axios/axiosinstance";
 import { setToast } from "../../redux/toastSlice";
-import { setUser, updateUserBookings } from "../../redux/userSlice"
+import { setUser, updateUserBookings, deleteUserBooking } from "../../redux/userSlice"
 import { Link } from "react-router-dom";
 import { debounce } from "../../utils/helper/debounce";
 import UserBookingView from "../../Components/User/UserBookingView";
 import UserBookingCard from "../../Components/User/UserBookingCard";
 import BookingWithRating from "../../Components/Other/CompleteBookingReview";
-
+import useAsyncWrap from "../../utils/helper/asyncWrap";
+import { deleteUSerBookingApi, updateUserApi, updateUserBookingApi } from "../../api/UserApi/userApi";
 
 
 
@@ -22,6 +23,7 @@ const UserProfile = () => {
   const [filteredBookings, setfilteredBookings] = useState([])
   const [bookings, setbookings] = useState(user?.bookings || []);
   const [isCompleted, setisCompleted] = useState(false)
+  const asyncWrap = useAsyncWrap();
 
   useEffect(() => {
     setbookings(user?.bookings || [])
@@ -71,16 +73,8 @@ const UserProfile = () => {
   }, [filters, debouncedApplyFilters])
 
   const handleAutoDeleteBooking = async (isAutoDeleted) => {
-    try {
-      const response = await axios.put(`/api/users/settings/${user?._id}`, { isAutoDeleted });
-      console.log(response?.data);
-      dispatch(setUser(response?.data?.user))
-      dispatch(setToast({ type: "success", content: response?.data?.message || "setting updated" }))
-
-    } catch (error) {
-      console.log(error, "this error comes from isAutoDeleteBookings")
-      dispatch(setToast({ type: "error", content: error?.message || "someting went wrong" }))
-    }
+    const { data } = await asyncWrap(() => updateUserApi(user?._id, { isAutoDeleted }));
+    dispatch(setUser(data?.data?.user))
   }
 
   const handleViewBooking = (data) => {
@@ -88,17 +82,11 @@ const UserProfile = () => {
   }
 
 
-  const handleUserBookingDelete = async(e,booking)=>{
-               
-               e.stopPropagation();
-               if(!booking)return;
-               
-               try { 
-                  const response = await axios.delete(`/api/bookings/${booking._id}`)
-               } catch (error) {
-                  console.log("this error comes from while deleteign the booking from user",booking);
-                  dispatch(setToast({type:"error",content:error.message || "someting went wrong"}))
-               }
+  const handleUserBookingDelete = async (e, booking) => {
+    e.stopPropagation();
+    if (!booking) return;
+    const { data } = await asyncWrap(() => deleteUSerBookingApi(booking._id));
+    dispatch(deleteUserBooking(data?.data?.data))
   }
 
   const handleIsServicingDay = (workingDate) => {
@@ -117,25 +105,16 @@ const UserProfile = () => {
   }
 
   const handleUserBookingUpdate = async (e, booking, updates) => {
-    console.log(booking)
+  
     e.stopPropagation()
     if (!booking) return;
-    if (updates.status === "completed" && !handleIsServicingDay(booking.details.workingDate) ) {
-     return ;
+    if (updates.status === "completed" && !handleIsServicingDay(booking.details.workingDate)) {
+      return;
     }
-
-    try {
-      const response = await axios.put(`/api/bookings/user/update/${booking._id}`, updates);
-      dispatch(updateUserBookings(response?.data?.data))
-      dispatch(setToast({ type: "success", content: response?.data?.message || "booking updated successfully" }))
-      if (response?.data?.data?.status === "completed") {
-        setisCompleted(response?.data?.data);
-      }
-
-
-    } catch (error) {
-      console.log(error, "this is error comes from handleCompleting");
-      dispatch(setToast({ type: "error", content: error?.message || "someting went wrong" }))
+    const { data } = await asyncWrap(() => updateUserBookingApi(booking?._id, updates));
+    dispatch(updateUserBookings(data?.data?.data))
+    if (data?.data?.data?.status === "completed") {
+      setisCompleted(response?.data?.data);
     }
   }
 

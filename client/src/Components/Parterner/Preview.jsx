@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import {useDispatch} from "react-redux"
 import { setPartner } from '../../redux/partnerSlice.js';
 import Button from '../buttons/Button.jsx';
-import {useAsyncWrap} from "../../utils/helper/asyncWrap.js"
+import useAsyncWrap from "../../utils/helper/asyncWrap.js"
 import { verifyPartnerApi } from '../../api/PartnerApi/partnerApi.js';
 
 const Preview = ({ data, onCancel, submit }) => {

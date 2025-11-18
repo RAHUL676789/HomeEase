@@ -1,8 +1,6 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import ServiceCard from './ServiceCard';
 import ViewService from './ViewService';
-import axios from "../../utils/axios/axiosinstance.js";
-import Loader from '../Other/Loader.jsx';
 import { useLocation } from "react-router-dom";
 import ViewListingSkeleton from './ViewListingSkeleton.jsx';
 import { useSelector, useDispatch } from "react-redux";
@@ -10,14 +8,16 @@ import { setListing } from '../../redux/listingSlice.js';
 import { debounce } from '../../utils/helper/debounce.js';
 import NotFound from "../../assets/NotFound.svg";
 import { setToast } from '../../redux/toastSlice.js';
-let toastShown = false;
+import useAsyncWrap from '../../utils/helper/asyncWrap.js';
+import { serviceQueryApi } from '../../api/ServiceApi/serviceApi.js';
+
 const ServiceListing = () => {
   const location = useLocation();
-  console.log(location)
+
   const dispatch = useDispatch();
   const { listing } = useSelector((state) => state.listing);
-  
 
+  const asyncWrap = useAsyncWrap();
 
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
@@ -122,24 +122,10 @@ const ServiceListing = () => {
 
   // Fetch services from backend
   const fetchServices = useCallback(async () => {
-    try {
-
-      setIsLoading(true);
-
-
-      const { data } = await axios.get(`/api/services?${buildQuery()}`);
-      if (page === 1) dispatch(setListing(data?.data));
-      else dispatch(setListing([...listing, ...data?.data]));
-      setHasMore(data?.data.length >= 4);
-      if (page === 1 && !toastShown) {
-        console.log(toastShown.current)
-        dispatch(setToast({ type: "success", content: data?.message ||  "Fetched services" }));
-        toastShown = true
-      }
-    } catch (error) {
-      console.log(error);
-      dispatch(setToast({ type: "error", content: "Something went wrong while fetching" }));
-    } finally { setIsLoading(false); }
+    const { data } = await asyncWrap(() => serviceQueryApi(buildQuery()));
+    if (page === 1) dispatch(setListing(data?.data?.data));
+    else dispatch(setListing([...listing, ...data?.data?.data]));
+    setHasMore(data?.data.length >= 4);
   }, [page, queryObject]);
 
   // Reset page when filters change
@@ -202,7 +188,7 @@ const ServiceListing = () => {
   return (
     <div className='min-h-screen w-screen bg-gray-100'>
       {viewServiceDetail && <ViewService handleViewService={handleViewService} service={viewServiceDetail} />}
-      {isLoading && page === 1 && <Loader />}
+  
 
       <div className='h-full w-full flex flex-col md:flex-row'>
         {/* Left Panel */}

@@ -10,3 +10,7 @@ export const updateBookingApi = async (id,body)=>{
 export const deleteBookingApi = async (id)=>{
     return axionInstance.delete(`/api/bookings/${id}`)
 }
+
+export const createBookingApi = async(body)=>{
+    return axionInstance.post(`/api/bookings`,body)
+}

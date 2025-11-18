@@ -6,8 +6,6 @@ import PartnerServiceCard from '../../Components/Parterner/PartnerServiceCard'
 import PartnerServiceModal from '../../Components/Parterner/PartnerServiceModal'
 import { addService, deleteService, setPartner, updateService, updateServiceGallery } from '../../redux/partnerSlice'
 import Loader from '../../Components/Other/Loader'
-import ToastContainer from '../../Components/Other/ToastContainer'
-import axios from '../../utils/axios/axiosinstance'
 import ServiceGallery from '../../Components/Parterner/ServiceGallery'
 import { uploadFile } from '../../utils/cloudinary/uploadFile'
 import PartnerGalleryImageView from '../../Components/Parterner/PartnerGalleryImageView'
@@ -16,15 +14,19 @@ import EditService from '../../Components/Parterner/EditService'
 import EditProfile from '../../Components/Parterner/EditProfile'
 import DeleteUSer from '../../Components/Other/DeleteUSer'
 import Button from '../../Components/buttons/Button'
-import { socket } from "../../socket/socket.js"
-import {setToast} from "../../redux/toastSlice.js"
+import { setToast } from "../../redux/toastSlice.js"
+import useAsyncWrap from '../../utils/helper/asyncWrap.js'
+import { createServiceApi, deleteImagesApi, deleteServiceApi, updateServiceApi } from '../../api/ServiceApi/serviceApi.js'
+import { updatePartnerApi } from '../../api/PartnerApi/partnerApi.js'
+import { updateBookingApi } from '../../api/BookingApi/bookingApi.js'
 
 const PartnerProfile = () => {
   const { partner, loading } = useSelector((state) => state.partner)
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const asyncWrap = useAsyncWrap();
 
-  // 🔹 All hooks at top level
+
   const [serviceModal, setserviceModal] = useState(false)
   const [isLoading, setisLoading] = useState(false)
   const [ServiceCardOpen, setServiceCardOpen] = useState(null);
@@ -37,11 +39,11 @@ const PartnerProfile = () => {
   const [DeleteableService, setDeleteableService] = useState(null);
   const [EditableService, setEditableService] = useState(null);
   const [partnerDelete, setpartnerDelete] = useState(false)
-  
-  const [uploadbleUrls, setuploadbleUrls] = useState(null);
-  const [BookingCardOptionOpen, setBookingCardOptionOpen] = useState(null)
 
-  // 🔹 Effects (no condition wrapping hooks)
+  const [uploadbleUrls, setuploadbleUrls] = useState(null);
+  
+
+
 
   useEffect(() => {
     if (!partner && !loading) {
@@ -51,7 +53,7 @@ const PartnerProfile = () => {
 
 
 
-  // 🔹 Conditional return (safe: no hook inside)
+
   if (loading) {
     console.log("partner profile loading")
     return (
@@ -61,7 +63,7 @@ const PartnerProfile = () => {
     )
   }
 
-  // ---------------- Functions ---------------- //
+
   const filterButtonsClass = 'px-3 py-2 rounded-3xl font-semibold text-xs border border-1 border-teal-500 text-teal-600'
 
   const handleViewImage = (serviceId, image, galleryId) => {
@@ -71,23 +73,14 @@ const PartnerProfile = () => {
   const handleSeriveId = (id) => setserviceId(id)
   const handleServiceModal = () => setserviceModal((prev) => !prev)
 
- 
 
-  const handleAddService = async (data) => {
-    setisLoading(true);
-    try {
-      const response = await axios.post("/api/services", data);
-      setserviceModal(false);
-      dispatch(setToast({type:"success", content:response?.data?.message || "service added "}))
-      console.log(response.data.data)
-      dispatch(addService(response?.data?.data))
-    } catch (error) {
-      dispatch(setToast({type:"error", content :error?.response?.data?.message || "someting went wrong"}))
-    } finally {
-      setisLoading(false);
-    }
+
+  const handleAddService = async (serviceData) => {
+    const { data } = await asyncWrap(() => createServiceApi(serviceData));
+    setserviceModal(false);
+    dispatch(addService(data?.data?.data))
   }
-  
+
 
   const handleServiceCardOpen = (id) => {
     setServiceCardOpen((prev) => (prev === id ? null : id));
@@ -113,68 +106,44 @@ const PartnerProfile = () => {
   }
 
   const handleGalleryApply = async () => {
-    setisLoading(true);
-    try {
-      let finalUrls = uploadbleUrls;
-      if (!finalUrls || finalUrls.length === 0) {
-        const uploadedUrls = [];
-        for (let i = 0; i < GalleryFiles.length; i++) {
-          const response = await uploadFile(GalleryFiles[i]);
-          uploadedUrls.push({
-            url: response?.url,
-            pId: response?.pId,
-          });
-        }
-        setuploadbleUrls(uploadedUrls);
-        finalUrls = uploadedUrls;
-      }
 
-      if (serviceId && finalUrls.length > 0) {
-        const { data } = await axios.put(`/api/services/${serviceId}`, {
-          gallery: finalUrls,
+    let finalUrls = uploadbleUrls;
+    if (!finalUrls || finalUrls.length === 0) {
+      const uploadedUrls = [];
+      for (let i = 0; i < GalleryFiles.length; i++) {
+        const { data } = await asyncWrap(() => uploadFile(GalleryFiles[i]))
+
+        uploadedUrls.push({
+          url: data?.url,
+          pId: data?.pId,
         });
-        dispatch(setToast({type:"success", content:data?.message || "Service updated successfully"}));
-        dispatch(updateService(data?.data));
-        setShowGalleryModal(false);
-      } else {
-        dispatch(setToast({type:"error",content: "Service ID required or no files selected"}));
       }
-    } catch (error) {
-      dispatch(setToast({type:"error",content: error?.message || "Something went wrong"}));
-    } finally {
-      setisLoading(false);
+      setuploadbleUrls(uploadedUrls);
+      finalUrls = uploadedUrls;
     }
+
+    if (serviceId && finalUrls.length > 0) {
+      const { data } = await asyncWrap(() => updateServiceApi(serviceId, {
+        gallery: finalUrls,
+      }))
+      dispatch(updateService(data?.data?.data));
+      setShowGalleryModal(false);
+    } else {
+      dispatch(setToast({ type: "error", content: "Service ID required or no files selected" }));
+    }
+
   }
 
   const handleImageDelete = async (serviceId, image, galleryId) => {
-    try {
-      setisLoading(true);
-      const { data } = await axios.delete(
-        `/api/services/${serviceId}/gallery/${galleryId}`,
-        { data: { image } }
-      );
-      dispatch(setToast({type:"success", content :data?.message || "image deleted"}));
-      dispatch(updateServiceGallery(data?.data));
-      setViewImage(null);
-    } catch (error) {
-      dispatch(setToast({type:"error", content:error?.message || "someting went wrong"}))
-    } finally {
-      setisLoading(false)
-    }
+    const { data } = await asyncWrap(() => deleteImagesApi(serviceId, image, galleryId));
+    dispatch(updateServiceGallery(data?.data?.data));
+    setViewImage(null);
   }
 
   const handleServiceDelete = async (service) => {
-    setisLoading(true)
-    try {
-      const { data } = await axios.delete(`/api/services/${service?._id}`);
-      dispatch(deleteService(data?.data))
-      dispatch(setToast({type:"success",content: data?.message || "service delete successfully"}));
-      setDeleteableService(null);
-    } catch (error) {
-      dispatch(setToast({type:"error", content:error?.message || "someting went wrong"}))
-    } finally {
-      setisLoading(false)
-    }
+    const { data } = await asyncWrap(() => deleteServiceApi(service?._id));
+    dispatch(deleteService(data?.data?.data))
+    setDeleteableService(null);
   }
 
   const handleChanges = (data) => {
@@ -196,19 +165,11 @@ const PartnerProfile = () => {
   const handleServiceUpdate = async (service) => {
     let changes = handleChanges(service);
     if (!changes) {
-      handleSetToast("warning", "please make some changes")
+       dispatch(setToast({type:"warning",content:"please make some changes"}))
     } else {
-      try {
-        setisLoading(true);
-        const { data } = await axios.put(`/api/services/${service?.id}`, service);
-        handleSetToast("success", data.message || "service update successfully");
-        dispatch(updateService(data?.data))
-        setEditableService(null);
-      } catch (error) {
-        handleSetToast("error", error?.message || "someting went wrong")
-      } finally {
-        setisLoading(false)
-      }
+        const { data } = await asyncWrap(()=>updateBookingApi(service?._id,service));
+        dispatch(updateService(data?.data?.data))
+        setEditableService(null); 
     }
   }
 
@@ -223,32 +184,16 @@ const PartnerProfile = () => {
 
   const handleEditPartnerProfile = async (formData) => {
     const result = detectProfileChanges(formData);
-    if (!result) return dispatch(setToast({type:"warning",content: "please some changes"}))
-    try {
-      setisLoading(true)
-      const { data } = await axios.put(`/api/partner/${partner?._id}`, formData);
-      dispatch(setToast({type:"success",content: data.message}));
-      dispatch(setPartner(data?.data))
-      setPartnerProfileEdit(false)
-    } catch (error) {
-      dispatch(setToast({type:"error", contnet:error?.message || "someting went wrong"}))
-    } finally {
-      setisLoading(false)
-    }
+    if (!result) return dispatch(setToast({ type: "warning", content: "please  make some changes" }));
+    const { data } = await asyncWrap(() => updatePartnerApi(partner?._id, formData));
+    dispatch(setPartner(data?.data?.data))
+    setPartnerProfileEdit(false)
   }
 
   const deletePartner = async () => {
-    try {
-      setisLoading(true);
-      const deleteResponse = await axios.delete(`/api/partner/${partner?._id}`);
-      dispatch(setPartner(deleteResponse?.data?.data));
-      dispatch(setToast({type:"success", content:"partner deleted"}))
+      const {data} = await  asyncWrap(()=>deleteImagesApi(partner?._id));
+      dispatch(setPartner(data?.data?.data));
       setpartnerDelete(false)
-    } catch (error) {
-      dispatch(setToast({type:"error", content:error?.message || "someting went wrong"}))
-    } finally {
-      setisLoading(false)
-    }
   }
 
   const hadleBookingOptionOpen = (value) => {
@@ -259,7 +204,7 @@ const PartnerProfile = () => {
   return (
     <div className="max-w-screen bg-gray-50 py-2 md:py-4 sm:py-12 ">
       {isLoading && <Loader />}
-     
+
 
       <div className="flex flex-col sm:flex-row gap-6  md:px-1">
         {/* Left Panel (60%) */}

@@ -8,6 +8,8 @@ import UserNotLogin from "../Other/UserNotLogin";
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "../../utils/axios/axiosinstance.js";
 import { addnewUserBooking } from "../../redux/userSlice.js";
+import useAsyncWrap from "../../utils/helper/asyncWrap.js";
+import { createBookingApi } from "../../api/BookingApi/bookingApi.js";
 
 const ViewService = ({ service, handleViewService }) => {
   const [notUserModal, setnotUserModal] = useState(false);
@@ -17,6 +19,7 @@ const ViewService = ({ service, handleViewService }) => {
   const dispatch = useDispatch();
   const { handleSubmit, register, formState: { errors } } = useForm();
   const submitRef = useRef(null);
+  const asyncWrap = useAsyncWrap();
 
   const days = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
 
@@ -66,24 +69,18 @@ const ViewService = ({ service, handleViewService }) => {
 
   const handleBooking = async (formData) => {
     if (!handleBookingValidation(formData)) return;
-    try {
-      const response = await axios.post("/api/bookings", {
+      const {data} = await asyncWrap(()=>createBookingApi({
         service: service?._id,
         user: user?._id,
         provider: service?.serviceProvider?._id,
         details: formData,
-      });
-
-      dispatch(addnewUserBooking(response?.data?.data));
-      dispatch(setToast({ type: "success", content: response?.message || "Request sent successfully" }));
+      }));
+      dispatch(addnewUserBooking(data?.data?.data));
       handleViewService(null);
-    } catch (error) {
-      console.log("Error booking service:", error);
-      dispatch(setToast({ type: "error", content: error.message || "Something went wrong" }));
-    }
+   
   };
 
-console.log(service.reviews)
+
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
