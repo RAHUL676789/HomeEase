@@ -110,7 +110,7 @@ const HomeDash = () => {
         <div>
           <h3 className="text-teal-600 text-2xl font-semibold mb-4 drop-shadow">Recent Bookings</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 ">
-            {homeDashData?.recentBookings.map((booking) => (
+            { homeDashData?.recentBookings.length > 0 ? homeDashData?.recentBookings.map((booking) => (
               <div
                 key={booking?._id}
                 className="bg-gradient-to-br relative bg-gray-200/20 text-black  rounded  shadow-md shadow-gray-600 hover:scale-105 transition-transform z-50 duration-300 flex flex-col gap-0 px- py-2"
@@ -132,7 +132,7 @@ const HomeDash = () => {
                   Book Now
                 </button>
               </div>
-            ))}
+            )): <div><h2 className='text-xl font-black'>No Booking Found</h2> </div>}
           </div>
         </div>
       </div>

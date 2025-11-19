@@ -10,6 +10,7 @@ import NotFound from "../../assets/NotFound.svg";
 import { setToast } from '../../redux/toastSlice.js';
 import useAsyncWrap from '../../utils/helper/asyncWrap.js';
 import { serviceQueryApi } from '../../api/ServiceApi/serviceApi.js';
+let toastShown = true;
 
 const ServiceListing = () => {
   const location = useLocation();
@@ -122,10 +123,11 @@ const ServiceListing = () => {
 
   // Fetch services from backend
   const fetchServices = useCallback(async () => {
-    const { data } = await asyncWrap(() => serviceQueryApi(buildQuery()));
+    const { data } = await asyncWrap(() => serviceQueryApi(buildQuery()),toastShown);
     if (page === 1) dispatch(setListing(data?.data?.data));
     else dispatch(setListing([...listing, ...data?.data?.data]));
     setHasMore(data?.data.length >= 4);
+    toastShown=false
   }, [page, queryObject]);
 
   // Reset page when filters change

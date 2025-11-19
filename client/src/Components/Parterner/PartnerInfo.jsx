@@ -259,7 +259,7 @@ const PartnerInfo = ({ partner, setPartnerProfileEdit, deletePartner }) => {
       <div className="relative">
         {/* Background Image or Fallback */}
         <div className="w-full relative h-48 overflow-hidden">
-          {backGroundImage?.url !== "" ? (
+          { backGroundImage && backGroundImage?.url !== "" ? (
             <img
 
               style={{
@@ -275,7 +275,7 @@ const PartnerInfo = ({ partner, setPartnerProfileEdit, deletePartner }) => {
 
               src={backGroundImage?.url} alt="Background" className='w-full h-full object-cover' />
           ) : (
-            <div className="w-full relative h-full bg-gradient-to-r from-yellow-100-400  to-gray-500 flex items-center justify-center">
+            <div className="w-full relative h-full bg-gradient-to-b from-gray-600  to-teal-600 flex items-center justify-center">
               <p className="text-white text-xl font-semibold">Welcome to the Profile</p>
 
 
@@ -309,7 +309,7 @@ const PartnerInfo = ({ partner, setPartnerProfileEdit, deletePartner }) => {
         </div>
       </div>
 
-      {/* 🧾 MAIN BODY CONTENT (outside header) */}
+      {/*  MAIN BODY CONTENT (outside header) */}
       <div className='mt-20 pt-6 px-5 pb-6 sm:flex sm:flex-row flex-col justify-between relative z-0'>
 
         <div className='absolute right-6 -top-12 cursor-pointer  px-2 rounded-full hover:bg-gray-200 transition-all duration-150 py-1 '>

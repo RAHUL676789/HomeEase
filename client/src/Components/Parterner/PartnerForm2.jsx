@@ -1,15 +1,17 @@
 import React, { useEffect, useState } from 'react'
 import pinApi from '../../utils/Apis'
-import { useForm } from 'react-hook-form'
+import { set, useForm } from 'react-hook-form'
 import Button from '../buttons/Button'
 import { useDispatch } from 'react-redux'
+import useAsyncWrap from "../../utils/helper/asyncWrap.js"
+import { setToast } from '../../redux/toastSlice.js'
 
 
 const PartnerForm2 = ({ handlePreviData, prevStep }) => {
   const dispatch = useDispatch();
   const { register, handleSubmit, formState: { errors } } = useForm();
   const [pin, setPin] = useState(null)
- 
+  const asyncWrap = useAsyncWrap();
 
   const [AddData, setAddData] = useState({
     country: "",
@@ -20,44 +22,14 @@ const PartnerForm2 = ({ handlePreviData, prevStep }) => {
 
   const handlePin = async () => {
     if (!pin) return;
-    try {
-      setLoader(true);
-      const data = await pinApi(pin);
-
-      if (!data || !data.state || !data.country || !data.district) {
-        // अगर data incomplete या undefined आया
-        setForceManual(true);
-        dispatch(setToast({
-          status: true,
-          type: "error",
-          content: data?.message || "Could not fetch details. Please fill manually.",
-          trigger: Date.now()
-        }))
-
-      } else {
-        // success
-        setAddData({ ...data });
-        setForceManual(false);
-        dispatch(setToast({
-          status: true,
-          type: "success",
-          content: "Address details fetched successfully!",
-          trigger: Date.now()
-        }))
-
-      }
-    } catch (error) {
-      setForceManual(true);
-      dispatch(setToast({
-        status: true,
-        type: "error",
-        content: error?.message || "Unable to fetch details. Please fill manually.",
-        trigger: Date.now()
-      }))
-    
-    } finally {
-      setLoader(false);
+    const data = await asyncWrap(() => pinApi(pin), false);
+    console.log(data)
+    if (data?.data?.Status === "Error" || data?.data?.Status === "404") {
+      dispatch(setToast({ type: "error", content: "unable to fetch address please enter a valid pincode" }))
+      return;
     }
+      setForceManual(true);
+      setAddData({ ...data?.data });
   }
 
   const handleFormSubmit = (data) => {
@@ -85,7 +57,7 @@ const PartnerForm2 = ({ handlePreviData, prevStep }) => {
       <h2 className='text-center font-bold text-teal-500 text-3xl mb-5'>Address</h2>
 
       <div className="inp relative flex justify-start items-center mb-4 gap-4">
-        {Loader && <WebLoader />}
+
         <input
           {...register("pincode", {
             required: "pincode is required",
@@ -105,7 +77,7 @@ const PartnerForm2 = ({ handlePreviData, prevStep }) => {
         />
         {errors.pincode && <p className='text-red-500 text-xs'>{errors.pincode.message}</p>}
 
-    
+
       </div>
 
       {/* Manual + Auto fields */}

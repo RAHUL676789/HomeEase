@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { socket } from "./socket/socket";
 import { getToken } from "./utils/helper/getToken";
 import { addNewPartnerBooking, setPartner, updatePartnerBooking } from "./redux/partnerSlice";
-import { setUser } from "./redux/userSlice"
+import { setUser, updateUserBookings } from "./redux/userSlice"
 import { setToast } from "./redux/toastSlice";
 
 const SocketHandler = () => {
@@ -35,25 +35,31 @@ const SocketHandler = () => {
       console.log(payload,"this is paylod")
       console.log(payload.data)
       dispatch(addNewPartnerBooking(payload || payload.data))
-      dispatch(setToast({ type: "success", content: payload.message || "new booking request" }))
+      dispatch(setToast({ type: "success", content: payload.data.message || "new booking request" }))
 
     };
+
+    const onbookingUpdates = (payload)=>{
+      dispatch(updateUserBookings(payload.data))
+         dispatch(setToast({ type: "success", content: payload.data.message || "new booking request" }))
+    }
+
 
     const onBookingConfirm = (payload) => {
       console.log(" booking confirm: payload", payload);
       dispatch(setPartner(payload.data))
-      dispatch(setToast({ type: "success", content: payload.message || "booking has been confirm" }))
+      dispatch(setToast({ type: "success", content: payload.data.message || "booking has been confirm" }))
     };
     const onBookingReject = (payload) => {
       console.log("this is reject payload", payload);
       dispatch(setPartner(payload.data))
-      dispatch(setToast({ type: "success", content: payload.message || "booking has been rejected" }))
+      dispatch(setToast({ type: "success", content: payload.data.message || "booking has been rejected" }))
     }
 
     const onNewRequest = (payload) => {
       console.log("this is new request paylaod", payload);
       dispatch(setPartner(payload.data))
-      dispatch(setToast({ type: "success", content: payload.message || "booking has been confirm" }))
+      dispatch(setToast({ type: "success", content: payload.data.message || "booking has been confirm" }))
 
 
     }
@@ -73,7 +79,8 @@ const SocketHandler = () => {
     socket.on("partner-booking-reject", onBookingReject);
     socket.on("partner-new-service-request", onNewRequest)
     socket.on("booking-error",onBookingError)
-    socket.on("partner-booking-cancel-delete",onBookingCancel)
+    socket.on("partner-booking-cancel-delete",onBookingCancel);
+    socket.on("booking-updates-user",onbookingUpdates);
 
     return () => {
       socket.off("connect", onConnect);

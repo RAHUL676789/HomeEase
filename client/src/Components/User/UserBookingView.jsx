@@ -107,9 +107,9 @@ const UserBookingView = ({ booking, handleViewBooking,handleUserBookingUpdate })
 
                         {/* Provider Responded */}
 
-                        <div className={` ml-6 h-24 px-6  border-l-2  relative ${booking?.status === "pending" ? "border-gray-400 opacity-70" : booking?.status === "cancelled" ? "border-orange-500" : "border-green-600"}` }>
+                        <div className={` ml-6 h-24 px-6  border-l-2  relative ${booking?.status === "pending" ? "border-gray-300 opacity-70" : booking?.status === "cancelled" ? "border-orange-500" : "border-green-600"}` }>
                             <div className={`absolute 
-                                    -left-3  w-6 h-6 flex items-center justify-center rounded-full border-2 ${booking?.status === "pending" ? "border-gray-400 " : booking.status === "cancelled" ? "border-orange-500" : "border-green-600"} bg-white`}>
+                                    -left-3  w-6 h-6 flex items-center justify-center rounded-full border-2 ${booking?.status === "pending" ? "border-gray-300 " : booking.status === "cancelled" ? "border-orange-500" : "border-green-600"} bg-white`}>
                                 <i className={`ri-user-follow-line ${booking?.status === "pending" ? "text-gray-400" : booking?.status == "cancelled" ? "text-orange-500" : booking?.status === "accepted" && "text-green-600"} `}></i>
                             </div>
                             <div>
@@ -123,9 +123,9 @@ const UserBookingView = ({ booking, handleViewBooking,handleUserBookingUpdate })
 
 
 
-                        <div className={`mb-6 px-6 ml-6 border-l-2 relative ${booking?.status === "pending"  ? "border-gray-400" : booking?.status === "cancelled"  ? "border-orange-500 " :booking?.status === "completed" ?  "border-green-600" : ""} `}>
-                            <div className={`absolute -left-3 bottom-0 w-6 h-6 flex items-center justify-center rounded-full bg-white border-2  ${booking?.status === "completed" ? "border-green-600" : booking?.status === "cancelled" ? "border-orange-500" : "border-gray-400"}`}>
-                                <i className={`ri-check-double-fill  ${booking?.status === "pending"  ? "text-gray-400 " : booking?.status === "cancelled" ?"text-orange-500 " : booking?.status === "completed" ? "text-green-600" :"text-gray-400"}`}></i>
+                        <div className={`mb-6 px-6 ml-6 border-l-2 relative ${booking?.status === "pending"  ? "border-gray-200" : booking?.status === "cancelled"  ? "border-orange-500 " :booking?.status === "completed" ?  "border-green-600" : ""} `}>
+                            <div className={`absolute -left-3 bottom-0 w-6 h-6 flex items-center justify-center rounded-full bg-white border-2  ${booking?.status === "completed" ? "border-green-600" : booking?.status === "cancelled" ? "border-orange-500" : "border-gray-300"}`}>
+                                <i className={`ri-check-double-fill  ${booking?.status === "pending"  ? "text-gray-300 " : booking?.status === "cancelled" ?"text-orange-500 " : booking?.status === "completed" ? "text-green-600" :"text-gray-300"}`}></i>
                             </div>
 
                             <div>
@@ -214,11 +214,15 @@ const UserBookingView = ({ booking, handleViewBooking,handleUserBookingUpdate })
                                 <strong>preferdDay:</strong>{" "}
                                 {booking?.details?.preferdDay}
                             </p>
+                              <p>
+                                <strong>Additonal notes:</strong>{" "}
+                                {booking?.details?.notes}
+                            </p>
                         </div>
                     </div>
                 </div>
 
-                {/* Timeline */}
+              
 
 
                 {/* Action Buttons */}

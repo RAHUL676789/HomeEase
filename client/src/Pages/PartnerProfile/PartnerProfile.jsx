@@ -18,7 +18,7 @@ import { setToast } from "../../redux/toastSlice.js"
 import useAsyncWrap from '../../utils/helper/asyncWrap.js'
 import { createServiceApi, deleteImagesApi, deleteServiceApi, updateServiceApi } from '../../api/ServiceApi/serviceApi.js'
 import { updatePartnerApi } from '../../api/PartnerApi/partnerApi.js'
-import { updateBookingApi } from '../../api/BookingApi/bookingApi.js'
+
 
 const PartnerProfile = () => {
   const { partner, loading } = useSelector((state) => state.partner)
@@ -167,7 +167,7 @@ const PartnerProfile = () => {
     if (!changes) {
        dispatch(setToast({type:"warning",content:"please make some changes"}))
     } else {
-        const { data } = await asyncWrap(()=>updateBookingApi(service?._id,service));
+        const { data } = await asyncWrap(()=>updateServiceApi(service?._id,service));
         dispatch(updateService(data?.data?.data))
         setEditableService(null); 
     }
@@ -214,8 +214,8 @@ const PartnerProfile = () => {
             partner={partner}
             setPartnerProfileEdit={setPartnerProfileEdit}
           />
-          <div className="w-full md:w-2xl md:ml-5 bg-gray-100 rounded-lg shadow-md shadow-gray-500 md:px-2 md:py-1 ">
-            <div className="flex w-full justify-between">
+          <div className="w-full md:w-2xl md:ml-5 bg-gray-100 rounded-lg shadow-md shadow-gray-300 md:px-2 md:py-1 ">
+            <div className="flex w-full justify-between p-2">
               <h1 className="text-2xl font-bold">Service Offered</h1>
               <Button
                 title="add Services"
@@ -240,7 +240,7 @@ const PartnerProfile = () => {
                 />
               ))
             ) : (
-              <h2 className="text-sm text-gray-400 mt-4">No Service Added</h2>
+              <h2 className="text-sm text-gray-400 ">No Service Added</h2>
             )}
           </div>
         </div>

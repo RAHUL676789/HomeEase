@@ -218,7 +218,7 @@ const ViewService = ({ service, handleViewService }) => {
           <div>
             <h2 className="text-xl font-semibold mb-3">Gallery</h2>
             {gallery?.details?.length > 0 ? (
-              <div className="flex gap-5 overflow-x-auto no-scrollbar py-2">
+              <div className="flex gap-5 overflow-x-scroll  py-2">
                 {gallery.details.map((item, i) => (
                   <img
                     key={i}

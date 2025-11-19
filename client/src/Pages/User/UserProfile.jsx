@@ -9,7 +9,8 @@ import UserBookingView from "../../Components/User/UserBookingView";
 import UserBookingCard from "../../Components/User/UserBookingCard";
 import BookingWithRating from "../../Components/Other/CompleteBookingReview";
 import useAsyncWrap from "../../utils/helper/asyncWrap";
-import { deleteUSerBookingApi, updateUserApi, updateUserBookingApi } from "../../api/UserApi/userApi";
+import { updateUserApi } from "../../api/UserApi/userApi";
+import { updatesBookingByUserApi, deleteBookingByUserApi } from "../../api/BookingApi/bookingApi";
 
 
 
@@ -73,8 +74,13 @@ const UserProfile = () => {
   }, [filters, debouncedApplyFilters])
 
   const handleAutoDeleteBooking = async (isAutoDeleted) => {
-    const { data } = await asyncWrap(() => updateUserApi(user?._id, { isAutoDeleted }));
-    dispatch(setUser(data?.data?.user))
+    const { data } = await asyncWrap(() => updateUserApi(user?._id, {
+      settings: {
+        isAutoDeleteBookings: isAutoDeleted
+      }
+    }));  
+    console.log(data)
+    dispatch(setUser(data?.data?.data))
   }
 
   const handleViewBooking = (data) => {
@@ -85,7 +91,7 @@ const UserProfile = () => {
   const handleUserBookingDelete = async (e, booking) => {
     e.stopPropagation();
     if (!booking) return;
-    const { data } = await asyncWrap(() => deleteUSerBookingApi(booking._id));
+    const { data } = await asyncWrap(() => deleteBookingByUserApi(booking._id));
     dispatch(deleteUserBooking(data?.data?.data))
   }
 
@@ -105,13 +111,13 @@ const UserProfile = () => {
   }
 
   const handleUserBookingUpdate = async (e, booking, updates) => {
-  
+
     e.stopPropagation()
     if (!booking) return;
     if (updates.status === "completed" && !handleIsServicingDay(booking.details.workingDate)) {
       return;
     }
-    const { data } = await asyncWrap(() => updateUserBookingApi(booking?._id, updates));
+    const { data } = await asyncWrap(() => updatesBookingByUserApi(booking?._id, updates));
     dispatch(updateUserBookings(data?.data?.data))
     if (data?.data?.data?.status === "completed") {
       setisCompleted(response?.data?.data);
@@ -209,7 +215,7 @@ const UserProfile = () => {
             ) : (
               <p className="text-gray-500 text-center col-span-full py-10">
                 no Booking Found
-                <button className="block mx-auto border px-5 py-2 rounded bg-teal-500 text-white font-semibold ">
+                <button className="px-4 py-2 bg-teal-500 hover:bg-teal-600 text-white text-sm rounded-lg transition-all block mx-auto mt-4 ">
                   <Link to={"/services"}>
                     Book Now
                   </Link>

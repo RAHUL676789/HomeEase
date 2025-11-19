@@ -7,7 +7,7 @@ import Button from '../buttons/Button.jsx';
 import useAsyncWrap from "../../utils/helper/asyncWrap.js"
 import { verifyPartnerApi } from '../../api/PartnerApi/partnerApi.js';
 
-const Preview = ({ data, onCancel, submit }) => {
+const Preview = ({ data :otpData, onCancel, submit }) => {
 
   const [showOtpModal, setshowOtpModal] = useState(false);
    const dispatch = useDispatch();
@@ -25,7 +25,7 @@ const Preview = ({ data, onCancel, submit }) => {
 
  
   const verifyOtp = async (otp) => {
-      const {data} = await asyncWrap(()=>verifyPartnerApi({...data,otp}));
+      const {data} = await asyncWrap(()=>verifyPartnerApi({...otpData,otp}));
       console.log(data?.data);
       dispatch(setPartner(data?.data?.data))
      
@@ -48,7 +48,7 @@ const Preview = ({ data, onCancel, submit }) => {
         Before Submitting the Form, Please Review Your Details:
       </h1>
 
-      {Object.entries(data).map(([key, value]) => (
+      {Object.entries(otpData).map(([key, value]) => (
         <div
           key={key}
           className='mb-3 w-full px-4 py-3 border rounded shadow-sm bg-gray-50 flex flex-col'
