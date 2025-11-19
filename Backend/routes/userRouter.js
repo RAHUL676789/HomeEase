@@ -1,8 +1,8 @@
 const express = require("express");
 const { asyncWrap } = require("../utils/asyncWrap");
-const { isEmailExist, validateUsersignup } = require("../middleware");
+const { isEmailExist, validateUsersignup, isLoggedIn, isValidSessionUser } = require("../middleware");
 const Router = express.Router({mergeParams:true});
-const {userSignup,sendOtp} = require("../controllers/userController.js");
+const {userSignup,sendOtp,userUpdates} = require("../controllers/userController.js");
 
 
 
@@ -11,6 +11,9 @@ Router.route("/sendOtp")
 
 Router.route("/signup")
 .post(asyncWrap(isEmailExist),(validateUsersignup,asyncWrap(userSignup)));
+
+Router.route("/:id")
+.patch(isLoggedIn,asyncWrap(isValidSessionUser),asyncWrap(userUpdates));
 
 
 

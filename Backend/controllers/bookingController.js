@@ -59,7 +59,7 @@ module.exports.newBooking = async (req, res, next) => {
 };
 
 
-module.exports.updateBooking = async (req, res, next) => {
+module.exports.updatesBookingByPartner = async (req, res, next) => {
     const { id } = req.params;
     console.log(req.body)
     const updatedBooking = await Booking.findByIdAndUpdate(id, req.body, { new: true, runValidators: true }).populate("user", "fullName email").populate("provider", "-bookings -password -backGroundImage -services").populate("service", "-gallery -reviews -description ");
@@ -67,7 +67,7 @@ module.exports.updateBooking = async (req, res, next) => {
         return res.status(404).json({ message: "booking not found", success: false })
     }
 
-    io.to(updatedBooking?.user).emit("booking-updated", updatedBooking);
+    io.to(updatedBooking?.user).emit("booking-updates-user", updatedBooking);
 
     return res.status(200).json({ message: "success updated", data: updatedBooking, success: true })
 }
@@ -85,21 +85,45 @@ module.exports.deleteBookingByPartner = async (req, res, next) => {
 
     isBookingExist.isDeleteByPartner = true;
     const savedBooking = await isBookingExist.save();
-    console.log(savedBooking, "this saveddeletemosgdh")
+    if (isBookingExist.isDeleteByUser && savedBooking.isDeleteByPartner) {
+        await Booking.findByIdAndDelete(id);
+        return res.status(200).json({ message: "booking deleted", success: true, data: savedBooking })
+    }
+
     return res.status(200).json({ message: "booking deleted", success: true, data: savedBooking })
 
+}
+
+module.exports.deleteBookingByUser = async (req, res, next) => {
+    const { id } = req.params;
+    const isBookingExist = await Booking.findById(id);
+
+    const userId = req.session?.user?._id;
+    if (!isBookingExist) {
+        const updatePartnerBooking = await User.findByIdAndUpdate(userId, { $pull: { bookings: id } });
+        return res.status(200).json({ message: "booking already deleted from DB", data: { _id: id } })
+    }
+
+    isBookingExist.isDeleteByUser = true;
+    const savedBooking = await isBookingExist.save();
+    if (savedBooking.isDeleteByUser && isBookingExist.isDeleteByPartner) {
+        await Booking.findByIdAndDelete(id);
+        return res.status(200).json({ message: "booking deleted", success: true, data: savedBooking })
+    }
+
+    return res.status(200).json({ message: "booking deleted", success: true, data: savedBooking })
 
 }
 
 
 
-module.exports.updateUserBooking = async (req, res, next) => {
+module.exports.updatesBookingByUser = async (req, res, next) => {
     const { id } = req.params;
     const updatedBooking = await Booking.findByIdAndUpdate(id, req.body, { new: true, runValidators: true }).populate("user", "fullName email").populate("provider", "-bookings -password -backGroundImage -services").populate("service", "-gallery -reviews -description ");
     if (!updatedBooking) {
         return res.status(404).json({ message: "booking not found", success: false })
     }
-    io.to(updatedBooking?.provider).emit("booking-updated", updatedBooking);
+    io.to(updatedBooking?.provider).emit("booking-updates-partner", updatedBooking);
 
     return res.status(200).json({ message: "success updated", data: updatedBooking, success: true })
 }

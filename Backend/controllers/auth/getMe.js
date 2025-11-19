@@ -20,7 +20,7 @@ module.exports.getMe = async (req, res) => {
 
     // Try all roles
     let [user, partner, admin] = await Promise.all([
-        userModel.findById(userId).populate({path:"bookings",populate:[{path:"provider",select:"-password -services -backGroundImage "},{path:"service",select:"-gallery -serviceProvider"}]}),
+        userModel.findById(userId).populate({path:"bookings",populate:[{path:"provider",select:"-password -services -backGroundImage -bookings "},{path:"service",select:"-gallery -serviceProvider"}]}),
         partnerModel.findById(userId).populate({
             path: "services",
             populate: {
