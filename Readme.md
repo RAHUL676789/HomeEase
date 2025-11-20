@@ -37,8 +37,8 @@ EaseHome is a full-stack **home service booking platform** that allows users to 
 - React.js
 - React Router DOM
 - Tailwind CSS
-- React Hook Form + Yup (Validation)
-- Framer Motion / GSAP (Animations)
+- React Hook Form 
+- Framer Motion 
 
 ### 🔧 Backend (Server)
 - Node.js
@@ -71,3 +71,7 @@ EaseHome/
 ├── .gitignore
 ├── README.md
 └── package.json
+
+|
+|
+|----Admin-panel

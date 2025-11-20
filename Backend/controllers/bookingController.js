@@ -47,6 +47,7 @@ module.exports.newBooking = async (req, res, next) => {
         )
     ]);
 
+    console.log("this is bookignprovider",provider)
     //  Emit update to partner dashboard
     io.to(provider).emit("partner-new-booking", newBooking);
 
@@ -66,8 +67,9 @@ module.exports.updatesBookingByPartner = async (req, res, next) => {
     if (!updatedBooking) {
         return res.status(404).json({ message: "booking not found", success: false })
     }
-
-    io.to(updatedBooking?.user).emit("booking-updates-user", updatedBooking);
+    console.log(updatedBooking, "this is updates booking")
+    console.log(updatedBooking.user, "this is updatebookiuser")
+    io.to( updatedBooking?.user?._id.toString()).emit("booking-updates-user", updatedBooking);
 
     return res.status(200).json({ message: "success updated", data: updatedBooking, success: true })
 }
@@ -84,11 +86,13 @@ module.exports.deleteBookingByPartner = async (req, res, next) => {
     }
 
     isBookingExist.isDeleteByPartner = true;
+    isBookingExist.status = "rejected";
     const savedBooking = await isBookingExist.save();
     if (isBookingExist.isDeleteByUser && savedBooking.isDeleteByPartner) {
         await Booking.findByIdAndDelete(id);
         return res.status(200).json({ message: "booking deleted", success: true, data: savedBooking })
     }
+    io.to(isBookingExist.user?._id.toString()).emit("booking-updates-user",savedBooking)
 
     return res.status(200).json({ message: "booking deleted", success: true, data: savedBooking })
 

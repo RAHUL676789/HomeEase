@@ -8,7 +8,7 @@ export const updatesBookingByPartnerApi = async (id,body)=>{
 
 
 export const deleteBookingByPartner = async (id)=>{
-    return axionInstance.delete(`/api/bookings/delete-by-partner/${id}`)
+    return axionInstance.patch(`/api/bookings/delete-by-partner/${id}`)
 }
 
 export const createBookingApi = async(body)=>{
@@ -16,7 +16,7 @@ export const createBookingApi = async(body)=>{
 }
 
 export const deleteBookingByUserApi = async(bookingId)=>{
-   return axionInstance.delete(`/api/bookings/user/delete-by-user/${bookingId}`)
+   return axionInstance.patch(`/api/bookings/delete-by-user/${bookingId}`)
 }
 
 export const updatesBookingByUserApi = async(bookingId,body)=>{

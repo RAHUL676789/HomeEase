@@ -6,7 +6,7 @@ const Button = ({ variant, htmlType = "button", onClick, disabled, children }) =
     apply: "bg-teal-700 text-white hover:bg-teal-800", 
     next: "bg-cyan-500 text-white hover:bg-cyan-600",  
     delete: "bg-red-500 text-white hover:bg-red-600", 
-    cancel: "bg-gray-200 text-gray-800 hover:bg-gray-300", 
+    cancel: "bg-gray-400 text-gray-800 hover:bg-gray-600", 
     edit: "bg-amber-500 text-white hover:bg-amber-600", 
   };
 

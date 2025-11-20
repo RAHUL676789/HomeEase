@@ -24,29 +24,52 @@ To build a real-world service booking system that enables:
 | Mongoose     | ODM for MongoDB                        |
 | express-session | Session handling                    |
 | bcrypt       | Password hashing                       |
-| dotenv       | Environment variable management  
-| jsonwebtoken | for token based authentication
-
+| dotenv       | Environment variable management        |
+| jsonwebtoken | for token based authentication         |
+| node-cron    | for automation scheduling task         |
 ---
 
 ## 📁 Project Structure
 
 EaseHome-backend/
+|---index.js
+|---server.js
 ├── models/
 │ └── 
 │ └── serviceScema.js
-│ └── 
+│ └── bookingSchema.js
+│ └── partnerSchema.js
+│ └── userSchema.js
+
 ├── routes/
 │ └── 
-│ └── serviceRoutes.js
-│ └── 
+│ └── serviceRouter.js
+│ └── BookingRouter.js
+| └── UserRouter.js
+| └── PartnerRouter.js
+| └── HomeDashRouter.js
+| └── node-cron
+  
+  
 ├── controllers/
-│ └── 
+│ └── partnercontroller.js
 │ └── serviceController.js
-│ └── 
+│ └── userController
+│ └── BookingController.js
+│ └── auth
+│ 
+
 ├── middlewares/
-│ └── 
-│ └── isLoggedIn.js
+│ └── isValidSessionUser
+│ └── isLoggedIn
+│ └── verifyUser
+│ └── verifyPartner
+│ └── validateBookingBody
+│ └── validateServiceBody
+│ └── validateUSerBody
+│ └── validatePartnerBody
+ 
+
 │ └── 
 ├── utils/
 │ └── ExpressError.js
@@ -54,6 +77,11 @@ EaseHome-backend/
 │ └── 
 ├── .env
 ├── index.js
-|
+├── helper
+│ └── cloudinary.js
+│ └── otpservice.js
+│ └── sendotp.js
+
+
 
 

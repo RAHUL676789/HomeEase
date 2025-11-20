@@ -20,6 +20,7 @@ const userSlice = createSlice({
     },
     updateUserBookings:(state,action)=>{
        if(!state.user || !Array.isArray(state?.user?.bookings))return;
+       console.log("updating user booking")
          const {id,_id} = action.payload;
          const targetId = id || _id;
          console.log(targetId)

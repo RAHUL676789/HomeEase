@@ -20,11 +20,14 @@ import PartnerHome from './Components/Parterner/PartnerHome'
 import Home from './Pages/Home/Home'
 import UserProfile from './Pages/User/UserProfile'
 import Loader from './Components/Other/Loader'
+import AboutHomeEase from './Components/Other/About'
+import ContactPage from './Components/Other/Contact'
+import ContactFooter from './Components/Other/Footer'
 
 function App() {
   const dispatch = useDispatch()
-  const {toast} = useSelector((state)=>state.toast)
-  const {isLoading} = useSelector((state)=>state.loader);
+  const { toast } = useSelector((state) => state.toast)
+  const { isLoading } = useSelector((state) => state.loader);
 
   useEffect(() => {
     async function auth() {
@@ -50,11 +53,13 @@ function App() {
   return (
     <BrowserRouter>
       <ErrorBoundary>
-        {isLoading && <Loader/>}
+        {isLoading && <Loader />}
         <Navbar />
-        {toast && toast.status && <ToastContainer type={toast.type} content={toast.content} trigger={toast.trigger} key={toast.trigger}/>}
+        {toast && toast.status && <ToastContainer type={toast.type} content={toast.content} trigger={toast.trigger} key={toast.trigger} />}
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/about" element={<AboutHomeEase />} />
+          <Route path="/contact" element={<ContactPage />} />
           <Route path="/partner" element={<BecomePartner />} />
           <Route path="/userProfile" element={<UserProfile />} />
           <Route path="/partnerProfile" element={<PartnerProfile />} />
@@ -64,6 +69,7 @@ function App() {
           <Route path="/services" element={<ServiceListing />} />
           <Route path="/:id/Bookings" element={<PartnerBookings />} />
         </Routes>
+        <ContactFooter/>
       </ErrorBoundary>
     </BrowserRouter>
   )

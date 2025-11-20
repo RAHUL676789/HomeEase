@@ -3,6 +3,7 @@ import HomeBack from "../../assets/HomePage.png"
 import axios from '../../utils/axios/axiosinstance.js';
 import Loader from "../../Components/Other/Loader.jsx"
 import { useNavigate } from 'react-router-dom';
+import ContactFooter from '../../Components/Other/Footer.jsx';
 
 const HomeDash = () => {
   const [homeDashData, sethomeDashData] = useState(null);
@@ -137,6 +138,7 @@ const HomeDash = () => {
         </div>
       </div>
 
+<ContactFooter/>
 
     </div>
   )

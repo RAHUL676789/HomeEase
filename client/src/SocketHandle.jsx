@@ -31,17 +31,15 @@ const SocketHandler = () => {
 
     // Global booking listeners
     const onNewBooking = (payload) => {
-
-      console.log(payload,"this is paylod")
-      console.log(payload.data)
       dispatch(addNewPartnerBooking(payload || payload.data))
       dispatch(setToast({ type: "success", content: payload.data.message || "new booking request" }))
 
     };
 
-    const onbookingUpdates = (payload)=>{
-      dispatch(updateUserBookings(payload.data))
-         dispatch(setToast({ type: "success", content: payload.data.message || "new booking request" }))
+    const onbookingUpdatesUser = (payload) => {
+      console.log(payload)
+      dispatch(updateUserBookings(payload))
+      dispatch(setToast({ type: "success", content: payload.message || "booking updated" }))
     }
 
 
@@ -63,13 +61,13 @@ const SocketHandler = () => {
 
 
     }
-    const onBookingError = (payload)=>{
+    const onBookingError = (payload) => {
       console.log(payload)
-      dispatch(setToast({type:"error",content:payload?.error || "Something went wrong"}))
+      dispatch(setToast({ type: "error", content: payload?.error || "Something went wrong" }))
     }
 
-    const onBookingCancel = (payload)=>{
-       console.log("this is new cancel paylaod", payload);
+    const onBookingCancel = (payload) => {
+      console.log("this is new cancel paylaod", payload);
       dispatch(setPartner(payload.data))
       dispatch(setToast({ type: "success", content: payload.message || "booking has been confirm" }))
 
@@ -78,9 +76,9 @@ const SocketHandler = () => {
     socket.on("partner-booking-confirm", onBookingConfirm);
     socket.on("partner-booking-reject", onBookingReject);
     socket.on("partner-new-service-request", onNewRequest)
-    socket.on("booking-error",onBookingError)
-    socket.on("partner-booking-cancel-delete",onBookingCancel);
-    socket.on("booking-updates-user",onbookingUpdates);
+    socket.on("booking-error", onBookingError)
+    socket.on("partner-booking-cancel-delete", onBookingCancel);
+    socket.on("booking-updates-user", onbookingUpdatesUser);
 
     return () => {
       socket.off("connect", onConnect);

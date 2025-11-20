@@ -78,20 +78,22 @@ const UserProfile = () => {
       settings: {
         isAutoDeleteBookings: isAutoDeleted
       }
-    }));  
+    }));
     console.log(data)
     dispatch(setUser(data?.data?.data))
   }
 
   const handleViewBooking = (data) => {
+
     setuserViewBooking(data);
   }
 
 
   const handleUserBookingDelete = async (e, booking) => {
+   
     e.stopPropagation();
     if (!booking) return;
-    const { data } = await asyncWrap(() => deleteBookingByUserApi(booking._id));
+    const { data } = await asyncWrap(() => deleteBookingByUserApi(booking));
     dispatch(deleteUserBooking(data?.data?.data))
   }
 
@@ -118,11 +120,15 @@ const UserProfile = () => {
       return;
     }
     const { data } = await asyncWrap(() => updatesBookingByUserApi(booking?._id, updates));
-    dispatch(updateUserBookings(data?.data?.data))
+  
+     dispatch(updateUserBookings(data?.data?.data))
+    
     if (data?.data?.data?.status === "completed") {
       setisCompleted(response?.data?.data);
     }
+    setuserViewBooking(null)
   }
+
 
   const isFilter = Object.keys(filters).some(b => filters[b])
 
@@ -138,7 +144,7 @@ const UserProfile = () => {
     <div className="max-w-6xl mx-auto h-[90vh] overflow-scroll no-scrollbar bg-white rounded-xl shadow-md shadow-gray-400 p-5 sm:p-8">
       {/* Header Section */}
       {isCompleted && <BookingWithRating booking={isCompleted} setisCompleted={setisCompleted} />}
-      {userViewBooking && <UserBookingView booking={userViewBooking} handleViewBooking={handleViewBooking} handleUserBookingUpdate={handleUserBookingUpdate} />}
+      {userViewBooking && <UserBookingView booking={userViewBooking} handleViewBooking={handleViewBooking} handleUserBookingUpdate={handleUserBookingUpdate} handleUserBookingDelete={handleUserBookingDelete} />}
       <div className="flex flex-wrap justify-between items-center gap-4 pb-4 border-b">
         <div className="flex items-center gap-3">
           <p className="text-gray-700 font-medium text-sm sm:text-base">
