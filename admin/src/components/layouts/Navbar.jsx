@@ -1,118 +1,76 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from 'react'
+import AdminChartsDemo from '../charts/AdminChart.jsx';
 
-// NOTE: Make sure you have Remix Icon CSS included in your index.html or layout:
-// <link href="https://cdn.remixicon.com/releases/v2.5.0/remixicon.css" rel="stylesheet">
+const Navbar = () => {
+  const [isNavOpen, setisNavOpen] = useState(false);
+  const [isSidebarOpen, setisSidebarOpen] = useState(false)
 
-export default function AdminNavbar() {
-  const [isOpen, setIsOpen] = useState(false);
+  const liClass = `flex px-5  gap-3 py-2 rounded hover:bg-gray-700 transition-all duration-300 cursor-pointer w-full text-center `
+  const liNavclass = "flex px-5  gap-3 py-2 rounded hover:bg-gray-700 transition-all duration-300 cursor-pointer w-full justify-center items-center align-start"
 
-  const handleToggle = () => setIsOpen((s) => !s);
-  const handleClose = () => setIsOpen(false);
+  useEffect(() => {
+    const handleSideOpe = () => {
+      if (isSidebarOpen) {
+        setisSidebarOpen(false)
+      }
+    }
+    window.addEventListener("click", handleSideOpe)
+  }, [isSidebarOpen])
+
+  const handleLiClikc = (e)=>{
+    e.stopPropagation();
+    setisSidebarOpen(prev => !prev  )
+  }
 
   return (
-    <header className="w-full bg-gray-900 text-white shadow-md">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-14">
-          {/* Left - Logo / Title */}
-          <div className="flex items-center gap-4">
-            <button
-              onClick={handleToggle}
-              aria-label="Toggle menu"
-              className="md:hidden text-2xl p-1 hover:text-gray-300"
-            >
-              <i className="ri-menu-line"></i>
-            </button>
+    <div >
+      {/* mobile navbar /destop type*/}
+      <nav className='h-18  md:hidden w-screen bg-gray-900 flex items-center justify-between px-5 py-1 relative '>
 
-            <div className="text-lg font-semibold">HomeEase Admin</div>
-          </div>
+        <h2 className='text-white'>Admin</h2>
+        <button onClick={() => setisNavOpen(true)}>
+          <i className='ri-menu-line text-white'></i>
+        </button>
 
-          {/* Right - Desktop Actions */}
-          <div className="hidden md:flex items-center gap-6">
-            <button className="flex items-center gap-2 hover:text-gray-300">
-              <i className="ri-notification-3-line text-xl"></i>
-              <span className="text-sm">Notifications</span>
-            </button>
+        <div className={`absolute py-3 border w-full top-0 left-0 z-50 bg-gray-900 ${isNavOpen ? "translate-y-0" : "-translate-y-full"} transition-all duration-400`}>
+          <button onClick={() => setisNavOpen(false)}><i className='ri-close-line text-white absolute right-5 top-0 text-lg'></i></button>
+          <ul className={`flex flex-col gap-5 px-5 text-white `}>
 
-            <div className="flex items-center gap-3">
-              <img
-                src="/path-to-admin-avatar.jpg"
-                alt="admin"
-                className="w-8 h-8 rounded-full object-cover"
-              />
-              <div className="text-sm">Admin Name</div>
-            </div>
+            {["DashBoard", "Users", "Partners", "Services", "Bookings", "Settings"].map((item, i) => (
+              <li key={i + Math.random() * Math.random()} className={liNavclass}>{item}</li>
+            ))}
 
-            <button className="flex items-center gap-2 text-red-300 hover:text-red-200">
-              <i className="ri-logout-circle-line text-xl"></i>
-              <span className="text-sm">Logout</span>
-            </button>
-          </div>
+
+          </ul>
         </div>
-      </div>
 
-      {/* Mobile Menu (collapsible) */}
-      <nav
-        className={`md:hidden bg-gray-800 border-t border-gray-700 overflow-hidden transition-all duration-300 ease-in-out
-          ${isOpen ? "max-h-96 py-4" : "max-h-0"}`}
-        aria-hidden={!isOpen}
-      >
-        <ul className="space-y-2 px-4">
-          <li>
-            <a onClick={handleClose} href="/admin/dashboard" className="block py-2">
-              <i className="ri-home-4-line mr-2 align-middle"></i>
-              Dashboard
-            </a>
-          </li>
 
-          <li>
-            <a onClick={handleClose} href="/admin/users" className="block py-2">
-              <i className="ri-user-3-line mr-2 align-middle"></i>
-              Users
-            </a>
-          </li>
-
-          <li>
-            <a onClick={handleClose} href="/admin/partners" className="block py-2">
-              <i className="ri-team-line mr-2 align-middle"></i>
-              Partners
-            </a>
-          </li>
-
-          <li>
-            <a onClick={handleClose} href="/admin/services" className="block py-2">
-              <i className="ri-tools-line mr-2 align-middle"></i>
-              Services
-            </a>
-          </li>
-
-          <li>
-            <a onClick={handleClose} href="/admin/bookings" className="block py-2">
-              <i className="ri-calendar-check-line mr-2 align-middle"></i>
-              Bookings
-            </a>
-          </li>
-
-          <li>
-            <a onClick={handleClose} href="/admin/settings" className="block py-2">
-              <i className="ri-settings-3-line mr-2 align-middle"></i>
-              Settings
-            </a>
-          </li>
-
-          <li>
-            <button
-              onClick={() => {
-                handleClose();
-                // call your logout handler here
-              }}
-              className="w-full text-left py-2 text-red-300"
-            >
-              <i className="ri-logout-circle-line mr-2 align-middle"></i>
-              Logout
-            </button>
-          </li>
-        </ul>
       </nav>
-    </header>
-  );
+      {/* sidenard */}
+      <nav className={`hidden md:block ${isSidebarOpen ? "w-64" : "w-16 overflow-hidden text-left"} h-screen bg-gray-900 transition-all duration-300`}>
+        <h2 className='text-white flex gap-3 justify-center items-center text-center text-xl font-semibold border-b py-2'>  <i className="ri-government-fill"></i> <span className={`${isSidebarOpen ? "block" : "hidden"}`}>Admin</span></h2>
+
+        <div className='mt-2'>
+          <ul className={`flex flex-col gap-5  px-1 text-white `}>
+
+            {
+              [{itemName:"DashBoard",icon:"ri-dashboard-line"}, {itemName:"Users",icon:"ri-group-2-fill"}, {itemName:"Partners",icon:"ri-atom-line"}, {itemName:"Services",icon:"ri-service-line"}, {itemName:"Bookings",icon:"ri-shopping-bag-fill"}, {itemName:"Settings",icon:"ri-settings-2-line"}].map((item, i) => (
+                <li onClick={handleLiClikc} key={item.itemName+item.icon} className={liClass}> <i className={item.icon}></i><span className={`${isSidebarOpen ? "block" : "hidden"}`}>
+                  {item.itemName}</span></li>
+              ))
+            }
+
+
+           
+          </ul>
+        </div>
+
+      </nav>
+
+     
+
+    </div>
+  )
 }
+
+export default Navbar

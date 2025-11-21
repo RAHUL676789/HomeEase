@@ -1,30 +1,24 @@
-import { useState } from 'react'
-import Sidebar from './components/layouts/Sidebar'
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import AdminLayout from "./components/layouts/AdminLayout";
+import Home from "./pages/Home";
 import "./App.css"
-import {BrowserRouter,Routes,Route} from "react-router-dom"
-import AdminNavbar from './components/layouts/Navbar'
-import AdminDashboard from './pages/dashboard/Dashboard'
 
 
 
 function App() {
- 
-
   return (
-    <>
- <BrowserRouter>
- <Routes>
-  <Route path='/' element={<Sidebar/>}>
+    <BrowserRouter>
+      <Routes>
 
-  </Route>
-   <Route path='/navbar' element={<AdminDashboard/>}>
+        {/* Whole admin panel wrapped inside AdminLayout */}
+        <Route element={<AdminLayout />}>
+          <Route path="/" element={<Home/>} />
+   
+        </Route>
 
-  </Route>
- </Routes>
- </BrowserRouter>
-     
-    </>
-  )
+      </Routes>
+    </BrowserRouter>
+  );
 }
 
-export default App
+export default App;
