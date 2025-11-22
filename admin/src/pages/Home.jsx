@@ -1,11 +1,24 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import HomeCard from '../components/ui/HomeCard'
 import BookingCard from '../components/ui/BookingCard'
 
 const Home = () => {
-    const cardData = [{ name: "User", total: 2354 }, { name: "Partner", total: 276 }, { name: "Services", total: 453 }, { name: "Bookings", total: 477 },{name:"Revenue",total:"₹4.8L"}]
+    const cardData = [{ name: "Users", total: 2354 }, { name: "Partners", total: 276 }, { name: "Services", total: 453 }, { name: "Bookings", total: 477 },{name:"Revenues",total:"₹4.8L"}]
 
     const bookingData = [{ status: "Pending", count: 458 }, { status: "Accepted", count: 768 }, { status: "Rejected", count: 3 }, { status: "Completed", count: 899 }, { status: "Cancelled", count: 34 }]
+    const [animateValues, setanimateValues] = useState({
+        Users:0,
+        Partners:0,
+        Services:0,
+        Bookings:0,
+    })
+
+   
+
+    // console.log(Object.entries(animateValues))
+    // useEffect(()=>{
+    //       Object.entries((animateValues)).map(([key,value])=>handleAnimateValues(value,key,2000))
+    // },[])
 
     return (
         <div className=' overflow-scroll h-screen max-w-screen bg-gray-950  gap-5  '>
@@ -28,11 +41,6 @@ const Home = () => {
                 </div>
 
             </div>
-
-       
-
-
-
         </div>
     )
 }
