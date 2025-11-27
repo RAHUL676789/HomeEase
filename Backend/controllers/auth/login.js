@@ -1,4 +1,4 @@
-const adminModel = require("../../models/adminSchema");
+
 const partnerModel = require("../../models/partnerSchema");
 const userModel = require("../../models/userModel");
 const bcrypt = require("bcrypt");
@@ -15,21 +15,6 @@ module.exports.login = async (req, res, next) => {
     user = await userModel.findOne({ email }).populate({path:"bookings",populate:[{path:"provider",select:"-password -services -backGroundImage"},{path:"service",select:"-gallery -serviceProvider"}]});
     if (user) role = "User";
 
-
-    if (!user) {
-      user = await adminModel.findOne({ email }) 
-        .populate({
-          path: "bookings",
-          populate: [
-            { path: "user" },      
-            { path: "provider" },  
-            { path: "service" },   
-          ]
-        });
-      if (user) role = "Admin";
-    }
-
-   
     if (!user) {
       user = await partnerModel.findOne({ email }).populate({
           path: "services",

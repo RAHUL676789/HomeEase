@@ -1,13 +1,15 @@
 require("dotenv").config();
 const mongoose = require("mongoose");
 const serviceSchema = require("../models/serviceSchema.js");
+const adminSchema = require("../models/adminSchema.js");
+const bcrypt = require("bcrypt")
 
-async function main(){
+async function main() {
   mongoose.connect("mongodb://127.0.0.1:27017/HomeEase")
-  
+
 }
 
-main().then((res)=>console.log("connect")).catch((e)=>console.log(e))
+main().then((res) => console.log("connect")).catch((e) => console.log(e))
 
 const demoServices = [
   {
@@ -318,15 +320,21 @@ const demoServices = [
 
 
 
+const hashPass = async (password) => {
+  console.log(password)
+  const salt = await bcrypt.genSalt(10);
+  console.log(salt);
+  const hash = await bcrypt.hash(password, salt);
+  console.log(hash);
+  return hash;
+}
 
 
-const pushMany = async (data) => {
+const pushMany = async () => {
   try {
-  
-  // ✅ wait for connection
-    await serviceSchema.deleteMany({}); // optional: clear old
-    const result = await serviceSchema.insertMany(data);
-    console.log("✅ Services inserted:", result.length);
+    const hash = await hashPass("123456");
+    const admin = await adminSchema.insertOne({ fullName: "Rahul Kumar Lodhi", password: hash, email: "radayaram315@gmail.com" })
+    console.log(admin);
     mongoose.connection.close(); // close connection after seeding
   } catch (error) {
     console.log("❌ Error inserting services:", error.message);
@@ -334,4 +342,4 @@ const pushMany = async (data) => {
   }
 };
 
-pushMany(demoServices);
+pushMany();

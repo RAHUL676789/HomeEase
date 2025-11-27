@@ -6,6 +6,7 @@ const {app,server,io} = require("./server.js")
 const {dbConnection} = require("./config/config.js");
 const serviceRouter = require("./routes/serviceRoute.js");
 const partnerRouter = require("./routes/partnerRoute.js")
+const adminRouter =  require("./routes/admin-route/adminroute.js")
 const authRouter = require("./routes/authRoute.js")
 const userRouter = require("./routes/userRouter.js");
 const homeDashRouter = require("./routes/homeRoute.js")
@@ -74,6 +75,7 @@ app.use("/api/auth",authRouter);
 app.use("/api/services",serviceRouter);
 app.use("/api/partner",partnerRouter);
 app.use("/api/users",userRouter);
+app.use("/api/admin",adminRouter)
 app.use("/api/users/settings",UserSettingRouter)
 app.use("/api",homeDashRouter)
 app.use("/api/bookings",bookingRouter)

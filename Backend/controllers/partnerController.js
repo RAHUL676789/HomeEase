@@ -65,13 +65,13 @@ module.exports.otpSend = async (req, res, next) => {
   if (!email) {
     return res.status(404).json({ message: "email id required", success: false });
   }
-
-  const send = await sendOTP(email, otp);
-  console.log(send);
-  if (!send) return res.status(500).json({ message: "someting went wrong", success: false })
   const store = await storedOtp(email, otp);
   console.log(store)
   if (!store) return res.status(500).json({ message: "someting went wrong", success: false })
+  const send = await sendOTP(email, otp);
+  console.log(send);
+  if (!send) return res.status(500).json({ message: "someting went wrong", success: false })
+
   return res.status(200).json({ message: `otp sent to ${email} please verify`, success: true });
 
 
@@ -91,11 +91,11 @@ module.exports.getPartneDtail = async (req, res, next) => {
       path: "gallery"
     }
   }).populate({
-    path:"bookings",
-    match:{isDeletedByPartner:false},
-    populate:{
-      path:"user",
-      select:"-password"
+    path: "bookings",
+    match: { isDeletedByPartner: false },
+    populate: {
+      path: "user",
+      select: "-password"
     }
 
   });
@@ -148,60 +148,60 @@ module.exports.updatePartner = async (req, res, next) => {
 
 module.exports.deletePartner = async (req, res, next) => {
 
-    const { id } = req.params;
-    if (!id) {
-      return res.status(400).json({ message: "partner id required", success: false });
-    }
+  const { id } = req.params;
+  if (!id) {
+    return res.status(400).json({ message: "partner id required", success: false });
+  }
 
-    const deletedPartner = await partnerModel.findById(id);
-    if (!deletedPartner) {
-      return res.status(404).json({ message: "partner not found", success: false });
-    }
+  const deletedPartner = await partnerModel.findById(id);
+  if (!deletedPartner) {
+    return res.status(404).json({ message: "partner not found", success: false });
+  }
 
-    // 1. Delete profile picture from cloudinary
-    if (deletedPartner.profilePicture?.pid) {
-      await cloudinary.uploader.destroy(deletedPartner.profilePicture.pid);
-    }
+  // 1. Delete profile picture from cloudinary
+  if (deletedPartner.profilePicture?.pid) {
+    await cloudinary.uploader.destroy(deletedPartner.profilePicture.pid);
+  }
 
-    // 2. Delete background image from cloudinary
-    if (deletedPartner.backGroundImage?.pid) {
-      await cloudinary.uploader.destroy(deletedPartner.backGroundImage.pid);
-    }
+  // 2. Delete background image from cloudinary
+  if (deletedPartner.backGroundImage?.pid) {
+    await cloudinary.uploader.destroy(deletedPartner.backGroundImage.pid);
+  }
 
-    // 3. Delete related services + galleries
-    const services = await serviceModel.find({ serviceProvider: id });
+  // 3. Delete related services + galleries
+  const services = await serviceModel.find({ serviceProvider: id });
 
-    for (let service of services) {
-      const galleries = await gallerSchema.find({ serviceId: service._id });
+  for (let service of services) {
+    const galleries = await gallerSchema.find({ serviceId: service._id });
 
-      for (let gallery of galleries) {
-        for (let detail of gallery.details) {
-          if (detail.pId) {
-            await cloudinary.uploader.destroy(detail.pId);
-          }
+    for (let gallery of galleries) {
+      for (let detail of gallery.details) {
+        if (detail.pId) {
+          await cloudinary.uploader.destroy(detail.pId);
         }
       }
-
-      // Delete gallery docs of this service
-      await gallerSchema.deleteMany({ serviceId: service._id });
     }
 
-    // Delete services
-    await serviceModel.deleteMany({ serviceProvider: id });
+    // Delete gallery docs of this service
+    await gallerSchema.deleteMany({ serviceId: service._id });
+  }
 
-    // Finally delete partner
-    await partnerModel.findByIdAndDelete(id);
+  // Delete services
+  await serviceModel.deleteMany({ serviceProvider: id });
 
-    req.session.destroy((err)=>{
-          if(err){
-            return res.status(500).json({message:"internal server error",data:null,success:false})
-          }
-           res.clearCookie("connect.sid"); 
-             res.clearCookie("token"); 
-             return res.status(200).json({ message: "Partner and related data deleted", success: true,data:null });
-    });
+  // Finally delete partner
+  await partnerModel.findByIdAndDelete(id);
 
-    
+  req.session.destroy((err) => {
+    if (err) {
+      return res.status(500).json({ message: "internal server error", data: null, success: false })
+    }
+    res.clearCookie("connect.sid");
+    res.clearCookie("token");
+    return res.status(200).json({ message: "Partner and related data deleted", success: true, data: null });
+  });
 
-  
+
+
+
 };
