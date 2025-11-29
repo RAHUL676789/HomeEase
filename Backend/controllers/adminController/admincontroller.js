@@ -101,3 +101,23 @@ module.exports.verifyLoginOtp = async (req, res, next) => {
 
 
 };
+
+
+
+module.exports.getAdmin = async(req,res,next)=>{
+
+  const {token} = req.cookies;
+  const isValidToken =  jwt.verify(token,process.env.JWTSECRET);
+  const admin = await Admin.findById(isValidToken.id).select("-password");
+  if(!admin){
+    return res.status(404).json({message:"admin not found",success:false})
+  }
+  return res.status(200).json({messagae:"admin fetched successfully",data:admin,success:true})
+
+}
+
+
+module.exports.getAdminHome = async(req,res,next)=>{
+    const [cardData,bookingData] = Promise.allSettled()
+     return res.status(200).json({message:"scucess",success:true})
+}

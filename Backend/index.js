@@ -70,15 +70,15 @@ const sessionOption = {
 app.use(session(sessionOption))
 
 
-
+app.use("/api",homeDashRouter);
 app.use("/api/auth",authRouter);
 app.use("/api/services",serviceRouter);
 app.use("/api/partner",partnerRouter);
 app.use("/api/users",userRouter);
-app.use("/api/admin",adminRouter)
-app.use("/api/users/settings",UserSettingRouter)
-app.use("/api",homeDashRouter)
-app.use("/api/bookings",bookingRouter)
+app.use("/api/admin",adminRouter);
+app.use("/api/bookings",bookingRouter);
+app.use("/api/users/settings",UserSettingRouter);
+
 
 app.all("*",(req,res,next)=>{
     next(new ExpressError(404,"page not found"));
