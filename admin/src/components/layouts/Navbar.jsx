@@ -17,9 +17,9 @@ const Navbar = () => {
     window.addEventListener("click", handleSideOpe)
   }, [isSidebarOpen])
 
-  const handleLiClikc = (e)=>{
+  const handleLiClikc = (e) => {
     e.stopPropagation();
-    setisSidebarOpen(prev => !prev  )
+    setisSidebarOpen(prev => !prev)
   }
 
   return (
@@ -27,7 +27,7 @@ const Navbar = () => {
       {/* mobile navbar /destop type*/}
       <nav className='h-18  md:hidden w-screen bg-gray-900 flex items-center justify-between px-5 py-1 relative '>
 
-        <h2 className='text-white'>Admin</h2>
+        <h2 className='text-white cursor-pointer  border rounded-full h-8 w-8 flex justify-center items-center flex-col'><i className='ri-user-line'></i></h2>
         <button onClick={() => setisNavOpen(true)}>
           <i className='ri-menu-line text-white'></i>
         </button>
@@ -36,7 +36,7 @@ const Navbar = () => {
           <button onClick={() => setisNavOpen(false)}><i className='ri-close-line text-white absolute right-5 top-0 text-lg'></i></button>
           <ul className={`flex flex-col gap-5 px-5 text-white `}>
 
-            {["DashBoard", "Users", "Partners", "Services", "Bookings", "Settings"].map((item, i) => (
+            {["DashBoard", "Users", "Partners", "Services", "Bookings", "Settings", ].map((item, i) => (
               <li key={i + Math.random() * Math.random()} className={liNavclass}>{item}</li>
             ))}
 
@@ -46,28 +46,32 @@ const Navbar = () => {
 
 
       </nav>
-      {/* sidenard */}
-      <nav className={`hidden md:block ${isSidebarOpen ? "w-64" : "w-16 overflow-hidden text-left"} h-screen bg-gray-900 transition-all duration-300`}>
-        <h2 className='text-white flex gap-3 justify-center items-center text-center text-xl font-semibold border-b py-2'>  <i className="ri-government-fill"></i> <span className={`${isSidebarOpen ? "block" : "hidden"}`}>Admin</span></h2>
 
-        <div className='mt-2'>
-          <ul className={`flex flex-col gap-5  px-1 text-white `}>
+      <nav className={`hidden md:block ${isSidebarOpen ? "w-64" : "w-16 overflow-hidden text-left"} h-screen bg-gray-900 transition-all duration-300`}>
+        <h2 className='text-whitemx-auto  flex gap-3 cursor-pointer justify-center items-center text-center text-xl font-semibold  py-2'> <button className=' border h-8 w-8 rounded-full text-white'>
+          <i className="ri-user-line"></i>
+        </button>
+         <span className={`${isSidebarOpen ? "block" : "hidden"} text-white`}>Admin</span>
+         </h2>
+
+        <div className='mt-2 border border-t-white'>
+          <ul className={`flex flex-col gap-5 overflow-scroll no-scrollbar px-1 text-white `}>
 
             {
-              [{itemName:"DashBoard",icon:"ri-dashboard-line"}, {itemName:"Users",icon:"ri-group-2-fill"}, {itemName:"Partners",icon:"ri-atom-line"}, {itemName:"Services",icon:"ri-service-line"}, {itemName:"Bookings",icon:"ri-shopping-bag-fill"}, {itemName:"Settings",icon:"ri-settings-2-line"}].map((item, i) => (
-                <li onClick={handleLiClikc} key={item.itemName+item.icon} className={liClass}> <i className={item.icon}></i><span className={`${isSidebarOpen ? "block" : "hidden"}`}>
+              [{ itemName: "DashBoard", icon: "ri-dashboard-line" }, { itemName: "Users", icon: "ri-group-2-fill" }, { itemName: "Partners", icon: "ri-atom-line" }, { itemName: "Services", icon: "ri-service-line" }, { itemName: "Bookings", icon: "ri-shopping-bag-fill" }, { itemName: "Settings", icon: "ri-settings-2-line" }].map((item, i) => (
+                <li onClick={handleLiClikc} key={item.itemName + item.icon} className={liClass}> <i className={item.icon}></i><span className={`${isSidebarOpen ? "block" : "hidden"}`}>
                   {item.itemName}</span></li>
               ))
             }
 
 
-           
+
           </ul>
         </div>
 
       </nav>
 
-     
+
 
     </div>
   )
